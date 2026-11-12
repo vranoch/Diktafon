@@ -1,0 +1,31 @@
+# --- Scratch / staging ---
+# _workspace je dočasný scratch prostor, verzuje se jen jeho README
+_workspace/*
+!_workspace/README.md
+
+# --- AI nástroje: lokální/osobní konfigurace může obsahovat endpointy/credentials ---
+.mcp.json
+**/.claude/settings.local.json
+
+# --- Secrets ---
+secrets/
+keys/
+*.key
+*.env
+.env.*
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Editor / IDE ---
+.vscode/*
+!.vscode/settings.json
+.idea/
+
+# --- Logy a dočasné soubory ---
+*.log
+*.tmp
+
+# Tech-stack-specific ignore pravidla (node_modules/, venv/, build/, ...) se doplní,
+# až bude zvolená technologie.

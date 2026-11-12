@@ -1,0 +1,9 @@
+# Normalizace konců řádků: text soubory na LF, ať repo zůstane konzistentní
+# napříč Windows/Linux prostředími.
+* text=auto eol=lf
+
+# Shell skripty musí mít LF i na Windows, jinak selžou v bash/WSL/CI.
+*.sh text eol=lf
+
+# Pokud bude potřeba výjimka (např. binární testovací fixture, kde by normalizace
+# porušila checksum), přidej ji sem s komentářem PROČ — neoslabuj pravidlo výše plošně.
