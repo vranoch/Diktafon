@@ -1,0 +1,6 @@
+# Mapování: cesta v _workspace/inbox/ -> cílová složka v documentation/
+#
+# Příklad (odkomentuj a uprav podle skutečné struktury, až vznikne):
+# meetings: documentation/source-materials/
+# decisions-drafts: documentation/decisions/
+

@@ -1,7 +1,12 @@
 # --- Scratch / staging ---
-# _workspace je dočasný scratch prostor, verzuje se jen jeho README
-_workspace/*
-!_workspace/README.md
+# _workspace je dočasný scratch prostor; verzuje se jen README a rules/,
+# inbox/processing/archive se ignorují kromě .gitkeep placeholderu
+_workspace/inbox/*
+_workspace/processing/*
+_workspace/archive/*
+!_workspace/inbox/.gitkeep
+!_workspace/processing/.gitkeep
+!_workspace/archive/.gitkeep
 
 # --- AI nástroje: lokální/osobní konfigurace může obsahovat endpointy/credentials ---
 .mcp.json

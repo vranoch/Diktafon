@@ -1,9 +1,10 @@
 # ADR-NNN — <Název rozhodnutí>
 
 **Stav:** NAVRŽENO
-**Datum:** YYYY-MM-DD
+**Vytvořeno:** YYYY-MM-DD
+**Změněno:** YYYY-MM-DD
 **Zdroje:**
-- (odkaz na diskuzi, issue, chat-extract apod.)
+- (odkaz na [chat-extract](../source-materials/chat-extracts/), diskuzi, issue apod.)
 
 ## Kontext
 
