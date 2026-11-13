@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import app.diktafon.recording.data.AppDatabase
 import app.diktafon.recording.data.RecordingDao
+import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.structuring.data.StructuredDocumentDao
 import app.diktafon.transcription.data.TranscriptDao
 import dagger.Module
@@ -34,4 +35,7 @@ object DatabaseModule {
     @Provides
     fun provideStructuredDocumentDao(database: AppDatabase): StructuredDocumentDao =
         database.structuredDocumentDao()
+
+    @Provides
+    fun provideEmailRecipientDao(database: AppDatabase): EmailRecipientDao = database.emailRecipientDao()
 }
