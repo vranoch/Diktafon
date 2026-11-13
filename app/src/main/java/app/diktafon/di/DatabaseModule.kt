@@ -2,6 +2,7 @@ package app.diktafon.di
 
 import android.content.Context
 import androidx.room.Room
+import app.diktafon.folders.data.FolderDao
 import app.diktafon.recording.data.AppDatabase
 import app.diktafon.recording.data.RecordingDao
 import app.diktafon.settings.data.EmailRecipientDao
@@ -38,4 +39,7 @@ object DatabaseModule {
 
     @Provides
     fun provideEmailRecipientDao(database: AppDatabase): EmailRecipientDao = database.emailRecipientDao()
+
+    @Provides
+    fun provideFolderDao(database: AppDatabase): FolderDao = database.folderDao()
 }

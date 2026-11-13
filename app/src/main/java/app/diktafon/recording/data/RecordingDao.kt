@@ -18,4 +18,13 @@ interface RecordingDao {
 
     @Query("DELETE FROM recordings WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("UPDATE recordings SET folderId = :folderId WHERE id = :recordingId")
+    suspend fun moveToFolder(recordingId: Long, folderId: Long?)
+
+    @Query(
+        "SELECT * FROM recordings WHERE (:folderId IS NULL AND folderId IS NULL) OR folderId = :folderId " +
+            "ORDER BY createdAtMillis DESC",
+    )
+    fun observeByFolder(folderId: Long?): Flow<List<RecordingEntity>>
 }

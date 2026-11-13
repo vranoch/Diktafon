@@ -2,6 +2,8 @@ package app.diktafon.recording.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import app.diktafon.folders.data.FolderDao
+import app.diktafon.folders.data.FolderEntity
 import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.settings.data.EmailRecipientEntity
 import app.diktafon.structuring.data.StructuredDocumentDao
@@ -15,8 +17,9 @@ import app.diktafon.transcription.data.TranscriptEntity
         TranscriptEntity::class,
         StructuredDocumentEntity::class,
         EmailRecipientEntity::class,
+        FolderEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -24,4 +27,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun transcriptDao(): TranscriptDao
     abstract fun structuredDocumentDao(): StructuredDocumentDao
     abstract fun emailRecipientDao(): EmailRecipientDao
+    abstract fun folderDao(): FolderDao
 }

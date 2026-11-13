@@ -13,8 +13,14 @@ class RecordingRepositoryImpl @Inject constructor(
     override suspend fun saveRecording(recording: Recording): Long =
         dao.insert(recording.toEntity())
 
+    override suspend fun moveToFolder(recordingId: Long, folderId: Long?) =
+        dao.moveToFolder(recordingId, folderId)
+
     override fun observeAll(): Flow<List<Recording>> =
         dao.observeAll().map { entities -> entities.map { it.toDomain() } }
+
+    override fun observeByFolder(folderId: Long?): Flow<List<Recording>> =
+        dao.observeByFolder(folderId).map { entities -> entities.map { it.toDomain() } }
 }
 
 private fun Recording.toEntity() = RecordingEntity(

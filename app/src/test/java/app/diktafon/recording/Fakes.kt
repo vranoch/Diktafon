@@ -55,7 +55,16 @@ class FakeRecordingRepository : RecordingRepository {
         return saved.size.toLong()
     }
 
+    override suspend fun moveToFolder(recordingId: Long, folderId: Long?) {
+        val index = saved.indexOfFirst { it.id == recordingId }
+        if (index == -1) return
+        saved[index] = saved[index].copy(folderId = folderId)
+        flow.value = saved.toList()
+    }
+
     override fun observeAll(): Flow<List<Recording>> = flow
+
+    override fun observeByFolder(folderId: Long?): Flow<List<Recording>> = flow
 }
 
 class FakeAudioSource(
