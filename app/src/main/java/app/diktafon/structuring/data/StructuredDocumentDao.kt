@@ -21,4 +21,7 @@ interface StructuredDocumentDao {
 
     @Query("UPDATE structured_documents SET isApproved = 1 WHERE id = :documentId")
     suspend fun approve(documentId: Long)
+
+    @Query("DELETE FROM structured_documents WHERE recordingId = :recordingId")
+    suspend fun deleteAllForRecording(recordingId: Long)
 }

@@ -12,4 +12,10 @@ interface RecordingDao {
 
     @Query("SELECT * FROM recordings ORDER BY createdAtMillis DESC")
     fun observeAll(): Flow<List<RecordingEntity>>
+
+    @Query("SELECT * FROM recordings WHERE id = :id")
+    suspend fun getById(id: Long): RecordingEntity?
+
+    @Query("DELETE FROM recordings WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }

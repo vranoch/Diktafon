@@ -18,4 +18,7 @@ interface TranscriptDao {
 
     @Query("SELECT * FROM transcripts WHERE recordingId = :recordingId ORDER BY version DESC")
     fun observeAllRevisions(recordingId: Long): Flow<List<TranscriptEntity>>
+
+    @Query("DELETE FROM transcripts WHERE recordingId = :recordingId")
+    suspend fun deleteAllForRecording(recordingId: Long)
 }
