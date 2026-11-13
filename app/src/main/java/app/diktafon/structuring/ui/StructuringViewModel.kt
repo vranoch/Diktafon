@@ -57,7 +57,7 @@ class StructuringViewModel @Inject constructor(
     ) {
         when (val outcome = validator.validate(result.rawJson, template)) {
             is ValidationOutcome.Valid -> {
-                repository.save(
+                val savedId = repository.save(
                     StructuredDocument(
                         recordingId = recordingId,
                         transcriptId = transcriptId,
@@ -73,6 +73,7 @@ class StructuringViewModel @Inject constructor(
                         phase = StructuringPhase.READY,
                         fields = outcome.fields,
                         missingRequiredFields = outcome.missingRequiredFields,
+                        savedDocumentId = savedId,
                     )
                 }
             }

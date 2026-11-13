@@ -16,6 +16,9 @@ interface RecordingDao {
     @Query("SELECT * FROM recordings WHERE id = :id")
     suspend fun getById(id: Long): RecordingEntity?
 
+    @Query("SELECT * FROM recordings WHERE id = :id")
+    fun observeById(id: Long): Flow<RecordingEntity?>
+
     @Query("DELETE FROM recordings WHERE id = :id")
     suspend fun deleteById(id: Long)
 

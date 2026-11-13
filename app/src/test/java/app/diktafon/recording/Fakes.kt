@@ -65,6 +65,9 @@ class FakeRecordingRepository : RecordingRepository {
     override fun observeAll(): Flow<List<Recording>> = flow
 
     override fun observeByFolder(folderId: Long?): Flow<List<Recording>> = flow
+
+    override fun observeById(recordingId: Long): Flow<Recording?> =
+        MutableStateFlow(saved.firstOrNull { it.id == recordingId })
 }
 
 class FakeAudioSource(
