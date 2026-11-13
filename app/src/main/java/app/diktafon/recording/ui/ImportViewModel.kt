@@ -12,6 +12,7 @@ import app.diktafon.recording.domain.NameGenerator
 import app.diktafon.recording.domain.Recording
 import app.diktafon.recording.domain.RecordingFileFactory
 import app.diktafon.recording.domain.RecordingRepository
+import app.diktafon.folders.domain.LastUsedFolderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ class ImportViewModel @Inject constructor(
     private val nameGenerator: NameGenerator,
     private val clock: Clock,
     private val fileFactory: RecordingFileFactory,
+    private val lastUsedFolderRepository: LastUsedFolderRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ImportUiState())
@@ -36,6 +38,7 @@ class ImportViewModel @Inject constructor(
 
     fun startNewImport(folderId: Long? = null) {
         val name = nameGenerator.generatePregeneratedName()
+        viewModelScope.launch { lastUsedFolderRepository.set(folderId) }
         _uiState.update { ImportUiState(phase = ImportPhase.AWAITING_FILE, name = name, folderId = folderId) }
     }
 

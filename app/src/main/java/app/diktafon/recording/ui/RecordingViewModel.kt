@@ -8,6 +8,7 @@ import app.diktafon.recording.domain.NameGenerator
 import app.diktafon.recording.domain.Recording
 import app.diktafon.recording.domain.RecordingFileFactory
 import app.diktafon.recording.domain.RecordingRepository
+import app.diktafon.folders.domain.LastUsedFolderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +24,7 @@ class RecordingViewModel @Inject constructor(
     private val nameGenerator: NameGenerator,
     private val clock: Clock,
     private val fileFactory: RecordingFileFactory,
+    private val lastUsedFolderRepository: LastUsedFolderRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RecordingUiState())
@@ -30,7 +32,13 @@ class RecordingViewModel @Inject constructor(
 
     fun startNewRecording(folderId: Long? = null) {
         val name = nameGenerator.generatePregeneratedName()
-        audioRecorder.start(fileFactory.create(name))
+        viewModelScope.launch { lastUsedFolderRepository.set(folderId) }
+        try {
+            audioRecorder.start(fileFactory.create(name))
+        } catch (e: Exception) {
+            _uiState.update { it.copy(error = "Nahrávání se nepodařilo spustit: ${e.message}") }
+            return
+        }
         _uiState.update {
             RecordingUiState(
                 phase = RecordingPhase.RECORDING,

@@ -22,6 +22,11 @@ fun ApiConfigScreen(viewModel: ApiConfigViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsState()
     var sttKeyInput by remember { mutableStateOf("") }
     var llmKeyInput by remember { mutableStateOf("") }
+    var sttProviderInput by remember(state.sttProviderName) { mutableStateOf(state.sttProviderName) }
+    var sttModelInput by remember(state.sttModel) { mutableStateOf(state.sttModel) }
+    var llmProviderInput by remember(state.llmProviderName) { mutableStateOf(state.llmProviderName) }
+    var llmModelInput by remember(state.llmModel) { mutableStateOf(state.llmModel) }
+    var languageInput by remember(state.defaultLanguageCode) { mutableStateOf(state.defaultLanguageCode) }
 
     LaunchedEffect(Unit) { viewModel.load() }
 
@@ -36,7 +41,16 @@ fun ApiConfigScreen(viewModel: ApiConfigViewModel = hiltViewModel()) {
         Button(onClick = { viewModel.saveLlmApiKey(llmKeyInput); llmKeyInput = "" }) { Text("Uložit LLM klíč") }
         Button(onClick = viewModel::clearLlmApiKey) { Text("Smazat LLM klíč") }
 
-        Text("Výchozí jazyk přepisu: ${state.defaultLanguageCode}")
+        OutlinedTextField(value = sttProviderInput, onValueChange = { sttProviderInput = it }, label = { Text("STT provider") })
+        OutlinedTextField(value = sttModelInput, onValueChange = { sttModelInput = it }, label = { Text("STT model") })
+        OutlinedTextField(value = llmProviderInput, onValueChange = { llmProviderInput = it }, label = { Text("LLM provider") })
+        OutlinedTextField(value = llmModelInput, onValueChange = { llmModelInput = it }, label = { Text("LLM model") })
+        OutlinedTextField(value = languageInput, onValueChange = { languageInput = it }, label = { Text("Výchozí jazyk přepisu") })
+        Button(
+            onClick = {
+                viewModel.saveConfig(sttProviderInput, sttModelInput, llmProviderInput, llmModelInput, languageInput)
+            },
+        ) { Text("Uložit nastavení") }
 
         state.statusMessage?.let { Text(it) }
         state.errorMessage?.let { Text(it) }

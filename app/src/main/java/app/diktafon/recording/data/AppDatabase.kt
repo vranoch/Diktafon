@@ -4,6 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import app.diktafon.folders.data.FolderDao
 import app.diktafon.folders.data.FolderEntity
+import app.diktafon.folders.data.LastUsedFolderDao
+import app.diktafon.folders.data.LastUsedFolderEntity
 import app.diktafon.recovery.data.ProcessingJobDao
 import app.diktafon.recovery.data.ProcessingJobEntity
 import app.diktafon.settings.data.EmailRecipientDao
@@ -27,8 +29,9 @@ import app.diktafon.transcription.data.TranscriptEntity
         ProcessingJobEntity::class,
         TemplateEntity::class,
         ProviderConfigEntity::class,
+        LastUsedFolderEntity::class,
     ],
-    version = 9,
+    version = 10,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -40,4 +43,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun processingJobDao(): ProcessingJobDao
     abstract fun templateDao(): TemplateDao
     abstract fun providerConfigDao(): ProviderConfigDao
+    abstract fun lastUsedFolderDao(): LastUsedFolderDao
 }

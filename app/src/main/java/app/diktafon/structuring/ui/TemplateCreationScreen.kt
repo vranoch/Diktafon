@@ -7,18 +7,25 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.diktafon.structuring.domain.Template
 
 @Composable
 fun TemplateCreationScreen(
     existingTranscriptForTesting: String?,
+    existingTemplate: Template? = null,
     viewModel: TemplateCreationViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(existingTemplate?.id) {
+        existingTemplate?.let { viewModel.loadExisting(it) }
+    }
 
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
         OutlinedTextField(

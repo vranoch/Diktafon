@@ -24,6 +24,8 @@ class RecordingRepositoryImpl @Inject constructor(
 
     override fun observeById(recordingId: Long): Flow<Recording?> =
         dao.observeById(recordingId).map { it?.toDomain() }
+
+    override suspend fun countInFolder(folderId: Long?): Int = dao.countInFolder(folderId)
 }
 
 private fun Recording.toEntity() = RecordingEntity(

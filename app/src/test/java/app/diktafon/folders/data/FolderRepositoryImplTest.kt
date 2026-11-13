@@ -23,40 +23,55 @@ class FolderRepositoryImplTest {
     private val repository = FolderRepositoryImpl(db.folderDao(), db.recordingDao())
 
     @Test
-    fun `vytvoreni a prejmenovani slozky`() = runTest {
-        val id = repository.create("Práce")
-        repository.rename(id, "Pracovní poznámky")
+    fun `slozka vytvorena v rootu se objevi mezi detmi root urovne`() = runTest {
+        repository.create("Práce", parentFolderId = null)
 
-        assertEquals(listOf("Pracovní poznámky"), repository.observeAll().first().map { it.name })
+        assertEquals(listOf("Práce"), repository.observeChildren(null).first().map { it.name })
+    }
+
+    @Test
+    fun `podslozka se objevi jen pod svym rodicem, ne v rootu`() = runTest {
+        val parentId = repository.create("Práce", parentFolderId = null)
+        repository.create("Projekt A", parentFolderId = parentId)
+
+        assertEquals(1, repository.observeChildren(null).first().size)
+        assertEquals(listOf("Projekt A"), repository.observeChildren(parentId).first().map { it.name })
+    }
+
+    @Test
+    fun `prejmenovani a presun slozky`() = runTest {
+        val a = repository.create("A", parentFolderId = null)
+        val b = repository.create("B", parentFolderId = null)
+        repository.rename(a, "A upraveno")
+
+        repository.move(b, a)
+
+        assertEquals(listOf("A upraveno"), repository.observeChildren(null).first().map { it.name })
+        assertEquals(listOf("B"), repository.observeChildren(a).first().map { it.name })
     }
 
     @Test
     fun `prazdnou slozku lze smazat`() = runTest {
-        val id = repository.create("Dočasná")
+        val id = repository.create("Dočasná", parentFolderId = null)
 
-        val result = repository.delete(id)
-
-        assertEquals(FolderDeletionResult.Deleted, result)
-        assertEquals(emptyList<String>(), repository.observeAll().first().map { it.name })
+        assertEquals(FolderDeletionResult.Deleted, repository.delete(id))
     }
 
     @Test
-    fun `neprazdnou slozku nelze smazat`() = runTest {
-        val id = repository.create("Obsazená")
+    fun `slozku s podslozkou nelze smazat`() = runTest {
+        val parentId = repository.create("Rodič", parentFolderId = null)
+        repository.create("Dítě", parentFolderId = parentId)
+
+        assertEquals(FolderDeletionResult.NotEmpty, repository.delete(parentId))
+    }
+
+    @Test
+    fun `slozku s nahravkou nelze smazat`() = runTest {
+        val id = repository.create("Obsazená", parentFolderId = null)
         db.recordingDao().insert(
-            RecordingEntity(
-                name = "Nahrávka",
-                note = "",
-                folderId = id,
-                filePath = "/tmp/a.m4a",
-                durationMs = 1_000,
-                createdAtMillis = 1_000,
-            ),
+            RecordingEntity(name = "N", note = "", folderId = id, filePath = "/tmp/a.m4a", durationMs = 0, createdAtMillis = 0),
         )
 
-        val result = repository.delete(id)
-
-        assertEquals(FolderDeletionResult.NotEmpty, result)
-        assertEquals(1, repository.observeAll().first().size)
+        assertEquals(FolderDeletionResult.NotEmpty, repository.delete(id))
     }
 }

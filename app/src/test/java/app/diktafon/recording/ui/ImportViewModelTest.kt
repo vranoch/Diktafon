@@ -1,6 +1,7 @@
 package app.diktafon.recording.ui
 
 import android.net.Uri
+import app.diktafon.folders.FakeLastUsedFolderRepository
 import app.diktafon.recording.FakeAudioDurationReader
 import app.diktafon.recording.FakeAudioFileImporter
 import app.diktafon.recording.FakeAudioSource
@@ -59,6 +60,7 @@ class ImportViewModelTest {
             fileFactory = object : RecordingFileFactory {
                 override fun create(name: String) = destination
             },
+            lastUsedFolderRepository = FakeLastUsedFolderRepository(),
         )
     }
 

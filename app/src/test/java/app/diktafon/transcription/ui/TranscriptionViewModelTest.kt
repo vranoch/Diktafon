@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -41,6 +42,18 @@ class TranscriptionViewModelTest {
         processingJobRepository = FakeProcessingJobRepository(),
         clock = FakeClock(5_000_000),
     )
+
+    @Test
+    fun `nacteni existujiciho prepisu naplni stav bez noveho volani STT`() = runTest {
+        repository.saveNewRevision(1, "drivejsi prepis", "cs", "mock", "mock-v1", 500)
+        val vm = viewModel(TranscriptionResult.Failure.Unauthorized)
+
+        vm.loadExisting(1)
+
+        val state = vm.uiState.value
+        assertEquals(TranscriptionPhase.READY, state.phase)
+        assertEquals("drivejsi prepis", state.text)
+    }
 
     @Test
     fun `uspesny prepis ulozi prvni verzi a nastavi stav READY`() {

@@ -5,10 +5,12 @@ import app.diktafon.recording.data.AudioSourceFactory
 import app.diktafon.recording.data.ContentResolverAudioSourceFactory
 import app.diktafon.recording.data.InternalStorageRecordingFileFactory
 import app.diktafon.recording.data.MediaMetadataRetrieverDurationReader
+import app.diktafon.recording.data.MediaPlayerAudioPlayer
 import app.diktafon.recording.data.MediaRecorderAudioRecorder
 import app.diktafon.recording.data.RecordingRepositoryImpl
 import app.diktafon.recording.domain.AudioDurationReader
 import app.diktafon.recording.domain.AudioFileImporter
+import app.diktafon.recording.domain.AudioPlayer
 import app.diktafon.recording.domain.AudioRecorder
 import app.diktafon.recording.domain.Clock
 import app.diktafon.recording.domain.RecordingFileFactory
@@ -43,4 +45,7 @@ abstract class RecordingBindingsModule {
 
     @Binds
     abstract fun bindAudioDurationReader(impl: MediaMetadataRetrieverDurationReader): AudioDurationReader
+
+    @Binds
+    abstract fun bindAudioPlayer(impl: MediaPlayerAudioPlayer): AudioPlayer
 }

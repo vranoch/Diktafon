@@ -45,6 +45,18 @@ class TemplateCreationViewModel @Inject constructor(
         _uiState.update { it.copy(draftName = name) }
     }
 
+    fun loadExisting(template: Template) {
+        _uiState.update {
+            it.copy(
+                editingTemplateId = template.id,
+                draftName = template.name,
+                exampleText = template.exampleText,
+                draftFields = template.fields,
+                draftInstructions = template.instructions,
+            )
+        }
+    }
+
     fun generateDraft() {
         val state = _uiState.value
         viewModelScope.launch {
@@ -101,13 +113,13 @@ class TemplateCreationViewModel @Inject constructor(
         }
     }
 
-    fun saveAsNewVersion(existingTemplateId: Long? = null) {
+    fun saveAsNewVersion() {
         val state = _uiState.value
         if (state.draftFields.isEmpty() || state.draftName.isBlank()) return
 
         viewModelScope.launch {
             val saved = templateRepository.saveNewVersion(
-                templateId = existingTemplateId,
+                templateId = state.editingTemplateId,
                 name = state.draftName,
                 fields = state.draftFields,
                 instructions = state.draftInstructions,

@@ -30,4 +30,7 @@ interface RecordingDao {
             "ORDER BY createdAtMillis DESC",
     )
     fun observeByFolder(folderId: Long?): Flow<List<RecordingEntity>>
+
+    @Query("SELECT COUNT(*) FROM recordings WHERE (:folderId IS NULL AND folderId IS NULL) OR folderId = :folderId")
+    suspend fun countInFolder(folderId: Long?): Int
 }

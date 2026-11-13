@@ -16,6 +16,15 @@ interface FolderDao {
     @Query("DELETE FROM folders WHERE id = :id")
     suspend fun delete(id: Long)
 
-    @Query("SELECT * FROM folders ORDER BY name ASC")
-    fun observeAll(): Flow<List<FolderEntity>>
+    @Query("UPDATE folders SET parentFolderId = :newParentFolderId WHERE id = :id")
+    suspend fun move(id: Long, newParentFolderId: Long?)
+
+    @Query(
+        "SELECT * FROM folders WHERE (:parentFolderId IS NULL AND parentFolderId IS NULL) OR parentFolderId = :parentFolderId " +
+            "ORDER BY name ASC",
+    )
+    fun observeChildren(parentFolderId: Long?): Flow<List<FolderEntity>>
+
+    @Query("SELECT COUNT(*) FROM folders WHERE parentFolderId = :id")
+    suspend fun countChildren(id: Long): Int
 }

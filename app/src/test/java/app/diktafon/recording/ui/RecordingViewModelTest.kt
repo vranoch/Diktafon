@@ -1,5 +1,6 @@
 package app.diktafon.recording.ui
 
+import app.diktafon.folders.FakeLastUsedFolderRepository
 import app.diktafon.recording.FakeAudioRecorder
 import app.diktafon.recording.FakeClock
 import app.diktafon.recording.FakeRecordingRepository
@@ -41,6 +42,7 @@ class RecordingViewModelTest {
             fileFactory = object : RecordingFileFactory {
                 override fun create(name: String) = File("/tmp/$name.m4a")
             },
+            lastUsedFolderRepository = FakeLastUsedFolderRepository(),
         )
     }
 
@@ -57,6 +59,17 @@ class RecordingViewModelTest {
         assertEquals(RecordingPhase.RECORDING, state.phase)
         assertTrue(state.name.isNotBlank())
         assertTrue(audioRecorder.started)
+    }
+
+    @Test
+    fun `selhani startu nahravani (napr odmitnute opravneni) nastavi chybu a nespadne`() {
+        audioRecorder.startException = SecurityException("RECORD_AUDIO not granted")
+
+        viewModel.startNewRecording()
+
+        val state = viewModel.uiState.value
+        assertEquals(RecordingPhase.IDLE, state.phase)
+        assertTrue(state.error != null)
     }
 
     @Test

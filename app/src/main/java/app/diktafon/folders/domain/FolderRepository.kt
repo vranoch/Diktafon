@@ -8,12 +8,13 @@ sealed interface FolderDeletionResult {
 }
 
 interface FolderRepository {
-    suspend fun create(name: String): Long
+    suspend fun create(name: String, parentFolderId: Long?): Long
     suspend fun rename(folderId: Long, newName: String)
+    suspend fun move(folderId: Long, newParentFolderId: Long?)
 
-    // ASSUMPTION (viz TODO ve FR-AUD-011): neprazdnou slozku nelze smazat, dokud z ni
-    // uzivatel nevyjme vsechny nahravky - nejbezpecnejsi chovani, zatim nepotvrzene uzivatelem.
+    // Nelze smazat slozku, dokud z ni uzivatel nevyjme vsechny nahravky a podslozky -
+    // nejbezpecnejsi chovani, viz puvodni otevrena otazka ve FR-AUD-011.
     suspend fun delete(folderId: Long): FolderDeletionResult
 
-    fun observeAll(): Flow<List<Folder>>
+    fun observeChildren(parentFolderId: Long?): Flow<List<Folder>>
 }

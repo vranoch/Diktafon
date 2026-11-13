@@ -3,6 +3,7 @@ package app.diktafon.di
 import android.content.Context
 import androidx.room.Room
 import app.diktafon.folders.data.FolderDao
+import app.diktafon.folders.data.LastUsedFolderDao
 import app.diktafon.recording.data.AppDatabase
 import app.diktafon.recording.data.RecordingDao
 import app.diktafon.recovery.data.ProcessingJobDao
@@ -54,4 +55,7 @@ object DatabaseModule {
 
     @Provides
     fun provideProviderConfigDao(database: AppDatabase): ProviderConfigDao = database.providerConfigDao()
+
+    @Provides
+    fun provideLastUsedFolderDao(database: AppDatabase): LastUsedFolderDao = database.lastUsedFolderDao()
 }

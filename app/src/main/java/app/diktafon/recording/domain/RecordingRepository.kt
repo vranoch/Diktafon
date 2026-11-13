@@ -8,4 +8,5 @@ interface RecordingRepository {
     fun observeAll(): Flow<List<Recording>>
     fun observeByFolder(folderId: Long?): Flow<List<Recording>>
     fun observeById(recordingId: Long): Flow<Recording?>
+    suspend fun countInFolder(folderId: Long?): Int
 }

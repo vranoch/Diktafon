@@ -33,6 +33,25 @@ class TranscriptionViewModel @Inject constructor(
         _uiState.update { it.copy(languageCode = languageCode) }
     }
 
+    fun loadExisting(recordingId: Long) {
+        viewModelScope.launch {
+            transcriptRepository.observeLatest(recordingId).collect { transcript ->
+                if (transcript != null && _uiState.value.phase != TranscriptionPhase.TRANSCRIBING) {
+                    _uiState.update {
+                        it.copy(
+                            phase = TranscriptionPhase.READY,
+                            text = transcript.text,
+                            languageCode = transcript.languageCode,
+                            providerName = transcript.providerName,
+                            modelName = transcript.modelName,
+                            version = transcript.version,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun startTranscription(recordingId: Long, audioFile: File) {
         if (_uiState.value.phase == TranscriptionPhase.TRANSCRIBING) return
         val languageCode = _uiState.value.languageCode

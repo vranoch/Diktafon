@@ -26,9 +26,11 @@ class FakeAudioRecorder : AudioRecorder {
     var pauseCount = 0
     var resumeCount = 0
     var nextStopResult = RecordingResult(File("/tmp/fake.m4a"), durationMs = 0)
+    var startException: Exception? = null
     private var duration = 0L
 
     override fun start(outputFile: File) {
+        startException?.let { throw it }
         started = true
     }
 
@@ -68,6 +70,8 @@ class FakeRecordingRepository : RecordingRepository {
 
     override fun observeById(recordingId: Long): Flow<Recording?> =
         MutableStateFlow(saved.firstOrNull { it.id == recordingId })
+
+    override suspend fun countInFolder(folderId: Long?): Int = saved.count { it.folderId == folderId }
 }
 
 class FakeAudioSource(

@@ -6,6 +6,7 @@ import app.diktafon.structuring.FakeStructuredDocumentValidator
 import app.diktafon.structuring.FakeTemplateDraftGenerator
 import app.diktafon.structuring.FakeTemplateRepository
 import app.diktafon.structuring.domain.StructuringResult
+import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateDraftResult
 import app.diktafon.structuring.domain.TemplateField
 import app.diktafon.structuring.domain.ValidationOutcome
@@ -80,6 +81,26 @@ class TemplateCreationViewModelTest {
         vm.testDraftOnTranscript("nejaky prepis")
 
         assertEquals("2026-11-13", vm.uiState.value.testResultFields["datum"])
+    }
+
+    @Test
+    fun `nacteni existujici sablony naplni draft a ulozeni zversuje puvodni id`() {
+        val vm = viewModel(draftResult = TemplateDraftResult.Failure.InvalidOutput)
+        val existing = Template(
+            id = 7,
+            name = "Zápis z porady",
+            version = 2,
+            fields = listOf(TemplateField("datum", true)),
+            instructions = "stare instrukce",
+            exampleText = "stary vzor",
+        )
+
+        vm.loadExisting(existing)
+        vm.saveAsNewVersion()
+
+        assertEquals(1, templateRepository.saved.size)
+        assertEquals(7L, templateRepository.saved[0].id)
+        assertEquals("Zápis z porady", templateRepository.saved[0].name)
     }
 
     @Test
