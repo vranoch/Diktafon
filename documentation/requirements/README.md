@@ -30,7 +30,7 @@ Viz [`_template.md`](_template.md) pro šablonu nového požadavku.
 | [FR-AUD-008](FR-AUD-008-externi-mikrofon-a-tlacitko-start-stop.md) | Externí mikrofon a tlačítko Start/Stop | PŘIJATO | 2026-11-12 | Podpora externího mikrofonu a tlačítka Start/Stop (NEXT). |
 | [FR-AUD-009](FR-AUD-009-spojovani-epizod-do-jednoho-zaznamu.md) | Spojování epizod do jednoho záznamu | PŘIJATO | 2026-11-12 | Spojení více nahrávacích epizod do jednoho logického záznamu (NEXT). |
 | [FR-AUD-010](FR-AUD-010-rozpoznani-nadiktovane-sablony.md) | Rozpoznání nadiktované šablony | PŘIJATO | 2026-11-12 | Rozpoznání nadiktované šablony jako návrh; uživatel jej může před zpracováním změnit. |
-| [FR-AUD-011](FR-AUD-011-organizace-nahravek-do-slozek.md) | Organizace nahrávek do složek | PŘIJATO | 2026-11-12 | Vytváření složek, přesun i volba cílové složky už při zahájení nahrávání. |
+| [FR-AUD-011](FR-AUD-011-organizace-nahravek-do-slozek.md) | Organizace nahrávek do složek | PŘIJATO | 2026-11-13 | Složky jako strom libovolné hloubky; mazání jen prázdné; naposledy použitá složka jako výchozí. |
 | [FR-TPL-001](FR-TPL-001-vyber-cilove-sablony.md) | Výběr cílové šablony | PŘIJATO | 2026-11-12 | Výběr v UI, nebo nadiktováním v nahrávce s možností změny před zpracováním. |
 | [FR-TPL-002](FR-TPL-002-struktura-sablony-id-verze-schema-instrukce.md) | Struktura šablony (ID, verze, schéma, instrukce) | PŘIJATO | 2026-11-12 | Šablona obsahuje ID, verzi, popis polí, instrukce a JSON Schema výstupu. |
 | [FR-TPL-003](FR-TPL-003-zobrazeni-aktivni-sablony-a-zaznam-jeji-verze.md) | Zobrazení aktivní šablony a záznam její verze | PŘIJATO | 2026-11-12 | Zobrazení šablony před zpracováním je volitelné; ID/verze se vždy zaznamená do dokumentu. |
