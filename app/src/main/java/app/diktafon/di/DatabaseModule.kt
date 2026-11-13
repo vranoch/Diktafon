@@ -8,6 +8,7 @@ import app.diktafon.recording.data.RecordingDao
 import app.diktafon.recovery.data.ProcessingJobDao
 import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.structuring.data.StructuredDocumentDao
+import app.diktafon.structuring.data.TemplateDao
 import app.diktafon.transcription.data.TranscriptDao
 import dagger.Module
 import dagger.Provides
@@ -46,4 +47,7 @@ object DatabaseModule {
 
     @Provides
     fun provideProcessingJobDao(database: AppDatabase): ProcessingJobDao = database.processingJobDao()
+
+    @Provides
+    fun provideTemplateDao(database: AppDatabase): TemplateDao = database.templateDao()
 }

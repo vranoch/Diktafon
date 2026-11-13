@@ -10,6 +10,8 @@ import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.settings.data.EmailRecipientEntity
 import app.diktafon.structuring.data.StructuredDocumentDao
 import app.diktafon.structuring.data.StructuredDocumentEntity
+import app.diktafon.structuring.data.TemplateDao
+import app.diktafon.structuring.data.TemplateEntity
 import app.diktafon.transcription.data.TranscriptDao
 import app.diktafon.transcription.data.TranscriptEntity
 
@@ -21,8 +23,9 @@ import app.diktafon.transcription.data.TranscriptEntity
         EmailRecipientEntity::class,
         FolderEntity::class,
         ProcessingJobEntity::class,
+        TemplateEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -32,4 +35,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun emailRecipientDao(): EmailRecipientDao
     abstract fun folderDao(): FolderDao
     abstract fun processingJobDao(): ProcessingJobDao
+    abstract fun templateDao(): TemplateDao
 }

@@ -7,6 +7,11 @@ import app.diktafon.structuring.domain.StructuredDocumentValidator
 import app.diktafon.structuring.domain.StructuringRequest
 import app.diktafon.structuring.domain.StructuringResult
 import app.diktafon.structuring.domain.Template
+import app.diktafon.structuring.domain.TemplateDraftGenerator
+import app.diktafon.structuring.domain.TemplateDraftRequest
+import app.diktafon.structuring.domain.TemplateDraftResult
+import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.TemplateRepository
 import app.diktafon.structuring.domain.ValidationOutcome
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,4 +60,31 @@ class FakeStructuredDocumentRepository : StructuredDocumentRepository {
 
     override fun observeById(documentId: Long): Flow<StructuredDocument?> =
         byId.getOrPut(documentId) { MutableStateFlow(null) }
+}
+
+class FakeTemplateDraftGenerator(private val result: TemplateDraftResult) : TemplateDraftGenerator {
+    override suspend fun generateDraft(request: TemplateDraftRequest): TemplateDraftResult = result
+}
+
+class FakeTemplateRepository : TemplateRepository {
+    val saved = mutableListOf<Template>()
+    private val flow = MutableStateFlow<List<Template>>(emptyList())
+
+    override suspend fun saveNewVersion(
+        templateId: Long?,
+        name: String,
+        fields: List<TemplateField>,
+        instructions: String,
+        exampleText: String,
+        createdAtMillis: Long,
+    ): Template {
+        val resolvedId = templateId ?: (saved.maxOfOrNull { it.id } ?: 0) + 1
+        val nextVersion = (saved.filter { it.id == resolvedId }.maxOfOrNull { it.version } ?: 0) + 1
+        val template = Template(resolvedId, name, nextVersion, fields, instructions, exampleText)
+        saved += template
+        flow.value = saved.groupBy { it.id }.values.map { versions -> versions.maxBy { it.version } }
+        return template
+    }
+
+    override fun observeApprovedCatalog(): Flow<List<Template>> = flow
 }

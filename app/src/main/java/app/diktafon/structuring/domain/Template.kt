@@ -8,4 +8,5 @@ data class Template(
     val version: Int,
     val fields: List<TemplateField>,
     val instructions: String,
+    val exampleText: String = "",
 )
