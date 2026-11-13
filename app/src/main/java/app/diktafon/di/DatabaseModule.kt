@@ -7,6 +7,7 @@ import app.diktafon.recording.data.AppDatabase
 import app.diktafon.recording.data.RecordingDao
 import app.diktafon.recovery.data.ProcessingJobDao
 import app.diktafon.settings.data.EmailRecipientDao
+import app.diktafon.settings.data.ProviderConfigDao
 import app.diktafon.structuring.data.StructuredDocumentDao
 import app.diktafon.structuring.data.TemplateDao
 import app.diktafon.transcription.data.TranscriptDao
@@ -50,4 +51,7 @@ object DatabaseModule {
 
     @Provides
     fun provideTemplateDao(database: AppDatabase): TemplateDao = database.templateDao()
+
+    @Provides
+    fun provideProviderConfigDao(database: AppDatabase): ProviderConfigDao = database.providerConfigDao()
 }
