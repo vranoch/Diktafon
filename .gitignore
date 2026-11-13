@@ -32,5 +32,12 @@ Thumbs.db
 *.log
 *.tmp
 
-# Tech-stack-specific ignore pravidla (node_modules/, venv/, build/, ...) se doplní,
-# až bude zvolená technologie.
+# --- Android / Gradle (viz ADR-011, ADR-012) ---
+.gradle/
+build/
+*/build/
+local.properties
+*.iml
+.cxx/
+captures/
+

@@ -12,4 +12,11 @@ TBD: stručný popis projektu, až bude zvolený účel a tech stack.
 
 ## Quickstart
 
-TBD — doplní se po volbě technologie (instalace, build, spuštění, testy).
+Vývoj probíhá výhradně v kontejneru (viz [ADR-011](documentation/decisions/ADR-011-vyvojove-prostredi-v-kontejnerech-a-testovaci-strategie.md)) — žádné lokální Android/Kotlin SDK není potřeba.
+
+```bash
+docker build -t diktafon-dev -f .devcontainer/Dockerfile .devcontainer
+docker run --rm -v "$(pwd)":/workspace diktafon-dev sh -c "cd /workspace && ./gradlew test"
+```
+
+Technologický stack: Kotlin, Jetpack Compose, Room, Hilt, Retrofit (viz [ADR-012](documentation/decisions/ADR-012-technologicky-stack-compose-room-hilt-retrofit.md)).

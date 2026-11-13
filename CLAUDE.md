@@ -2,7 +2,12 @@
 
 ## Claude Code — specifické příkazy
 
-TBD: build/run/test příkazy budou doplněny, až bude zvolený tech stack.
+Build/test běží jen v kontejneru (viz [ADR-011](documentation/decisions/ADR-011-vyvojove-prostredi-v-kontejnerech-a-testovaci-strategie.md)), nikdy na hostiteli přímo:
+
+```bash
+docker build -t diktafon-dev -f .devcontainer/Dockerfile .devcontainer
+docker run --rm -v "$(pwd)":/workspace diktafon-dev sh -c "cd /workspace && ./gradlew test"
+```
 
 ## Klíčové soubory pro orientaci
 

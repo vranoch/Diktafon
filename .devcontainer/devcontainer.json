@@ -1,0 +1,8 @@
+{
+  "name": "diktafon-android",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceFolder": "/workspace",
+  "remoteUser": "root"
+}
