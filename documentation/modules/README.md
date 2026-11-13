@@ -27,3 +27,11 @@ Viz [`_template/module-spec.md`](_template/module-spec.md) pro šablonu nového 
 | Modul | Změněno | Shrnutí |
 |---|---|---|
 | — | — | zatím žádný modul |
+
+> **Poznámka (2026-11-12):** Při extrakci požadavků/ADR/use-cases ze
+> [zdrojového dokumentu](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md)
+> (kap. 7.2 — logické komponenty: Presentation/E Ink UI, Recording/Import, Workflow
+> Coordinator, Provider Adapters, Template Engine + Validator, Local Persistence,
+> Security & Settings, Export Adapter) nebyly založeny moduly, protože tech stack ani
+> struktura kódu ještě nejsou zvoleny a modul-spec musí být 1:1 s podsložkou v kódu
+> (viz konvence výše). Moduly se založí, až vznikne odpovídající kód.
