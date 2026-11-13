@@ -28,12 +28,24 @@ class StructuredDocumentRepositoryImpl @Inject constructor(
             fieldsJson = Json.encodeToString(fieldsSerializer, document.fields),
             missingFieldsJson = Json.encodeToString(missingFieldsSerializer, document.missingRequiredFields),
             createdAtMillis = document.createdAtMillis,
+            isApproved = document.isApproved,
         )
         return dao.insert(entity)
     }
 
+    override suspend fun updateFields(documentId: Long, fields: Map<String, String?>) {
+        dao.updateFields(documentId, Json.encodeToString(fieldsSerializer, fields))
+    }
+
+    override suspend fun approve(documentId: Long) {
+        dao.approve(documentId)
+    }
+
     override fun observeForRecording(recordingId: Long): Flow<List<StructuredDocument>> =
         dao.observeForRecording(recordingId).map { entities -> entities.map { it.toDomain() } }
+
+    override fun observeById(documentId: Long): Flow<StructuredDocument?> =
+        dao.observeById(documentId).map { it?.toDomain() }
 }
 
 private fun StructuredDocumentEntity.toDomain() = StructuredDocument(
@@ -45,4 +57,5 @@ private fun StructuredDocumentEntity.toDomain() = StructuredDocument(
     fields = Json.decodeFromString(fieldsSerializer, fieldsJson),
     missingRequiredFields = Json.decodeFromString(missingFieldsSerializer, missingFieldsJson),
     createdAtMillis = createdAtMillis,
+    isApproved = isApproved,
 )

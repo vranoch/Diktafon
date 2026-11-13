@@ -12,4 +12,13 @@ interface StructuredDocumentDao {
 
     @Query("SELECT * FROM structured_documents WHERE recordingId = :recordingId ORDER BY createdAtMillis DESC")
     fun observeForRecording(recordingId: Long): Flow<List<StructuredDocumentEntity>>
+
+    @Query("SELECT * FROM structured_documents WHERE id = :documentId")
+    fun observeById(documentId: Long): Flow<StructuredDocumentEntity?>
+
+    @Query("UPDATE structured_documents SET fieldsJson = :fieldsJson WHERE id = :documentId")
+    suspend fun updateFields(documentId: Long, fieldsJson: String)
+
+    @Query("UPDATE structured_documents SET isApproved = 1 WHERE id = :documentId")
+    suspend fun approve(documentId: Long)
 }

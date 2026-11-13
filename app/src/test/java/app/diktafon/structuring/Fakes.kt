@@ -22,12 +22,37 @@ class FakeStructuredDocumentValidator(private val outcome: ValidationOutcome) : 
 class FakeStructuredDocumentRepository : StructuredDocumentRepository {
     val saved = mutableListOf<StructuredDocument>()
     private val flow = MutableStateFlow<List<StructuredDocument>>(emptyList())
+    private val byId = mutableMapOf<Long, MutableStateFlow<StructuredDocument?>>()
 
     override suspend fun save(document: StructuredDocument): Long {
-        saved += document
+        val id = saved.size.toLong() + 1
+        val withId = document.copy(id = id)
+        saved += withId
         flow.value = saved.toList()
-        return saved.size.toLong()
+        byId.getOrPut(id) { MutableStateFlow(null) }.value = withId
+        return id
+    }
+
+    override suspend fun updateFields(documentId: Long, fields: Map<String, String?>) {
+        val index = saved.indexOfFirst { it.id == documentId }
+        if (index == -1) return
+        val updated = saved[index].copy(fields = fields)
+        saved[index] = updated
+        flow.value = saved.toList()
+        byId.getOrPut(documentId) { MutableStateFlow(null) }.value = updated
+    }
+
+    override suspend fun approve(documentId: Long) {
+        val index = saved.indexOfFirst { it.id == documentId }
+        if (index == -1) return
+        val updated = saved[index].copy(isApproved = true)
+        saved[index] = updated
+        flow.value = saved.toList()
+        byId.getOrPut(documentId) { MutableStateFlow(null) }.value = updated
     }
 
     override fun observeForRecording(recordingId: Long): Flow<List<StructuredDocument>> = flow
+
+    override fun observeById(documentId: Long): Flow<StructuredDocument?> =
+        byId.getOrPut(documentId) { MutableStateFlow(null) }
 }

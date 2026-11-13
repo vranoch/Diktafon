@@ -13,4 +13,5 @@ data class StructuredDocumentEntity(
     val fieldsJson: String,
     val missingFieldsJson: String,
     val createdAtMillis: Long,
+    val isApproved: Boolean = false,
 )

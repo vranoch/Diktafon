@@ -9,4 +9,5 @@ data class StructuredDocument(
     val fields: Map<String, String?>,
     val missingRequiredFields: List<String>,
     val createdAtMillis: Long,
+    val isApproved: Boolean = false,
 )

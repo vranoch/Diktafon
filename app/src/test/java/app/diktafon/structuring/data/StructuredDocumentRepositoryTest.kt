@@ -43,4 +43,26 @@ class StructuredDocumentRepositoryTest {
         assertEquals(5L, all[0].templateId)
         assertEquals(2, all[0].templateVersion)
     }
+
+    @Test
+    fun `updateFields a approve zmeni ulozeny dokument`() = runTest {
+        val id = repository.save(
+            StructuredDocument(
+                recordingId = 1,
+                transcriptId = 1,
+                templateId = 1,
+                templateVersion = 1,
+                fields = mapOf("datum" to "2026-11-13", "ucastnici" to null),
+                missingRequiredFields = listOf("ucastnici"),
+                createdAtMillis = 1_000,
+            ),
+        )
+
+        repository.updateFields(id, mapOf("datum" to "2026-11-13", "ucastnici" to "Jan"))
+        repository.approve(id)
+
+        val stored = repository.observeById(id).first()
+        assertEquals("Jan", stored?.fields?.get("ucastnici"))
+        assertEquals(true, stored?.isApproved)
+    }
 }
