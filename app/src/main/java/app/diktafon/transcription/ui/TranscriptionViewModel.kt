@@ -3,6 +3,8 @@ package app.diktafon.transcription.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.diktafon.recording.domain.Clock
+import app.diktafon.recovery.domain.ProcessingJobRepository
+import app.diktafon.recovery.domain.ProcessingJobType
 import app.diktafon.transcription.domain.SpeechToTextProvider
 import app.diktafon.transcription.domain.TranscriptRepository
 import app.diktafon.transcription.domain.TranscriptionRequest
@@ -20,6 +22,7 @@ import javax.inject.Inject
 class TranscriptionViewModel @Inject constructor(
     private val sttProvider: SpeechToTextProvider,
     private val transcriptRepository: TranscriptRepository,
+    private val processingJobRepository: ProcessingJobRepository,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -36,6 +39,11 @@ class TranscriptionViewModel @Inject constructor(
         _uiState.update { it.copy(phase = TranscriptionPhase.TRANSCRIBING, errorMessage = null) }
 
         viewModelScope.launch {
+            val jobId = processingJobRepository.markInProgress(
+                recordingId,
+                ProcessingJobType.TRANSCRIPTION,
+                clock.nowMillis(),
+            )
             when (val result = sttProvider.transcribe(TranscriptionRequest(audioFile, languageCode))) {
                 is TranscriptionResult.Success -> {
                     val saved = transcriptRepository.saveNewRevision(
@@ -46,6 +54,7 @@ class TranscriptionViewModel @Inject constructor(
                         modelName = result.modelName,
                         createdAtMillis = clock.nowMillis(),
                     )
+                    processingJobRepository.markDone(jobId, clock.nowMillis())
                     _uiState.update {
                         it.copy(
                             phase = TranscriptionPhase.READY,
@@ -56,8 +65,11 @@ class TranscriptionViewModel @Inject constructor(
                         )
                     }
                 }
-                is TranscriptionResult.Failure -> _uiState.update {
-                    it.copy(phase = TranscriptionPhase.ERROR, errorMessage = result.toUserMessage())
+                is TranscriptionResult.Failure -> {
+                    processingJobRepository.markFailed(jobId, clock.nowMillis())
+                    _uiState.update {
+                        it.copy(phase = TranscriptionPhase.ERROR, errorMessage = result.toUserMessage())
+                    }
                 }
             }
         }

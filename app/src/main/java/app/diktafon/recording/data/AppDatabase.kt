@@ -4,6 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import app.diktafon.folders.data.FolderDao
 import app.diktafon.folders.data.FolderEntity
+import app.diktafon.recovery.data.ProcessingJobDao
+import app.diktafon.recovery.data.ProcessingJobEntity
 import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.settings.data.EmailRecipientEntity
 import app.diktafon.structuring.data.StructuredDocumentDao
@@ -18,8 +20,9 @@ import app.diktafon.transcription.data.TranscriptEntity
         StructuredDocumentEntity::class,
         EmailRecipientEntity::class,
         FolderEntity::class,
+        ProcessingJobEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,4 +31,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun structuredDocumentDao(): StructuredDocumentDao
     abstract fun emailRecipientDao(): EmailRecipientDao
     abstract fun folderDao(): FolderDao
+    abstract fun processingJobDao(): ProcessingJobDao
 }

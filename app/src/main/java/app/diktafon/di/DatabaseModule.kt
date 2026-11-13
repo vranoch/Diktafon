@@ -5,6 +5,7 @@ import androidx.room.Room
 import app.diktafon.folders.data.FolderDao
 import app.diktafon.recording.data.AppDatabase
 import app.diktafon.recording.data.RecordingDao
+import app.diktafon.recovery.data.ProcessingJobDao
 import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.structuring.data.StructuredDocumentDao
 import app.diktafon.transcription.data.TranscriptDao
@@ -42,4 +43,7 @@ object DatabaseModule {
 
     @Provides
     fun provideFolderDao(database: AppDatabase): FolderDao = database.folderDao()
+
+    @Provides
+    fun provideProcessingJobDao(database: AppDatabase): ProcessingJobDao = database.processingJobDao()
 }

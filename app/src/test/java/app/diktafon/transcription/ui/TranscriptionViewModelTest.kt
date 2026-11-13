@@ -1,6 +1,7 @@
 package app.diktafon.transcription.ui
 
 import app.diktafon.recording.FakeClock
+import app.diktafon.recovery.FakeProcessingJobRepository
 import app.diktafon.transcription.FakeSpeechToTextProvider
 import app.diktafon.transcription.FakeTranscriptRepository
 import app.diktafon.transcription.domain.TranscriptionResult
@@ -37,6 +38,7 @@ class TranscriptionViewModelTest {
     private fun viewModel(result: TranscriptionResult) = TranscriptionViewModel(
         sttProvider = FakeSpeechToTextProvider(result),
         transcriptRepository = repository,
+        processingJobRepository = FakeProcessingJobRepository(),
         clock = FakeClock(5_000_000),
     )
 
@@ -95,6 +97,7 @@ class TranscriptionViewModelTest {
                 TranscriptionResult.Success(text = "Ted uz ano", providerName = "mock", modelName = "mock-v1"),
             ),
             transcriptRepository = repository,
+            processingJobRepository = FakeProcessingJobRepository(),
             clock = FakeClock(6_000_000),
         )
         retryVm.startTranscription(recordingId = 1, audioFile = audioFile)
