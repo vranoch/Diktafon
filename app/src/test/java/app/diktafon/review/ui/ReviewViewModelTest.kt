@@ -1,6 +1,10 @@
 package app.diktafon.review.ui
 
+import app.diktafon.deletion.domain.DataDeletionRepository
+import app.diktafon.deletion.domain.DeletionResult
+import app.diktafon.export.data.MarkdownDocumentFormatter
 import app.diktafon.structuring.FakeStructuredDocumentRepository
+import app.diktafon.structuring.FakeTemplateRepository
 import app.diktafon.structuring.domain.StructuredDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,11 +24,23 @@ class ReviewViewModelTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var repository: FakeStructuredDocumentRepository
+    private lateinit var templateRepository: FakeTemplateRepository
+    private val deletionRepository = object : DataDeletionRepository {
+        var documentDeleteCalls = 0
+
+        override suspend fun deleteRecordingWithAllArtifacts(recordingId: Long) = DeletionResult.Success
+        override suspend fun deleteTranscriptsForRecording(recordingId: Long) = DeletionResult.Success
+        override suspend fun deleteStructuredDocumentsForRecording(recordingId: Long): DeletionResult {
+            documentDeleteCalls++
+            return DeletionResult.Success
+        }
+    }
 
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         repository = FakeStructuredDocumentRepository()
+        templateRepository = FakeTemplateRepository()
     }
 
     @After
@@ -47,7 +63,7 @@ class ReviewViewModelTest {
     @Test
     fun `nacteni dokumentu naplni stav poli a nejasnostmi`() = runTest {
         val documentId = seedDocument()
-        val vm = ReviewViewModel(repository)
+        val vm = ReviewViewModel(repository, templateRepository, deletionRepository, MarkdownDocumentFormatter())
 
         vm.load(documentId, transcriptText = "puvodni prepis")
 
@@ -61,7 +77,7 @@ class ReviewViewModelTest {
     @Test
     fun `oprava pole a ulozeni zmen se promitne do repozitare`() = runTest {
         val documentId = seedDocument()
-        val vm = ReviewViewModel(repository)
+        val vm = ReviewViewModel(repository, templateRepository, deletionRepository, MarkdownDocumentFormatter())
         vm.load(documentId, "prepis")
 
         vm.onFieldChanged("ucastnici", "Jan Novák")
@@ -74,7 +90,7 @@ class ReviewViewModelTest {
     @Test
     fun `schvaleni ulozi zmeny a nastavi isApproved`() = runTest {
         val documentId = seedDocument()
-        val vm = ReviewViewModel(repository)
+        val vm = ReviewViewModel(repository, templateRepository, deletionRepository, MarkdownDocumentFormatter())
         vm.load(documentId, "prepis")
         vm.onFieldChanged("ucastnici", "Jan Novák")
 
@@ -84,5 +100,17 @@ class ReviewViewModelTest {
         assertTrue(stored.isApproved)
         assertEquals("Jan Novák", stored.fields["ucastnici"])
         assertTrue(vm.uiState.value.isApproved)
+    }
+
+    @Test
+    fun `zruseni prevodu smaze strukturovane vysledky zaznamu a nastavi isDiscarded`() = runTest {
+        val documentId = seedDocument()
+        val vm = ReviewViewModel(repository, templateRepository, deletionRepository, MarkdownDocumentFormatter())
+        vm.load(documentId, "prepis")
+
+        vm.discardConversion()
+
+        assertEquals(1, deletionRepository.documentDeleteCalls)
+        assertTrue(vm.uiState.value.isDiscarded)
     }
 }

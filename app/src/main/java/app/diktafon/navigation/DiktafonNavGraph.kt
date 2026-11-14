@@ -1,9 +1,7 @@
 package app.diktafon.navigation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -12,8 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import app.diktafon.deletion.ui.DeletionScreen
-import app.diktafon.deletion.ui.DeletionViewModel
 import app.diktafon.export.data.AndroidShareIntentFactory
 import app.diktafon.export.ui.ExportScreen
 import app.diktafon.folders.ui.FolderBrowserScreen
@@ -30,9 +26,7 @@ import app.diktafon.settings.ui.ApiConfigScreen
 import app.diktafon.settings.ui.EmailRecipientsScreen
 import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateField
-import app.diktafon.structuring.ui.StructuringPhase
 import app.diktafon.structuring.ui.StructuringScreen
-import app.diktafon.structuring.ui.StructuringViewModel
 import app.diktafon.structuring.ui.TemplateCreationScreen
 import app.diktafon.structuring.ui.TemplateListScreen
 import app.diktafon.structuring.ui.TemplateSuggestionScreen
@@ -47,6 +41,7 @@ private fun Long?.toFolderArg(): Long = this ?: NO_FOLDER
 @Composable
 fun DiktafonNavGraph() {
     val navController = rememberNavController()
+    val goHome: () -> Unit = { navController.popBackStack("home", inclusive = false) }
 
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
@@ -67,6 +62,7 @@ fun DiktafonNavGraph() {
             FolderBrowserScreen(
                 folderId = folderId,
                 onBack = if (folderId == null) null else ({ navController.popBackStack() }),
+                onHome = goHome,
                 onOpenFolder = { id -> navController.navigate("folders/$id") },
                 onOpenRecording = { id -> navController.navigate("recordingDetail/$id") },
                 onNewRecording = { id -> navController.navigate("recording/${id.toFolderArg()}") },
@@ -81,13 +77,13 @@ fun DiktafonNavGraph() {
             val folderId = (backStackEntry.arguments?.getLong("folderId") ?: NO_FOLDER).toFolderIdOrNull()
             val vm: RecordingViewModel = hiltViewModel()
             val state by vm.uiState.collectAsState()
-            Column {
-                RecordingScreen(viewModel = vm)
+            RecordingScreen(onBack = { navController.popBackStack() }, onHome = goHome, viewModel = vm)
+            LaunchedEffect(folderId) { vm.onFolderSelected(folderId) }
+            LaunchedEffect(state.phase, state.savedRecordingId) {
                 if (state.phase == RecordingPhase.STOPPED && state.savedRecordingId != null) {
-                    Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
+                    navController.popBackStack()
                 }
             }
-            androidx.compose.runtime.LaunchedEffect(folderId) { vm.onFolderSelected(folderId) }
         }
 
         composable(
@@ -97,13 +93,11 @@ fun DiktafonNavGraph() {
             val folderId = (backStackEntry.arguments?.getLong("folderId") ?: NO_FOLDER).toFolderIdOrNull()
             val vm: ImportViewModel = hiltViewModel()
             val state by vm.uiState.collectAsState()
-            Column {
-                ImportScreen(viewModel = vm)
-                if (state.phase == ImportPhase.IMPORTED) {
-                    Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                }
+            ImportScreen(onBack = { navController.popBackStack() }, onHome = goHome, viewModel = vm)
+            LaunchedEffect(folderId) { vm.startNewImport(folderId) }
+            LaunchedEffect(state.phase) {
+                if (state.phase == ImportPhase.IMPORTED) navController.popBackStack()
             }
-            androidx.compose.runtime.LaunchedEffect(folderId) { vm.startNewImport(folderId) }
         }
 
         composable(
@@ -114,10 +108,11 @@ fun DiktafonNavGraph() {
             RecordingDetailScreen(
                 recordingId = recordingId,
                 onBack = { navController.popBackStack() },
+                onHome = goHome,
                 onTranscribe = { navController.navigate("transcription/$it") },
                 onStructure = { navController.navigate("templateSuggestion/$it") },
                 onReview = { documentId -> navController.navigate("review/$documentId") },
-                onDelete = { navController.navigate("deletion/$it") },
+                onDeleted = goHome,
             )
         }
 
@@ -130,13 +125,12 @@ fun DiktafonNavGraph() {
             val recording by lookup.recording(recordingId).collectAsState(initial = null)
 
             recording?.let { rec ->
-                Column {
-                    Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                    app.diktafon.transcription.ui.TranscriptionScreen(recordingId = recordingId, audioFile = File(rec.filePath))
-                    Button(onClick = { navController.navigate("templateSuggestion/$recordingId") }) {
-                        Text("Pokračovat k výběru šablony")
-                    }
-                }
+                app.diktafon.transcription.ui.TranscriptionScreen(
+                    recordingId = recordingId,
+                    audioFile = File(rec.filePath),
+                    onBack = { navController.popBackStack() },
+                    onHome = goHome,
+                )
             }
         }
 
@@ -149,15 +143,14 @@ fun DiktafonNavGraph() {
             val transcript by lookup.latestTranscript(recordingId).collectAsState(initial = null)
             val catalog by lookup.approvedCatalog().collectAsState(initial = emptyList())
 
-            Column {
-                Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                transcript?.let { t ->
-                    TemplateSuggestionScreen(
-                        transcriptText = t.text,
-                        approvedCatalog = catalog,
-                        onConfirmed = { template -> navController.navigate("structuring/$recordingId/${template.id}") },
-                    )
-                }
+            transcript?.let { t ->
+                TemplateSuggestionScreen(
+                    transcriptText = t.text,
+                    approvedCatalog = catalog,
+                    onConfirmed = { template -> navController.navigate("structuring/$recordingId/${template.id}") },
+                    onBack = { navController.popBackStack() },
+                    onHome = goHome,
+                )
             }
         }
 
@@ -174,25 +167,21 @@ fun DiktafonNavGraph() {
             val transcript by lookup.latestTranscript(recordingId).collectAsState(initial = null)
             val catalog by lookup.approvedCatalog().collectAsState(initial = emptyList())
             val template = catalog.find { it.id == templateId }
-            val vm: StructuringViewModel = hiltViewModel()
-            val state by vm.uiState.collectAsState()
 
             if (transcript != null && template != null) {
-                Column {
-                    Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                    StructuringScreen(
-                        recordingId = recordingId,
-                        transcriptId = transcript!!.id,
-                        transcriptText = transcript!!.text,
-                        template = template,
-                        viewModel = vm,
-                    )
-                    if (state.phase == StructuringPhase.READY && state.savedDocumentId != null) {
-                        Button(onClick = { navController.navigate("review/${state.savedDocumentId}") }) {
-                            Text("Pokračovat ke kontrole")
+                StructuringScreen(
+                    recordingId = recordingId,
+                    transcriptId = transcript!!.id,
+                    transcriptText = transcript!!.text,
+                    template = template,
+                    onReady = { documentId ->
+                        navController.navigate("review/$documentId") {
+                            popUpTo("templateSuggestion/$recordingId") { inclusive = true }
                         }
-                    }
-                }
+                    },
+                    onBack = { navController.popBackStack() },
+                    onHome = goHome,
+                )
             }
         }
 
@@ -208,14 +197,18 @@ fun DiktafonNavGraph() {
             val state by vm.uiState.collectAsState()
 
             if (document != null) {
-                Column {
-                    Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                    ReviewScreen(documentId = documentId, transcriptText = transcript?.text ?: "", viewModel = vm)
-                    if (state.isApproved) {
-                        Button(onClick = { navController.navigate("export/$documentId") }) {
-                            Text("Pokračovat k exportu")
-                        }
-                    }
+                ReviewScreen(
+                    documentId = documentId,
+                    transcriptText = transcript?.text ?: "",
+                    onBack = { navController.popBackStack() },
+                    onHome = goHome,
+                    viewModel = vm,
+                )
+                LaunchedEffect(state.isApproved) {
+                    if (state.isApproved) navController.navigate("export/$documentId")
+                }
+                LaunchedEffect(state.isDiscarded) {
+                    if (state.isDiscarded) navController.popBackStack()
                 }
             }
         }
@@ -237,41 +230,24 @@ fun DiktafonNavGraph() {
                     fields = doc.fields.keys.map { TemplateField(it, required = false) },
                     instructions = "",
                 )
-                Column {
-                    Button(onClick = { navController.popBackStack("home", inclusive = false) }) { Text("Zpět na seznam") }
-                    ExportScreen(document = doc, template = template, shareIntentFactory = AndroidShareIntentFactory())
-                }
-            }
-        }
-
-        composable(
-            "deletion/{recordingId}",
-            arguments = listOf(navArgument("recordingId") { type = NavType.LongType }),
-        ) { backStackEntry ->
-            val recordingId = backStackEntry.arguments?.getLong("recordingId") ?: return@composable
-            val vm: DeletionViewModel = hiltViewModel()
-            val state by vm.uiState.collectAsState()
-            Column {
-                Button(onClick = { navController.popBackStack("home", inclusive = false) }) { Text("Zpět na seznam") }
-                DeletionScreen(recordingId = recordingId, viewModel = vm)
-                if (state.isDeleted) {
-                    Button(onClick = { navController.popBackStack("home", inclusive = false) }) {
-                        Text("Hotovo")
-                    }
-                }
+                ExportScreen(
+                    document = doc,
+                    template = template,
+                    shareIntentFactory = AndroidShareIntentFactory(),
+                    onBack = { navController.popBackStack() },
+                    onHome = goHome,
+                )
             }
         }
 
         composable("recovery") {
-            Column {
-                Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                RecoveryScreen()
-            }
+            RecoveryScreen(onBack = { navController.popBackStack() }, onHome = goHome)
         }
 
         composable("admin") {
             AdminScreen(
                 onBack = { navController.popBackStack() },
+                onHome = goHome,
                 onOpenConnection = { navController.navigate("apiConfig") },
                 onOpenTemplates = { navController.navigate("templates") },
                 onOpenEmailRecipients = { navController.navigate("emailRecipients") },
@@ -279,19 +255,17 @@ fun DiktafonNavGraph() {
         }
 
         composable("apiConfig") {
-            Column {
-                Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                ApiConfigScreen()
-            }
+            ApiConfigScreen(onBack = { navController.popBackStack() }, onHome = goHome)
         }
 
         composable("emailRecipients") {
-            EmailRecipientsScreen(onBack = { navController.popBackStack() })
+            EmailRecipientsScreen(onBack = { navController.popBackStack() }, onHome = goHome)
         }
 
         composable("templates") {
             TemplateListScreen(
                 onBack = { navController.popBackStack() },
+                onHome = goHome,
                 onCreateNew = { navController.navigate("templateCreation/$NO_TEMPLATE") },
                 onEdit = { template -> navController.navigate("templateCreation/${template.id}") },
             )
@@ -306,10 +280,12 @@ fun DiktafonNavGraph() {
             val catalog by lookup.approvedCatalog().collectAsState(initial = emptyList())
             val existingTemplate = if (templateId == NO_TEMPLATE) null else catalog.find { it.id == templateId }
 
-            Column {
-                Button(onClick = { navController.popBackStack() }) { Text("Zpět") }
-                TemplateCreationScreen(existingTranscriptForTesting = null, existingTemplate = existingTemplate)
-            }
+            TemplateCreationScreen(
+                existingTranscriptForTesting = null,
+                existingTemplate = existingTemplate,
+                onBack = { navController.popBackStack() },
+                onHome = goHome,
+            )
         }
     }
 }
