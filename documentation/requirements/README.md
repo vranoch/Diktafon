@@ -68,7 +68,7 @@ Viz [`_template.md`](_template.md) pro šablonu nového požadavku.
 | ID | Název | Stav | Změněno | Shrnutí |
 |---|---|---|---|---|
 | [NFR-UX-001](NFR-UX-001-jednoduche-ux-pro-netechnickeho-uzivatele.md) | Jednoduché UX pro netechnického uživatele | PŘIJATO | 2026-11-12 | Tři úrovně použití (běžné/rozšířené/administrační); hlavní průchody max. jednoduché. |
-| [NFR-UX-002](NFR-UX-002-e-ink-optimalizace-ui.md) | E Ink optimalizace UI | PŘIJATO | 2026-11-12 | Zvětšitelný text a velké/jasné prvky pro běžné použití; administrace není nutná. |
+| [NFR-UX-002](NFR-UX-002-e-ink-optimalizace-ui.md) | E Ink optimalizace UI | PŘIJATO | 2026-11-14 | Zvětšitelný text (min. 16/14 sp) a velké/jasné prvky (min. 48/40 dp) pro běžné/rozšířené použití; administrace kompaktnější. |
 | [NFR-UX-003](NFR-UX-003-pristupna-ceska-lokalizace.md) | Přístupná česká lokalizace | PŘIJATO | 2026-11-12 | Česká lokalizace včetně chyb a potvrzovacích dialogů. |
 | [NFR-REL-001](NFR-REL-001-zachovani-dat-pri-selhani-ai-volani.md) | Zachování dat při selhání AI volání | PŘIJATO | 2026-11-12 | Selhání AI volání nesmí smazat audio ani potvrzené editace. |
 | [NFR-REL-002](NFR-REL-002-perzistence-stavu-workflow.md) | Perzistence stavu workflow | PŘIJATO | 2026-11-12 | Stav workflow se perzistuje pro bezpečnou obnovu po pádu. |

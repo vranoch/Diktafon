@@ -13,4 +13,4 @@ opravit, přidá se nový soubor/verze, starý zůstává.
 
 | Datum | Soubor | Shrnutí |
 |---|---|---|
-| — | zatím žádný | — |
+| 2026-11-14 | [2026-11-14-ux-ui-principy-pro-e-ink.md](chat-extracts/2026-11-14-ux-ui-principy-pro-e-ink.md) | Rozhodnutí o cílovém zařízení, konkrétních číslech v NFR-UX-002 a procesu záznamu UX návrhu (vedlo k ADR-015). |
