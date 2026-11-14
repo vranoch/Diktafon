@@ -2,6 +2,7 @@ package app.diktafon.folders.ui
 
 import app.diktafon.folders.FakeFolderRepository
 import app.diktafon.recording.FakeRecordingRepository
+import app.diktafon.recording.domain.Recording
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -20,13 +21,15 @@ class FolderBrowserViewModelTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var folderRepository: FakeFolderRepository
+    private lateinit var recordingRepository: FakeRecordingRepository
     private lateinit var viewModel: FolderBrowserViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         folderRepository = FakeFolderRepository()
-        viewModel = FolderBrowserViewModel(folderRepository, FakeRecordingRepository())
+        recordingRepository = FakeRecordingRepository()
+        viewModel = FolderBrowserViewModel(folderRepository, recordingRepository)
     }
 
     @After
@@ -74,5 +77,34 @@ class FolderBrowserViewModelTest {
 
         assertNull(viewModel.uiState.value.folderPendingMove)
         assertNull(folderRepository.folders.first { it.id == b }.parentFolderId)
+    }
+
+    @Test
+    fun `presun nahravky - zacit, potvrdit, vysledna slozka se zmeni`() = runTest {
+        val target = folderRepository.create("Test1", null)
+        val recordingId = recordingRepository.saveRecording(
+            Recording(name = "Nahrávka", note = "", folderId = null, filePath = "x.m4a", durationMs = 1000, createdAtMillis = 0),
+        )
+
+        viewModel.beginMoveRecording(recordingId)
+        assertEquals(recordingId, viewModel.uiState.value.recordingPendingMove)
+
+        viewModel.confirmMoveHere(target)
+
+        assertNull(viewModel.uiState.value.recordingPendingMove)
+        assertEquals(target, recordingRepository.saved.first { it.id == recordingId }.folderId)
+    }
+
+    @Test
+    fun `zruseni presunu nahravky nic nezmeni`() = runTest {
+        val recordingId = recordingRepository.saveRecording(
+            Recording(name = "Nahrávka", note = "", folderId = null, filePath = "x.m4a", durationMs = 1000, createdAtMillis = 0),
+        )
+        viewModel.beginMoveRecording(recordingId)
+
+        viewModel.cancelMove()
+
+        assertNull(viewModel.uiState.value.recordingPendingMove)
+        assertNull(recordingRepository.saved.first { it.id == recordingId }.folderId)
     }
 }

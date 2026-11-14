@@ -48,7 +48,7 @@ fun FolderBrowserScreen(
         AppHeader(title = "Složky", onBack = onBack, onHome = onHome)
         Spacer(Modifier.height(8.dp))
 
-        if (state.folderPendingMove != null) {
+        if (state.folderPendingMove != null || state.recordingPendingMove != null) {
             StatusBadge(
                 text = "Vyberte cílovou složku pro přesun",
                 glyph = "➜",
@@ -103,11 +103,15 @@ fun FolderBrowserScreen(
         SectionLabel("Nahrávky")
         Spacer(Modifier.height(8.dp))
         for (recording in recordings) {
-            SecondaryActionButton(
-                text = "${recording.name} (${recording.durationMs / 1000} s)",
-                onClick = { onOpenRecording(recording.id) },
-                modifier = Modifier.padding(vertical = 4.dp),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+                SecondaryActionButton(
+                    text = "${recording.name} (${recording.durationMs / 1000} s)",
+                    onClick = { onOpenRecording(recording.id) },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(8.dp))
+                GlyphIconButton(glyph = "⇄", contentDescription = "Přesunout nahrávku ${recording.name}", onClick = { viewModel.beginMoveRecording(recording.id) })
+            }
         }
 
         state.errorMessage?.let {

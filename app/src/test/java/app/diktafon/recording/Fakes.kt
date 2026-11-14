@@ -52,9 +52,10 @@ class FakeRecordingRepository : RecordingRepository {
     private val flow = MutableStateFlow<List<Recording>>(emptyList())
 
     override suspend fun saveRecording(recording: Recording): Long {
-        saved += recording
+        val id = saved.size.toLong() + 1
+        saved += recording.copy(id = id)
         flow.value = saved.toList()
-        return saved.size.toLong()
+        return id
     }
 
     override suspend fun moveToFolder(recordingId: Long, folderId: Long?) {

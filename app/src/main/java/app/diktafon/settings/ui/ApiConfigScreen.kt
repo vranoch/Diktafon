@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,8 +49,19 @@ fun ApiConfigScreen(
 
     LaunchedEffect(Unit) { viewModel.load() }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+    ) {
         AppHeader(title = "Připojení", onBack = onBack, onHome = onHome)
+        Spacer(Modifier.height(12.dp))
+        Caption(
+            "Provider a Model zatím nic nespouští — dokud není podle ADR-004 vybraná konkrétní " +
+                "externí služba, přepis i zpracování šablonou běží jen jako simulace bez ohledu na " +
+                "tato pole a na uložený klíč.",
+        )
         Spacer(Modifier.height(12.dp))
 
         SectionCard(title = "STT") {
@@ -61,9 +74,9 @@ fun ApiConfigScreen(
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(value = sttKeyInput, onValueChange = { sttKeyInput = it }, label = { Text("STT API klíč") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = sttProviderInput, onValueChange = { sttProviderInput = it }, label = { Text("Provider") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = sttProviderInput, onValueChange = { sttProviderInput = it }, label = { Text("Provider (např. openai)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = sttModelInput, onValueChange = { sttModelInput = it }, label = { Text("Model") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = sttModelInput, onValueChange = { sttModelInput = it }, label = { Text("Model (např. whisper-1)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
             SecondaryActionButton(text = "Uložit STT klíč", onClick = { viewModel.saveSttApiKey(sttKeyInput); sttKeyInput = "" })
             Spacer(Modifier.height(8.dp))
@@ -81,9 +94,9 @@ fun ApiConfigScreen(
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(value = llmKeyInput, onValueChange = { llmKeyInput = it }, label = { Text("LLM API klíč") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = llmProviderInput, onValueChange = { llmProviderInput = it }, label = { Text("Provider") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = llmProviderInput, onValueChange = { llmProviderInput = it }, label = { Text("Provider (např. anthropic)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = llmModelInput, onValueChange = { llmModelInput = it }, label = { Text("Model") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = llmModelInput, onValueChange = { llmModelInput = it }, label = { Text("Model (např. claude-sonnet)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
             SecondaryActionButton(text = "Uložit LLM klíč", onClick = { viewModel.saveLlmApiKey(llmKeyInput); llmKeyInput = "" })
             Spacer(Modifier.height(8.dp))

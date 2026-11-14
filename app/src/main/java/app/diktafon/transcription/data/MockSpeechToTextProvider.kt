@@ -14,7 +14,10 @@ class MockSpeechToTextProvider @Inject constructor() : SpeechToTextProvider {
             return TranscriptionResult.Failure.EmptyResult
         }
         return TranscriptionResult.Success(
-            text = "[Mock přepis souboru ${request.audioFile.name}, jazyk ${request.languageCode}]",
+            text = "⚠ SIMULACE PŘEPISU — žádný STT provider zatím není připojen (viz ADR-004), " +
+                "toto NENÍ skutečný přepis nahrávky.\n" +
+                "Soubor: ${request.audioFile.name}\n" +
+                "Jazyk: ${request.languageCode}",
             providerName = "mock",
             modelName = "mock-v1",
         )

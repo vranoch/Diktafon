@@ -81,7 +81,11 @@ fun DiktafonNavGraph() {
             LaunchedEffect(folderId) { vm.onFolderSelected(folderId) }
             LaunchedEffect(state.phase, state.savedRecordingId) {
                 if (state.phase == RecordingPhase.STOPPED && state.savedRecordingId != null) {
-                    navController.popBackStack()
+                    // Po ulozeni jde uzivatel rovnou do slozky s novou nahravkou, ne na Home,
+                    // aby na ni mohl hned navazat (prehrat, prepsat, presunout...).
+                    navController.navigate("folders/${state.folderId.toFolderArg()}") {
+                        popUpTo("home") { inclusive = false }
+                    }
                 }
             }
         }

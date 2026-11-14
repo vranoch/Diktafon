@@ -50,16 +50,24 @@ class FolderBrowserViewModel @Inject constructor(
     }
 
     fun beginMove(folderId: Long) {
-        _uiState.update { it.copy(folderPendingMove = folderId) }
+        _uiState.update { it.copy(folderPendingMove = folderId, recordingPendingMove = null) }
+    }
+
+    fun beginMoveRecording(recordingId: Long) {
+        _uiState.update { it.copy(recordingPendingMove = recordingId, folderPendingMove = null) }
     }
 
     fun cancelMove() {
-        _uiState.update { it.copy(folderPendingMove = null) }
+        _uiState.update { it.copy(folderPendingMove = null, recordingPendingMove = null) }
     }
 
     fun confirmMoveHere(targetParentFolderId: Long?) {
-        val pending = _uiState.value.folderPendingMove ?: return
-        viewModelScope.launch { folderRepository.move(pending, targetParentFolderId) }
-        _uiState.update { it.copy(folderPendingMove = null) }
+        val pendingFolder = _uiState.value.folderPendingMove
+        val pendingRecording = _uiState.value.recordingPendingMove
+        viewModelScope.launch {
+            if (pendingFolder != null) folderRepository.move(pendingFolder, targetParentFolderId)
+            if (pendingRecording != null) recordingRepository.moveToFolder(pendingRecording, targetParentFolderId)
+        }
+        _uiState.update { it.copy(folderPendingMove = null, recordingPendingMove = null) }
     }
 }
