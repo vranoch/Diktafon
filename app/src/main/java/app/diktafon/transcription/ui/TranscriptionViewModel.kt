@@ -5,11 +5,14 @@ import androidx.lifecycle.viewModelScope
 import app.diktafon.recording.domain.Clock
 import app.diktafon.recovery.domain.ProcessingJobRepository
 import app.diktafon.recovery.domain.ProcessingJobType
+import app.diktafon.settings.domain.TranscriptionLanguage
+import app.diktafon.settings.domain.TranscriptionLanguageRepository
 import app.diktafon.transcription.domain.SpeechToTextProvider
 import app.diktafon.transcription.domain.TranscriptRepository
 import app.diktafon.transcription.domain.TranscriptionRequest
 import app.diktafon.transcription.domain.TranscriptionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,8 +26,11 @@ class TranscriptionViewModel @Inject constructor(
     private val sttProvider: SpeechToTextProvider,
     private val transcriptRepository: TranscriptRepository,
     private val processingJobRepository: ProcessingJobRepository,
+    private val transcriptionLanguageRepository: TranscriptionLanguageRepository,
     private val clock: Clock,
 ) : ViewModel() {
+
+    fun availableLanguages(): Flow<List<TranscriptionLanguage>> = transcriptionLanguageRepository.observeAll()
 
     private val _uiState = MutableStateFlow(TranscriptionUiState())
     val uiState: StateFlow<TranscriptionUiState> = _uiState.asStateFlow()

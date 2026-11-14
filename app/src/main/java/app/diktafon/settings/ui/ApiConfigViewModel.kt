@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import app.diktafon.settings.domain.ApiKeyRepository
 import app.diktafon.settings.domain.ProviderConfig
 import app.diktafon.settings.domain.ProviderConfigRepository
+import app.diktafon.settings.domain.TranscriptionLanguage
+import app.diktafon.settings.domain.TranscriptionLanguageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +20,10 @@ import javax.inject.Inject
 class ApiConfigViewModel @Inject constructor(
     private val apiKeyRepository: ApiKeyRepository,
     private val providerConfigRepository: ProviderConfigRepository,
+    private val transcriptionLanguageRepository: TranscriptionLanguageRepository,
 ) : ViewModel() {
+
+    fun availableLanguages(): Flow<List<TranscriptionLanguage>> = transcriptionLanguageRepository.observeAll()
 
     private val _uiState = MutableStateFlow(ApiConfigUiState())
     val uiState: StateFlow<ApiConfigUiState> = _uiState.asStateFlow()

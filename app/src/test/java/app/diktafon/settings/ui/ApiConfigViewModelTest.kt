@@ -2,6 +2,7 @@ package app.diktafon.settings.ui
 
 import app.diktafon.settings.FakeApiKeyRepository
 import app.diktafon.settings.FakeProviderConfigRepository
+import app.diktafon.settings.FakeTranscriptionLanguageRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -28,7 +29,7 @@ class ApiConfigViewModelTest {
         Dispatchers.setMain(dispatcher)
         apiKeyRepository = FakeApiKeyRepository()
         providerConfigRepository = FakeProviderConfigRepository()
-        viewModel = ApiConfigViewModel(apiKeyRepository, providerConfigRepository)
+        viewModel = ApiConfigViewModel(apiKeyRepository, providerConfigRepository, FakeTranscriptionLanguageRepository())
         viewModel.load()
     }
 

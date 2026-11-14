@@ -19,6 +19,7 @@ fun AdminScreen(
     onOpenConnection: () -> Unit,
     onOpenTemplates: () -> Unit,
     onOpenEmailRecipients: () -> Unit,
+    onOpenLanguages: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
         AppHeader(title = "Administrace", onBack = onBack, onHome = onHome)
@@ -30,5 +31,7 @@ fun AdminScreen(
         SecondaryActionButton(text = "Správa šablon", onClick = onOpenTemplates)
         Spacer(Modifier.height(10.dp))
         SecondaryActionButton(text = "E-mailoví příjemci", onClick = onOpenEmailRecipients)
+        Spacer(Modifier.height(10.dp))
+        SecondaryActionButton(text = "Jazyky přepisu", onClick = onOpenLanguages)
     }
 }

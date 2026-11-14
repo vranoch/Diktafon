@@ -1,12 +1,18 @@
 package app.diktafon.settings.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,11 +30,13 @@ import app.diktafon.ui.components.Caption
 import app.diktafon.ui.components.PrimaryActionButton
 import app.diktafon.ui.components.SecondaryActionButton
 import app.diktafon.ui.components.SectionCard
+import app.diktafon.ui.components.SectionLabel
 import app.diktafon.ui.components.StatusBadge
 import app.diktafon.ui.theme.DiktafonAccentContainer
 import app.diktafon.ui.theme.DiktafonAccentContainerOn
 import app.diktafon.ui.theme.DiktafonDangerContainer
 import app.diktafon.ui.theme.DiktafonDangerContainerOn
+import app.diktafon.ui.theme.DiktafonOutline
 import app.diktafon.ui.theme.DiktafonWarningContainer
 import app.diktafon.ui.theme.DiktafonWarningContainerOn
 
@@ -39,6 +47,7 @@ fun ApiConfigScreen(
     viewModel: ApiConfigViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    val availableLanguages by viewModel.availableLanguages().collectAsState(initial = emptyList())
     var sttKeyInput by remember { mutableStateOf("") }
     var llmKeyInput by remember { mutableStateOf("") }
     var sttProviderInput by remember(state.sttProviderName) { mutableStateOf(state.sttProviderName) }
@@ -104,14 +113,34 @@ fun ApiConfigScreen(
         }
         Spacer(Modifier.height(16.dp))
 
-        // TODO (ASSUMPTION): jazyky prepisu jsou zatim jeden volne psany kod, ne spravovany
-        // seznam jako v mockupu - neni podlozeno existujici FR/schematem DB, viz zprava pro uzivatele.
-        OutlinedTextField(
-            value = languageInput,
-            onValueChange = { languageInput = it },
-            label = { Text("Výchozí jazyk přepisu (kód, např. cs)") },
-            modifier = Modifier.fillMaxWidth(),
-        )
+        SectionLabel("Výchozí jazyk přepisu")
+        Spacer(Modifier.height(8.dp))
+        if (availableLanguages.isEmpty()) {
+            Caption("Žádný jazyk není povolený — přidejte jej v Administraci v sekci „Jazyky přepisu“.")
+        } else {
+            Row {
+                availableLanguages.forEachIndexed { index, language ->
+                    if (index > 0) Spacer(Modifier.width(8.dp))
+                    val selected = languageInput == language.code
+                    if (selected) {
+                        Button(
+                            onClick = { languageInput = language.code },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = DiktafonAccentContainer,
+                                contentColor = DiktafonAccentContainerOn,
+                            ),
+                        ) { Text("✓ ${language.displayName}") }
+                    } else {
+                        OutlinedButton(
+                            onClick = { languageInput = language.code },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            border = BorderStroke(1.5.dp, DiktafonOutline),
+                        ) { Text(language.displayName) }
+                    }
+                }
+            }
+        }
         Spacer(Modifier.height(12.dp))
         PrimaryActionButton(
             text = "Uložit nastavení",

@@ -32,8 +32,6 @@ import app.diktafon.ui.theme.DiktafonDangerContainerOn
 import app.diktafon.ui.theme.DiktafonOutline
 import java.io.File
 
-private val offeredLanguages = listOf("cs" to "Čeština", "en" to "English")
-
 @Composable
 fun TranscriptionScreen(
     recordingId: Long,
@@ -43,6 +41,7 @@ fun TranscriptionScreen(
     viewModel: TranscriptionViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    val offeredLanguages by viewModel.availableLanguages().collectAsState(initial = emptyList())
 
     LaunchedEffect(recordingId) {
         viewModel.loadExisting(recordingId)
@@ -54,8 +53,13 @@ fun TranscriptionScreen(
 
         Caption("Jazyk přepisu")
         Spacer(Modifier.height(6.dp))
+        if (offeredLanguages.isEmpty()) {
+            Caption("Žádný jazyk není povolený — přidejte jej v Administraci v sekci „Jazyky přepisu“.")
+        }
         Row {
-            offeredLanguages.forEachIndexed { index, (code, label) ->
+            offeredLanguages.forEachIndexed { index, language ->
+                val code = language.code
+                val label = language.displayName
                 if (index > 0) Spacer(Modifier.width(8.dp))
                 val selected = state.languageCode == code
                 if (selected) {

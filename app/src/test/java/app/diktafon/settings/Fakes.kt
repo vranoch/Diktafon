@@ -5,6 +5,8 @@ import app.diktafon.settings.domain.EmailRecipient
 import app.diktafon.settings.domain.EmailRecipientsRepository
 import app.diktafon.settings.domain.ProviderConfig
 import app.diktafon.settings.domain.ProviderConfigRepository
+import app.diktafon.settings.domain.TranscriptionLanguage
+import app.diktafon.settings.domain.TranscriptionLanguageRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -58,4 +60,27 @@ class FakeEmailRecipientsRepository : EmailRecipientsRepository {
     }
 
     override fun observeAll(): Flow<List<EmailRecipient>> = flow
+}
+
+class FakeTranscriptionLanguageRepository(
+    initial: List<TranscriptionLanguage> = listOf(
+        TranscriptionLanguage("cs", "Čeština"),
+        TranscriptionLanguage("en", "English"),
+    ),
+) : TranscriptionLanguageRepository {
+    private val languages = initial.toMutableList()
+    private val flow = MutableStateFlow(languages.toList())
+
+    override suspend fun add(code: String, displayName: String) {
+        languages.removeAll { it.code == code }
+        languages += TranscriptionLanguage(code, displayName)
+        flow.value = languages.toList()
+    }
+
+    override suspend fun remove(code: String) {
+        languages.removeAll { it.code == code }
+        flow.value = languages.toList()
+    }
+
+    override fun observeAll(): Flow<List<TranscriptionLanguage>> = flow
 }

@@ -24,6 +24,7 @@ import app.diktafon.review.ui.ReviewScreen
 import app.diktafon.review.ui.ReviewViewModel
 import app.diktafon.settings.ui.ApiConfigScreen
 import app.diktafon.settings.ui.EmailRecipientsScreen
+import app.diktafon.settings.ui.LanguagesScreen
 import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateField
 import app.diktafon.structuring.ui.StructuringScreen
@@ -255,6 +256,7 @@ fun DiktafonNavGraph() {
                 onOpenConnection = { navController.navigate("apiConfig") },
                 onOpenTemplates = { navController.navigate("templates") },
                 onOpenEmailRecipients = { navController.navigate("emailRecipients") },
+                onOpenLanguages = { navController.navigate("languages") },
             )
         }
 
@@ -264,6 +266,10 @@ fun DiktafonNavGraph() {
 
         composable("emailRecipients") {
             EmailRecipientsScreen(onBack = { navController.popBackStack() }, onHome = goHome)
+        }
+
+        composable("languages") {
+            LanguagesScreen(onBack = { navController.popBackStack() }, onHome = goHome)
         }
 
         composable("templates") {

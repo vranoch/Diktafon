@@ -12,6 +12,8 @@ import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.settings.data.EmailRecipientEntity
 import app.diktafon.settings.data.ProviderConfigDao
 import app.diktafon.settings.data.ProviderConfigEntity
+import app.diktafon.settings.data.TranscriptionLanguageDao
+import app.diktafon.settings.data.TranscriptionLanguageEntity
 import app.diktafon.structuring.data.StructuredDocumentDao
 import app.diktafon.structuring.data.StructuredDocumentEntity
 import app.diktafon.structuring.data.TemplateDao
@@ -30,8 +32,9 @@ import app.diktafon.transcription.data.TranscriptEntity
         TemplateEntity::class,
         ProviderConfigEntity::class,
         LastUsedFolderEntity::class,
+        TranscriptionLanguageEntity::class,
     ],
-    version = 10,
+    version = 11,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -44,4 +47,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun templateDao(): TemplateDao
     abstract fun providerConfigDao(): ProviderConfigDao
     abstract fun lastUsedFolderDao(): LastUsedFolderDao
+    abstract fun transcriptionLanguageDao(): TranscriptionLanguageDao
 }

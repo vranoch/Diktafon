@@ -2,8 +2,10 @@ package app.diktafon.di
 
 import app.diktafon.settings.data.EncryptedApiKeyRepository
 import app.diktafon.settings.data.ProviderConfigRepositoryImpl
+import app.diktafon.settings.data.TranscriptionLanguageRepositoryImpl
 import app.diktafon.settings.domain.ApiKeyRepository
 import app.diktafon.settings.domain.ProviderConfigRepository
+import app.diktafon.settings.domain.TranscriptionLanguageRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,4 +20,7 @@ abstract class ApiConfigBindingsModule {
 
     @Binds
     abstract fun bindProviderConfigRepository(impl: ProviderConfigRepositoryImpl): ProviderConfigRepository
+
+    @Binds
+    abstract fun bindTranscriptionLanguageRepository(impl: TranscriptionLanguageRepositoryImpl): TranscriptionLanguageRepository
 }

@@ -2,6 +2,7 @@ package app.diktafon.transcription.ui
 
 import app.diktafon.recording.FakeClock
 import app.diktafon.recovery.FakeProcessingJobRepository
+import app.diktafon.settings.FakeTranscriptionLanguageRepository
 import app.diktafon.transcription.FakeSpeechToTextProvider
 import app.diktafon.transcription.FakeTranscriptRepository
 import app.diktafon.transcription.domain.TranscriptionResult
@@ -40,6 +41,7 @@ class TranscriptionViewModelTest {
         sttProvider = FakeSpeechToTextProvider(result),
         transcriptRepository = repository,
         processingJobRepository = FakeProcessingJobRepository(),
+        transcriptionLanguageRepository = FakeTranscriptionLanguageRepository(),
         clock = FakeClock(5_000_000),
     )
 
@@ -111,6 +113,7 @@ class TranscriptionViewModelTest {
             ),
             transcriptRepository = repository,
             processingJobRepository = FakeProcessingJobRepository(),
+            transcriptionLanguageRepository = FakeTranscriptionLanguageRepository(),
             clock = FakeClock(6_000_000),
         )
         retryVm.startTranscription(recordingId = 1, audioFile = audioFile)

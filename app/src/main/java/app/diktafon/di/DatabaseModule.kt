@@ -2,6 +2,8 @@ package app.diktafon.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import app.diktafon.folders.data.FolderDao
 import app.diktafon.folders.data.LastUsedFolderDao
 import app.diktafon.recording.data.AppDatabase
@@ -9,6 +11,7 @@ import app.diktafon.recording.data.RecordingDao
 import app.diktafon.recovery.data.ProcessingJobDao
 import app.diktafon.settings.data.EmailRecipientDao
 import app.diktafon.settings.data.ProviderConfigDao
+import app.diktafon.settings.data.TranscriptionLanguageDao
 import app.diktafon.structuring.data.StructuredDocumentDao
 import app.diktafon.structuring.data.TemplateDao
 import app.diktafon.transcription.data.TranscriptDao
@@ -29,6 +32,14 @@ object DatabaseModule {
         Room.databaseBuilder(context, AppDatabase::class.java, "diktafon.db")
             // Pred-release MVP bez existujicich uzivatelskych dat - destruktivni migrace je prijatelna.
             .fallbackToDestructiveMigration()
+            .addCallback(object : RoomDatabase.Callback() {
+                // Vychozi sada povolenych jazyku prepisu (FR-CFG-005) - jen pri prvnim vytvoreni DB.
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    db.execSQL("INSERT INTO transcription_languages (code, displayName) VALUES ('cs', 'Čeština')")
+                    db.execSQL("INSERT INTO transcription_languages (code, displayName) VALUES ('en', 'English')")
+                }
+            })
             .build()
 
     @Provides
@@ -58,4 +69,8 @@ object DatabaseModule {
 
     @Provides
     fun provideLastUsedFolderDao(database: AppDatabase): LastUsedFolderDao = database.lastUsedFolderDao()
+
+    @Provides
+    fun provideTranscriptionLanguageDao(database: AppDatabase): TranscriptionLanguageDao =
+        database.transcriptionLanguageDao()
 }
