@@ -2,9 +2,10 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-13
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-14
 **Zdroje:**
 - Doplněno na popud uživatele v rámci revize, 2026-11-13 (tato konverzace) — chyběl use-case pokrývající [FR-TPL-004](../requirements/FR-TPL-004-vytvoreni-a-uprava-sablony-z-prikladu-s-testovanim.md)/[FR-TPL-005](../requirements/FR-TPL-005-export-sdileni-sablon-zalohovani.md) a [ADR-009](../decisions/ADR-009-sablony-vznikaji-z-prikladu-pres-llm-s-iterativnim-testovanim.md).
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -32,6 +33,10 @@ Je nakonfigurován LLM provider (viz [UC-007](UC-007-nastavit-externi-api.md)). 
 ## Výsledek
 
 Existuje uložená, verzovaná šablona použitelná při strukturování (viz [UC-004](UC-004-strukturovat-text-podle-sablony.md)); odvozené schéma/instrukce jsou návrh ověřený uživatelem přes test na reálných datech, ne automaticky důvěryhodný výstup LLM.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Administrace → Správa šablon (katalog existujících šablon) a Šablona (zadání vzorového textu, odvození draftu, test na existujícím přepisu, uložení nové verze).
 
 ## Související
 

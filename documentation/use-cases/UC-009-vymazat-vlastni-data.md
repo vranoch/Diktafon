@@ -2,9 +2,10 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-12
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-009
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -28,6 +29,10 @@ Existuje nahrávka nebo odvozený artefakt určený ke smazání.
 ## Výsledek
 
 Lokální smazání je provedeno a diagnostikováno; **nelze tím automaticky zaručit odstranění dat u externího AI poskytovatele**.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): mazání je kontextová ikona přímo u artefaktu (epizoda/přepis/celý záznam v Detailu nahrávky, prázdná složka ve Složkách) místo samostatné obrazovky potvrzení.
 
 ## Související
 

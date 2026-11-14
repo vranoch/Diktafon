@@ -2,10 +2,11 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-007
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — výslovně označeno jako administrační použití (viz [ADR-010](../decisions/ADR-010-tri-urovne-pouziti-bezne-rozsirene-administracni.md)).
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu; jazyky přepisu se spravují samostatně mimo toto API nastavení.
 
 ## Aktér
 
@@ -33,6 +34,10 @@ Uživatel / správce jediného zařízení (administrační použití — viz [A
 ## Výsledek
 
 Existuje použitelná konfigurace, nebo srozumitelná diagnostika chyby.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Administrace → Připojení (API klíče, provider pro STT a LLM). Správa jazyků nabízených při přepisu je samostatná položka Administrace (viz [UC-003](UC-003-prevest-nahravku-na-cesky-text.md#obrazovky-a-tok)).
 
 ## Související
 

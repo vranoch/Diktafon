@@ -2,9 +2,10 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-12
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-005
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -31,6 +32,10 @@ Existuje strukturovaný návrh dokumentu.
 ## Výsledek
 
 Existuje uložený, uživatelsky zkontrolovaný dokument.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Kontrola — přímo editovatelný výsledný formátovaný dokument s viditelně označenými chybějícími poli, sbalitelný doslovný přepis jako zdroj k porovnání a akce „Uložit změny“ / „Schválit a pokračovat“ / „Zrušit převod“.
 
 ## Související
 

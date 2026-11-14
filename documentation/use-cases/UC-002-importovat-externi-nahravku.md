@@ -2,10 +2,11 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-12
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-002
 - Upřesnění uživatele v rámci revize, 2026-11-12 (tato konverzace) — vznik nahrávky zrcadlí [UC-001](UC-001-poridit-a-ulozit-hlasovy-zaznam.md) (volba složky, předgenerovaný název, poznámka), místo spuštění záznamu se ale vyhledá a vloží existující soubor.
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -37,6 +38,10 @@ TODO: upřesnit, zda lze při jednom importu vybrat a vložit více souborů naj
 ## Výsledek
 
 Import lze zpracovat bez trvalé závislosti na externím médiu.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Import (volba cílové složky, systémový výběr souboru) a Detail nahrávky se zobrazenou importovanou epizodou.
 
 ## Související
 

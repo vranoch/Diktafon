@@ -2,10 +2,11 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-006
 - Doplněno na popud uživatele v rámci revize, 2026-11-13 (tato konverzace) — výběr příjemce ze seznamu e-mailových adres, viz [FR-CFG-004](../requirements/FR-CFG-004-sprava-seznamu-emailovych-adres.md)/[FR-OUT-004](../requirements/FR-OUT-004-vyber-prijemce-ze-seznamu-pri-odeslani-emailem.md).
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -33,6 +34,10 @@ Existuje schválený strukturovaný dokument.
 ## Výsledek
 
 Dokument zůstává lokálně uložený i při selhání exportu.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Export (odeslání e-mailem s výběrem příjemce ze seznamu, export do dalších nainstalovaných aplikací) a administrační E-mailoví příjemci pro správu seznamu adres.
 
 ## Související
 

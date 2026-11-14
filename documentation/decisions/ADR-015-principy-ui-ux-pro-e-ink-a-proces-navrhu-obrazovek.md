@@ -2,7 +2,7 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-14
-**Změněno:** 2026-11-14
+**Změněno:** 2026-11-14 (doplněny odkazy z use-case souborů po schválení přepracovaného mockupu)
 **Zdroje:**
 - [Chat-extract 2026-11-14](../source-materials/chat-extracts/2026-11-14-ux-ui-principy-pro-e-ink.md) — zpětná vazba uživatele, že dosavadní mockup nerespektoval dost důsledně NFR-UX-001/002 a ADR-010, a rozhodnutí o cílovém zařízení, konkrétních číslech a způsobu záznamu UX návrhu.
 
@@ -96,4 +96,4 @@ Tato pravidla doplňují akceptační kritéria [NFR-UX-002](../requirements/NFR
 
 - Požadavek: [NFR-UX-001](../requirements/NFR-UX-001-jednoduche-ux-pro-netechnickeho-uzivatele.md), [NFR-UX-002](../requirements/NFR-UX-002-e-ink-optimalizace-ui.md)
 - ADR: [ADR-010](ADR-010-tri-urovne-pouziti-bezne-rozsirene-administracni.md), [ADR-014](ADR-014-navigace-strom-slozek-kontextove-akce.md)
-- Use-case: (doplní se do jednotlivých UC po schválení přepracovaného mockupu)
+- Use-case: [UC-001](../use-cases/UC-001-poridit-a-ulozit-hlasovy-zaznam.md), [UC-002](../use-cases/UC-002-importovat-externi-nahravku.md), [UC-003](../use-cases/UC-003-prevest-nahravku-na-cesky-text.md), [UC-004](../use-cases/UC-004-strukturovat-text-podle-sablony.md), [UC-005](../use-cases/UC-005-opravit-a-schvalit-navrh-dokumentu.md), [UC-006](../use-cases/UC-006-exportovat-predat-dokument.md), [UC-007](../use-cases/UC-007-nastavit-externi-api.md), [UC-008](../use-cases/UC-008-obnovit-prerusene-zpracovani.md), [UC-009](../use-cases/UC-009-vymazat-vlastni-data.md), [UC-010](../use-cases/UC-010-zpracovat-audio-s-nadiktovanou-sablonou.md), [UC-011](../use-cases/UC-011-organizovat-nahravky-do-slozek.md), [UC-012](../use-cases/UC-012-vytvorit-a-otestovat-sablonu.md) — každý má sekci „Obrazovky a tok“ odkazující na schválený mockup.

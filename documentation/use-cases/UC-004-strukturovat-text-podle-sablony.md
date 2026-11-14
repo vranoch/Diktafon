@@ -2,10 +2,11 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-12
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-004
 - Upřesnění uživatele v rámci revize, 2026-11-12 (tato konverzace) — zobrazení obsahu šablony před zpracováním není nutné, stačí zobrazit až výsledek.
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -34,6 +35,10 @@ Existuje přepis a vybraná/rozpoznaná/výchozí šablona.
 ## Výsledek
 
 Vznikne strukturovaný **návrh** s ID/verzí šablony, nebo je diagnostikován neúspěch.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Detail nahrávky (sekce Formátovaný výstup, tlačítko „Konvertovat podle šablony“) a Šablona (potvrzení rozpoznané/zvolené šablony — potvrzením se rovnou spustí zpracování a otevře Kontrola, bez samostatné mezikrokové obrazovky).
 
 ## Související
 

@@ -2,9 +2,10 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-12
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-003
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -36,6 +37,10 @@ Existuje audio, je dostupná konektivita a platná konfigurace API.
 ## Výsledek
 
 Existuje verzovaný přepis, nebo jasná chyba.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Detail nahrávky (sekce Přepis se spojeným textem všech epizod) a obrazovka Přepis (volba/změna jazyka s explicitním tlačítkem pro opětovné provedení přepisu, editace textu); nabízený seznam jazyků se spravuje v administraci na samostatné obrazovce Jazyky přepisu (viz [UC-007](UC-007-nastavit-externi-api.md#obrazovky-a-tok)).
 
 ## Související
 

@@ -2,10 +2,11 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-13
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-14
 **Zdroje:**
 - Doplněno na popud uživatele v rámci revize, 2026-11-13 (tato konverzace) — chyběl use-case pokrývající [FR-AUD-011](../requirements/FR-AUD-011-organizace-nahravek-do-slozek.md).
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — procházení jako strom (souborový prohlížeč), smazání neprázdné složky zakázáno, přesun složky doplněn; viz [ADR-013](../decisions/ADR-013-hierarchicka-struktura-slozek.md)/[ADR-014](../decisions/ADR-014-navigace-strom-slozek-kontextove-akce.md).
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -32,6 +33,10 @@ Existuje alespoň jedna nahrávka (viz [UC-001](UC-001-poridit-a-ulozit-hlasovy-
 ## Výsledek
 
 Nahrávky jsou organizované do uživatelem definované stromové struktury složek; organizace do složek je nezávislá na logickém seskupení artefaktů jedné nahrávky (viz [ADR-005](../decisions/ADR-005-lokalni-perzistence-vsech-mezivysledku.md)).
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): obrazovka Složky (strom složek, nová/přejmenovat/přesunout, založení nahrávky přímo ve složce) dostupná z Domů.
 
 ## Související
 

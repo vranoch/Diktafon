@@ -2,11 +2,12 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-14
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-001
 - Upřesnění uživatele v rámci revize, 2026-11-12 (tato konverzace) — volba cílové složky a předgenerovaný název/poznámka při zahájení nahrávání.
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — zkratka "Nová nahrávka" na hlavní obrazovce míří do naposledy použité složky; A1 (oprávnění k mikrofonu) implementováno jako runtime dotaz s chybovým stavem místo pádu, viz [ADR-014](../decisions/ADR-014-navigace-strom-slozek-kontextove-akce.md).
+- [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
 
 ## Aktér
 
@@ -37,6 +38,10 @@ Aplikace má oprávnění mikrofonu a dostatek úložiště.
 ## Výsledek
 
 Korektní nahrávka je lokálně uložena, nebo je explicitně indikováno selhání bez falešného úspěchu.
+
+## Obrazovky a tok
+
+Realizováno mockupem [Diktafon – návrh obrazovek](https://claude.ai/artifact/1iuLje7CMomhtKSSiLFw4d) (viz [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md)): Domů (zkratka „Nová nahrávka“), Příprava nahrávání s volbou složky, Aktivní nahrávání (pauza/stop) a Detail nahrávky po uložení.
 
 ## Související
 
