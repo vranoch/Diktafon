@@ -6,8 +6,19 @@ Build/test běží jen v kontejneru (viz [ADR-011](documentation/decisions/ADR-0
 
 ```bash
 docker build -t diktafon-dev -f .devcontainer/Dockerfile .devcontainer
-docker run --rm -v "$(pwd)":/workspace diktafon-dev sh -c "cd /workspace && ./gradlew test"
+docker run --rm -v "$(pwd)":/workspace -v diktafon-gradle-cache:/root/.gradle diktafon-dev sh -c "cd /workspace && ./gradlew test"
 ```
+
+**Poznámka pro Git Bash na Windows:** MSYS automaticky převádí cesty v `-v "$(pwd)":/workspace`,
+což může mount umlčet na prázdný adresář (v kontejneru pak `./gradlew: not found`). Pokud se to
+stane, spusť příkaz s `MSYS_NO_PATHCONV=1` před `docker run`, nebo použij cestu ve tvaru
+`//d/data/vyvoj/Diktafon` místo `$(pwd)`.
+
+Druhý `-v` mount (`diktafon-gradle-cache`) je pojmenovaný Docker volume, který mezi jednotlivými
+`docker run` běhy drží `$GRADLE_USER_HOME` (stažené závislosti, cache buildu) — bez něj by se
+likvidovaly při každém `--rm` běhu kontejneru a Gradle Wrapper by si navíc zbytečně znovu
+stahoval vlastní distribuci Gradle (přestože je v image předinstalovaná v `/opt/gradle`, ale
+`./gradlew` ji nepoužije).
 
 ## Klíčové soubory pro orientaci
 
