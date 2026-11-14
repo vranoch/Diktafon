@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.diktafon.settings.domain.ProviderNames
 import app.diktafon.ui.components.AppHeader
 import app.diktafon.ui.components.Caption
 import app.diktafon.ui.components.PrimaryActionButton
@@ -67,9 +68,8 @@ fun ApiConfigScreen(
         AppHeader(title = "Připojení", onBack = onBack, onHome = onHome)
         Spacer(Modifier.height(12.dp))
         Caption(
-            "Provider a Model zatím nic nespouští — dokud není podle ADR-004 vybraná konkrétní " +
-                "externí služba, přepis i zpracování šablonou běží jen jako simulace bez ohledu na " +
-                "tato pole a na uložený klíč.",
+            "U Simulace není potřeba API klíč — přepis i zpracování šablonou jen předstírají " +
+                "výsledek. OpenAI volá skutečnou službu a potřebuje platný klíč.",
         )
         Spacer(Modifier.height(12.dp))
 
@@ -82,8 +82,8 @@ fun ApiConfigScreen(
             )
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(value = sttKeyInput, onValueChange = { sttKeyInput = it }, label = { Text("STT API klíč") }, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = sttProviderInput, onValueChange = { sttProviderInput = it }, label = { Text("Provider (např. openai)") }, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(10.dp))
+            ProviderSelector(selected = sttProviderInput, onSelect = { sttProviderInput = it })
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(value = sttModelInput, onValueChange = { sttModelInput = it }, label = { Text("Model (např. whisper-1)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
@@ -102,10 +102,10 @@ fun ApiConfigScreen(
             )
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(value = llmKeyInput, onValueChange = { llmKeyInput = it }, label = { Text("LLM API klíč") }, modifier = Modifier.fillMaxWidth())
+            Spacer(Modifier.height(10.dp))
+            ProviderSelector(selected = llmProviderInput, onSelect = { llmProviderInput = it })
             Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = llmProviderInput, onValueChange = { llmProviderInput = it }, label = { Text("Provider (např. anthropic)") }, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(value = llmModelInput, onValueChange = { llmModelInput = it }, label = { Text("Model (např. claude-sonnet)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = llmModelInput, onValueChange = { llmModelInput = it }, label = { Text("Model (např. gpt-4o-mini)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
             SecondaryActionButton(text = "Uložit LLM klíč", onClick = { viewModel.saveLlmApiKey(llmKeyInput); llmKeyInput = "" })
             Spacer(Modifier.height(8.dp))
@@ -155,5 +155,45 @@ fun ApiConfigScreen(
             Spacer(Modifier.height(12.dp))
             StatusBadge(text = it, glyph = "!", containerColor = DiktafonDangerContainer, contentColor = DiktafonDangerContainerOn)
         }
+    }
+}
+
+@Composable
+private fun ProviderSelector(selected: String, onSelect: (String) -> Unit) {
+    val isOpenAi = selected.equals(ProviderNames.OPENAI, ignoreCase = true)
+    Row {
+        ProviderChip(
+            label = "Simulace",
+            selected = !isOpenAi,
+            onClick = { onSelect(ProviderNames.MOCK) },
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.width(8.dp))
+        ProviderChip(
+            label = "OpenAI",
+            selected = isOpenAi,
+            onClick = { onSelect(ProviderNames.OPENAI) },
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun ProviderChip(label: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    if (selected) {
+        Button(
+            onClick = onClick,
+            modifier = modifier.height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DiktafonAccentContainer,
+                contentColor = DiktafonAccentContainerOn,
+            ),
+        ) { Text("✓ $label") }
+    } else {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier.height(48.dp),
+            border = BorderStroke(1.5.dp, DiktafonOutline),
+        ) { Text(label) }
     }
 }

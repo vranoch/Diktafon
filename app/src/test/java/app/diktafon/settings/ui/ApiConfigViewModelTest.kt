@@ -78,4 +78,20 @@ class ApiConfigViewModelTest {
         assertEquals("acme", state.sttProviderName)
         assertEquals("en", state.defaultLanguageCode)
     }
+
+    @Test
+    fun `hasSttApiKey zustane true i po zvoleni providera openai`() {
+        viewModel.saveSttApiKey("sk-test-123")
+        assertTrue(viewModel.uiState.value.hasSttApiKey)
+
+        viewModel.saveConfig(
+            sttProviderName = "openai",
+            sttModel = "whisper-1",
+            llmProviderName = "",
+            llmModel = "",
+            defaultLanguageCode = "cs",
+        )
+
+        assertTrue(viewModel.uiState.value.hasSttApiKey)
+    }
 }

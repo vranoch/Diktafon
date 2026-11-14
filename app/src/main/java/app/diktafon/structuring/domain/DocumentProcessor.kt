@@ -11,6 +11,7 @@ sealed interface StructuringResult {
     sealed interface Failure : StructuringResult {
         data object InvalidJson : Failure
         data object RejectedByModel : Failure
+        data object Unauthorized : Failure
         data object Timeout : Failure
         data class ServerError(val cause: Throwable? = null) : Failure
     }

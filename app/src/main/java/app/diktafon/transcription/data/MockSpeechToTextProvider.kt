@@ -5,8 +5,8 @@ import app.diktafon.transcription.domain.TranscriptionRequest
 import app.diktafon.transcription.domain.TranscriptionResult
 import javax.inject.Inject
 
-// Zatím není vybrán žádný konkrétní STT provider (viz ADR-004) — toto je jediná dostupná
-// implementace, dokud nevznikne rozhodnutí o konkrétní externí službě.
+// Vychozi simulace (ADR-004) - pouziva se, dokud je v Administraci vybrana "Simulace", aby
+// aplikaci slo zkouset bez nakladu a bez API klice. Realna implementace: OpenAiSpeechToTextProvider.
 class MockSpeechToTextProvider @Inject constructor() : SpeechToTextProvider {
 
     override suspend fun transcribe(request: TranscriptionRequest): TranscriptionResult {
@@ -14,8 +14,8 @@ class MockSpeechToTextProvider @Inject constructor() : SpeechToTextProvider {
             return TranscriptionResult.Failure.EmptyResult
         }
         return TranscriptionResult.Success(
-            text = "⚠ SIMULACE PŘEPISU — žádný STT provider zatím není připojen (viz ADR-004), " +
-                "toto NENÍ skutečný přepis nahrávky.\n" +
+            text = "⚠ SIMULACE PŘEPISU — v Administraci je vybraná Simulace, ne reálná STT " +
+                "služba, toto NENÍ skutečný přepis nahrávky.\n" +
                 "Soubor: ${request.audioFile.name}\n" +
                 "Jazyk: ${request.languageCode}",
             providerName = "mock",

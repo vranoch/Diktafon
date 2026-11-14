@@ -87,6 +87,7 @@ class StructuringViewModel @Inject constructor(
 private fun StructuringResult.Failure.toUserMessage(): String = when (this) {
     StructuringResult.Failure.InvalidJson -> "Výstup zpracování nebyl platný JSON."
     StructuringResult.Failure.RejectedByModel -> "Model odmítl zpracování přepisu."
+    StructuringResult.Failure.Unauthorized -> "Neplatné nebo chybějící API přihlášení pro LLM."
     StructuringResult.Failure.Timeout -> "Vypršel časový limit zpracování."
     is StructuringResult.Failure.ServerError -> "Chyba služby při zpracování, zkuste to znovu."
 }

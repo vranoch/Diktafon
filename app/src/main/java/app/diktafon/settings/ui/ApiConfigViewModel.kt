@@ -3,6 +3,7 @@ package app.diktafon.settings.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.diktafon.settings.domain.ApiKeyRepository
+import app.diktafon.settings.domain.ApiKeySlots
 import app.diktafon.settings.domain.ProviderConfig
 import app.diktafon.settings.domain.ProviderConfigRepository
 import app.diktafon.settings.domain.TranscriptionLanguage
@@ -38,8 +39,8 @@ class ApiConfigViewModel @Inject constructor(
                         llmProviderName = config.llmProviderName,
                         llmModel = config.llmModel,
                         defaultLanguageCode = config.defaultLanguageCode,
-                        hasSttApiKey = apiKeyRepository.hasApiKey(config.sttProviderName.ifBlank { STT_KEY_SLOT }),
-                        hasLlmApiKey = apiKeyRepository.hasApiKey(config.llmProviderName.ifBlank { LLM_KEY_SLOT }),
+                        hasSttApiKey = apiKeyRepository.hasApiKey(STT_KEY_SLOT),
+                        hasLlmApiKey = apiKeyRepository.hasApiKey(LLM_KEY_SLOT),
                     )
                 }
             }
@@ -101,7 +102,7 @@ class ApiConfigViewModel @Inject constructor(
     }
 
     companion object {
-        private const val STT_KEY_SLOT = "stt"
-        private const val LLM_KEY_SLOT = "llm"
+        private const val STT_KEY_SLOT = ApiKeySlots.STT
+        private const val LLM_KEY_SLOT = ApiKeySlots.LLM
     }
 }

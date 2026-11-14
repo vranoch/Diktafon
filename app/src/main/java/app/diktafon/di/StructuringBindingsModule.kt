@@ -1,7 +1,7 @@
 package app.diktafon.di
 
+import app.diktafon.structuring.data.DocumentProcessorSelector
 import app.diktafon.structuring.data.JsonSchemaDocumentValidator
-import app.diktafon.structuring.data.MockDocumentProcessor
 import app.diktafon.structuring.data.MockTemplateDraftGenerator
 import app.diktafon.structuring.data.StructuredDocumentRepositoryImpl
 import app.diktafon.structuring.data.TemplateRepositoryImpl
@@ -20,7 +20,7 @@ import dagger.hilt.components.SingletonComponent
 abstract class StructuringBindingsModule {
 
     @Binds
-    abstract fun bindDocumentProcessor(impl: MockDocumentProcessor): DocumentProcessor
+    abstract fun bindDocumentProcessor(impl: DocumentProcessorSelector): DocumentProcessor
 
     @Binds
     abstract fun bindStructuredDocumentValidator(impl: JsonSchemaDocumentValidator): StructuredDocumentValidator

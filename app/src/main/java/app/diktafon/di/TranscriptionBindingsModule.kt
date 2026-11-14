@@ -1,6 +1,6 @@
 package app.diktafon.di
 
-import app.diktafon.transcription.data.MockSpeechToTextProvider
+import app.diktafon.transcription.data.SpeechToTextProviderSelector
 import app.diktafon.transcription.data.TranscriptRepositoryImpl
 import app.diktafon.transcription.domain.SpeechToTextProvider
 import app.diktafon.transcription.domain.TranscriptRepository
@@ -14,7 +14,7 @@ import dagger.hilt.components.SingletonComponent
 abstract class TranscriptionBindingsModule {
 
     @Binds
-    abstract fun bindSpeechToTextProvider(impl: MockSpeechToTextProvider): SpeechToTextProvider
+    abstract fun bindSpeechToTextProvider(impl: SpeechToTextProviderSelector): SpeechToTextProvider
 
     @Binds
     abstract fun bindTranscriptRepository(impl: TranscriptRepositoryImpl): TranscriptRepository
