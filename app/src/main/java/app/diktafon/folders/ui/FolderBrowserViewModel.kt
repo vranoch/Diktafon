@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.diktafon.folders.domain.Folder
 import app.diktafon.folders.domain.FolderDeletionResult
+import app.diktafon.folders.domain.FolderMoveSession
 import app.diktafon.folders.domain.FolderRepository
+import app.diktafon.folders.domain.PendingMove
 import app.diktafon.recording.domain.Recording
 import app.diktafon.recording.domain.RecordingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,10 +22,15 @@ import javax.inject.Inject
 class FolderBrowserViewModel @Inject constructor(
     private val folderRepository: FolderRepository,
     private val recordingRepository: RecordingRepository,
+    private val moveSession: FolderMoveSession,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FolderBrowserUiState())
     val uiState: StateFlow<FolderBrowserUiState> = _uiState.asStateFlow()
+
+    // Sdilene napric vsemi obrazovkami slozek (viz FolderMoveSession) - prezije navigaci
+    // do cilove slozky, kde se presun potvrzuje.
+    val pendingMove: StateFlow<PendingMove?> = moveSession.pending
 
     fun childFolders(parentFolderId: Long?): Flow<List<Folder>> = folderRepository.observeChildren(parentFolderId)
 
@@ -49,25 +56,19 @@ class FolderBrowserViewModel @Inject constructor(
         }
     }
 
-    fun beginMove(folderId: Long) {
-        _uiState.update { it.copy(folderPendingMove = folderId, recordingPendingMove = null) }
-    }
+    fun beginMove(folderId: Long) = moveSession.beginMoveFolder(folderId)
 
-    fun beginMoveRecording(recordingId: Long) {
-        _uiState.update { it.copy(recordingPendingMove = recordingId, folderPendingMove = null) }
-    }
+    fun beginMoveRecording(recordingId: Long) = moveSession.beginMoveRecording(recordingId)
 
-    fun cancelMove() {
-        _uiState.update { it.copy(folderPendingMove = null, recordingPendingMove = null) }
-    }
+    fun cancelMove() = moveSession.cancel()
 
     fun confirmMoveHere(targetParentFolderId: Long?) {
-        val pendingFolder = _uiState.value.folderPendingMove
-        val pendingRecording = _uiState.value.recordingPendingMove
+        val pending = moveSession.consume() ?: return
         viewModelScope.launch {
-            if (pendingFolder != null) folderRepository.move(pendingFolder, targetParentFolderId)
-            if (pendingRecording != null) recordingRepository.moveToFolder(pendingRecording, targetParentFolderId)
+            when (pending) {
+                is PendingMove.Folder -> folderRepository.move(pending.folderId, targetParentFolderId)
+                is PendingMove.Recording -> recordingRepository.moveToFolder(pending.recordingId, targetParentFolderId)
+            }
         }
-        _uiState.update { it.copy(folderPendingMove = null, recordingPendingMove = null) }
     }
 }

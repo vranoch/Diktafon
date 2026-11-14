@@ -1,6 +1,7 @@
 package app.diktafon.folders.ui
 
 import app.diktafon.folders.FakeFolderRepository
+import app.diktafon.folders.domain.FolderMoveSession
 import app.diktafon.recording.FakeRecordingRepository
 import app.diktafon.recording.domain.Recording
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ class FolderBrowserViewModelTest {
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var folderRepository: FakeFolderRepository
     private lateinit var recordingRepository: FakeRecordingRepository
+    private lateinit var moveSession: FolderMoveSession
     private lateinit var viewModel: FolderBrowserViewModel
 
     @Before
@@ -29,7 +31,8 @@ class FolderBrowserViewModelTest {
         Dispatchers.setMain(dispatcher)
         folderRepository = FakeFolderRepository()
         recordingRepository = FakeRecordingRepository()
-        viewModel = FolderBrowserViewModel(folderRepository, recordingRepository)
+        moveSession = FolderMoveSession()
+        viewModel = FolderBrowserViewModel(folderRepository, recordingRepository, moveSession)
     }
 
     @After
@@ -60,11 +63,11 @@ class FolderBrowserViewModelTest {
         val b = folderRepository.create("B", null)
 
         viewModel.beginMove(b)
-        assertEquals(b, viewModel.uiState.value.folderPendingMove)
+        assertNotNull(viewModel.pendingMove.value)
 
         viewModel.confirmMoveHere(a)
 
-        assertNull(viewModel.uiState.value.folderPendingMove)
+        assertNull(viewModel.pendingMove.value)
         assertEquals(a, folderRepository.folders.first { it.id == b }.parentFolderId)
     }
 
@@ -75,7 +78,7 @@ class FolderBrowserViewModelTest {
 
         viewModel.cancelMove()
 
-        assertNull(viewModel.uiState.value.folderPendingMove)
+        assertNull(viewModel.pendingMove.value)
         assertNull(folderRepository.folders.first { it.id == b }.parentFolderId)
     }
 
@@ -87,11 +90,11 @@ class FolderBrowserViewModelTest {
         )
 
         viewModel.beginMoveRecording(recordingId)
-        assertEquals(recordingId, viewModel.uiState.value.recordingPendingMove)
+        assertNotNull(viewModel.pendingMove.value)
 
         viewModel.confirmMoveHere(target)
 
-        assertNull(viewModel.uiState.value.recordingPendingMove)
+        assertNull(viewModel.pendingMove.value)
         assertEquals(target, recordingRepository.saved.first { it.id == recordingId }.folderId)
     }
 
@@ -104,7 +107,28 @@ class FolderBrowserViewModelTest {
 
         viewModel.cancelMove()
 
-        assertNull(viewModel.uiState.value.recordingPendingMove)
+        assertNull(viewModel.pendingMove.value)
         assertNull(recordingRepository.saved.first { it.id == recordingId }.folderId)
+    }
+
+    @Test
+    fun `presun prezije navigaci do jine slozky (jina instance ViewModelu se stejnou session)`() = runTest {
+        val target = folderRepository.create("Test1", null)
+        val recordingId = recordingRepository.saveRecording(
+            Recording(name = "Nahrávka", note = "", folderId = null, filePath = "x.m4a", durationMs = 1000, createdAtMillis = 0),
+        )
+
+        // Zacatek presunu na "home" obrazovce.
+        viewModel.beginMoveRecording(recordingId)
+
+        // Navigace do cilove slozky vytvori NOVOU instanci ViewModelu (jiny nav. back-stack
+        // zaznam), ale musi videt stejny probihajici presun pres sdilenou FolderMoveSession.
+        val viewModelInTargetFolder = FolderBrowserViewModel(folderRepository, recordingRepository, moveSession)
+        assertNotNull(viewModelInTargetFolder.pendingMove.value)
+
+        viewModelInTargetFolder.confirmMoveHere(target)
+
+        assertNull(viewModelInTargetFolder.pendingMove.value)
+        assertEquals(target, recordingRepository.saved.first { it.id == recordingId }.folderId)
     }
 }

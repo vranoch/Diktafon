@@ -42,15 +42,17 @@ fun FolderBrowserScreen(
     val folders by viewModel.childFolders(folderId).collectAsState(initial = emptyList())
     val recordings by viewModel.recordingsInFolder(folderId).collectAsState(initial = emptyList())
     val state by viewModel.uiState.collectAsState()
+    val pendingMove by viewModel.pendingMove.collectAsState()
     var newFolderName by remember { mutableStateOf("") }
+    val isMoving = pendingMove != null
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
         AppHeader(title = "Složky", onBack = onBack, onHome = onHome)
         Spacer(Modifier.height(8.dp))
 
-        if (state.folderPendingMove != null || state.recordingPendingMove != null) {
+        if (pendingMove != null) {
             StatusBadge(
-                text = "Vyberte cílovou složku pro přesun",
+                text = "Vyberte cílovou složku pro přesun (procházejte složky níže)",
                 glyph = "➜",
                 containerColor = DiktafonDangerContainer,
                 contentColor = DiktafonDangerContainerOn,
@@ -64,53 +66,59 @@ fun FolderBrowserScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        Row {
-            SecondaryActionButton(text = "Nová nahrávka", onClick = { onNewRecording(folderId) }, modifier = Modifier.weight(1f))
-            Spacer(Modifier.width(10.dp))
-            SecondaryActionButton(text = "Importovat", onClick = { onImport(folderId) }, modifier = Modifier.weight(1f))
-        }
-        Spacer(Modifier.height(16.dp))
+        if (!isMoving) {
+            Row {
+                SecondaryActionButton(text = "Nová nahrávka", onClick = { onNewRecording(folderId) }, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(10.dp))
+                SecondaryActionButton(text = "Importovat", onClick = { onImport(folderId) }, modifier = Modifier.weight(1f))
+            }
+            Spacer(Modifier.height(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-                value = newFolderName,
-                onValueChange = { newFolderName = it },
-                label = { Text("Nová složka") },
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(Modifier.width(10.dp))
-            PrimaryActionButton(
-                text = "Vytvořit",
-                onClick = { viewModel.createFolder(newFolderName, folderId); newFolderName = "" },
-                modifier = Modifier.weight(1f),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = newFolderName,
+                    onValueChange = { newFolderName = it },
+                    label = { Text("Nová složka") },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(10.dp))
+                PrimaryActionButton(
+                    text = "Vytvořit",
+                    onClick = { viewModel.createFolder(newFolderName, folderId); newFolderName = "" },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Spacer(Modifier.height(20.dp))
         }
-        Spacer(Modifier.height(20.dp))
 
         SectionLabel("Složky")
         Spacer(Modifier.height(8.dp))
         for (folder in folders) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
                 SecondaryActionButton(text = folder.name, onClick = { onOpenFolder(folder.id) }, modifier = Modifier.weight(1f))
-                Spacer(Modifier.width(8.dp))
-                GlyphIconButton(glyph = "⇄", contentDescription = "Přesunout složku ${folder.name}", onClick = { viewModel.beginMove(folder.id) })
-                Spacer(Modifier.width(8.dp))
-                GlyphIconButton(glyph = "🗑", contentDescription = "Smazat složku ${folder.name}", onClick = { viewModel.deleteFolder(folder.id) })
+                if (!isMoving) {
+                    Spacer(Modifier.width(8.dp))
+                    GlyphIconButton(glyph = "⇄", contentDescription = "Přesunout složku ${folder.name}", onClick = { viewModel.beginMove(folder.id) })
+                    Spacer(Modifier.width(8.dp))
+                    GlyphIconButton(glyph = "🗑", contentDescription = "Smazat složku ${folder.name}", onClick = { viewModel.deleteFolder(folder.id) })
+                }
             }
         }
 
-        Spacer(Modifier.height(20.dp))
-        SectionLabel("Nahrávky")
-        Spacer(Modifier.height(8.dp))
-        for (recording in recordings) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-                SecondaryActionButton(
-                    text = "${recording.name} (${recording.durationMs / 1000} s)",
-                    onClick = { onOpenRecording(recording.id) },
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.width(8.dp))
-                GlyphIconButton(glyph = "⇄", contentDescription = "Přesunout nahrávku ${recording.name}", onClick = { viewModel.beginMoveRecording(recording.id) })
+        if (!isMoving) {
+            Spacer(Modifier.height(20.dp))
+            SectionLabel("Nahrávky")
+            Spacer(Modifier.height(8.dp))
+            for (recording in recordings) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+                    SecondaryActionButton(
+                        text = "${recording.name} (${recording.durationMs / 1000} s)",
+                        onClick = { onOpenRecording(recording.id) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    GlyphIconButton(glyph = "⇄", contentDescription = "Přesunout nahrávku ${recording.name}", onClick = { viewModel.beginMoveRecording(recording.id) })
+                }
             }
         }
 
