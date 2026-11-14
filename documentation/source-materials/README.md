@@ -14,3 +14,4 @@ opravit, přidá se nový soubor/verze, starý zůstává.
 | Datum | Soubor | Shrnutí |
 |---|---|---|
 | 2026-11-14 | [2026-11-14-ux-ui-principy-pro-e-ink.md](chat-extracts/2026-11-14-ux-ui-principy-pro-e-ink.md) | Rozhodnutí o cílovém zařízení, konkrétních číslech v NFR-UX-002 a procesu záznamu UX návrhu (vedlo k ADR-015). |
+| 2026-11-14 | [2026-11-14-sprava-jazyku-prepisu.md](chat-extracts/2026-11-14-sprava-jazyku-prepisu.md) | Z ručního testu APK vzešlý požadavek na správu seznamu povolených jazyků přepisu (vedlo k FR-CFG-005). |

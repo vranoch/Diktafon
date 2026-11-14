@@ -1,18 +1,15 @@
 # FR-CFG-005 — Správa seznamu povolených jazyků přepisu
 
-**Stav:** NAVRŽENO
+**Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-14
 **Změněno:** 2026-11-14
 **Zdroje:**
-- Zpětná vazba uživatele z ručního testu sestaveného APK, 2026-11-14 (tato konverzace) — v
-  Administraci chybí správa známých/povolených jazyků přepisu; aktuální implementace má jen
-  jedno volně psané textové pole s kódem jazyka (viz `TODO (ASSUMPTION)` v
-  `app/src/main/java/app/diktafon/settings/ui/ApiConfigScreen.kt`).
+- [Chat-extract — Správa seznamu povolených jazyků přepisu, 2026-11-14](../source-materials/chat-extracts/2026-11-14-sprava-jazyku-prepisu.md)
 **Priorita:** SHOULD / NEXT
 
 ## Popis
 
-[NAVRŽENO] Administrace umožní spravovat seznam povolených/známých jazyků přepisu (kód +
+Administrace umožní spravovat seznam povolených/známých jazyků přepisu (kód +
 zobrazovaný název), ze kterého se jazyk vybírá — na obrazovce Přepis (viz
 [FR-STT-001](FR-STT-001-odeslani-audia-do-stt-a-ulozeni-prepisu.md)) i jako výchozí hodnota v
 Administraci (viz [FR-CFG-002](FR-CFG-002-nastaveni-providera-modelu-a-vychozi-sablony.md)) —
