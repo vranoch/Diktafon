@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.ui.components.AppHeader
 import app.diktafon.ui.components.Caption
 import app.diktafon.ui.components.PrimaryActionButton
+import app.diktafon.ui.components.SecondaryActionButton
 import app.diktafon.ui.components.StatusBadge
 import app.diktafon.ui.theme.DiktafonAccentContainer
 import app.diktafon.ui.theme.DiktafonAccentContainerOn
@@ -101,11 +102,19 @@ fun TranscriptionScreen(
             TranscriptionPhase.READY -> {
                 OutlinedTextField(
                     value = state.text,
-                    onValueChange = { viewModel.editTranscript(recordingId, it) },
+                    onValueChange = viewModel::onTextChanged,
                     label = { Text("Přepis (verze ${state.version})") },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyLarge,
                 )
+                if (state.text != state.savedText) {
+                    Spacer(Modifier.height(8.dp))
+                    Row {
+                        SecondaryActionButton(text = "Zrušit úpravy", onClick = viewModel::cancelTextEdits, modifier = Modifier.weight(1f))
+                        Spacer(Modifier.width(10.dp))
+                        PrimaryActionButton(text = "Uložit úpravy", onClick = { viewModel.saveTextEdits(recordingId) }, modifier = Modifier.weight(1f))
+                    }
+                }
             }
             TranscriptionPhase.ERROR -> StatusBadge(
                 text = state.errorMessage ?: "Přepis selhal.",

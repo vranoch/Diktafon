@@ -7,4 +7,5 @@ data class TemplateSuggestionUiState(
     val suggestedTemplate: Template? = null,
     val selectedTemplate: Template? = null,
     val wasRecognized: Boolean = false,
+    val userChangedSelection: Boolean = false,
 )

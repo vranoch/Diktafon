@@ -73,20 +73,49 @@ class TranscriptionViewModelTest {
     }
 
     @Test
-    fun `editace prepisu vytvori novou revizi a zachova predchozi`() {
+    fun `psani do textu samo o sobe nic neuklada`() {
         val vm = viewModel(
             TranscriptionResult.Success(text = "Puvodni text", providerName = "mock", modelName = "mock-v1"),
         )
         vm.startTranscription(recordingId = 7, audioFile = audioFile)
 
-        vm.editTranscript(recordingId = 7, newText = "Opraveny text")
+        vm.onTextChanged("Rozepsana zmena")
+
+        assertEquals("Rozepsana zmena", vm.uiState.value.text)
+        assertEquals(1, repository.saved.size)
+    }
+
+    @Test
+    fun `ulozeni upravy vytvori novou revizi a zachova predchozi`() {
+        val vm = viewModel(
+            TranscriptionResult.Success(text = "Puvodni text", providerName = "mock", modelName = "mock-v1"),
+        )
+        vm.startTranscription(recordingId = 7, audioFile = audioFile)
+
+        vm.onTextChanged("Opraveny text")
+        vm.saveTextEdits(recordingId = 7)
 
         val state = vm.uiState.value
         assertEquals("Opraveny text", state.text)
+        assertEquals("Opraveny text", state.savedText)
         assertEquals(2, state.version)
         assertEquals(2, repository.saved.size)
         assertEquals("Puvodni text", repository.saved[0].text)
         assertEquals("Opraveny text", repository.saved[1].text)
+    }
+
+    @Test
+    fun `zruseni upravy vrati puvodni ulozeny text`() {
+        val vm = viewModel(
+            TranscriptionResult.Success(text = "Puvodni text", providerName = "mock", modelName = "mock-v1"),
+        )
+        vm.startTranscription(recordingId = 7, audioFile = audioFile)
+
+        vm.onTextChanged("Rozepsana zmena")
+        vm.cancelTextEdits()
+
+        assertEquals("Puvodni text", vm.uiState.value.text)
+        assertEquals(1, repository.saved.size)
     }
 
     @Test

@@ -45,4 +45,25 @@ class TemplateSuggestionViewModelTest {
         assertEquals(catalog[0], viewModel.uiState.value.suggestedTemplate)
         assertEquals(catalog[1], viewModel.uiState.value.selectedTemplate)
     }
+
+    @Test
+    fun `opakovane rozpoznani po pozdejsim doruceni katalogu neprepise rucni vyber`() {
+        viewModel.recognizeFromTranscript("zápis z porady", catalog)
+        viewModel.selectTemplate(catalog[1])
+
+        viewModel.recognizeFromTranscript("zápis z porady", catalog)
+
+        assertEquals(catalog[1], viewModel.uiState.value.selectedTemplate)
+    }
+
+    @Test
+    fun `prvni rozpoznani s prazdnym katalogem a druhe se skutecnym katalogem uz navrh pouzije`() {
+        viewModel.recognizeFromTranscript("zápis z porady", emptyList())
+        assertFalse(viewModel.uiState.value.wasRecognized)
+
+        viewModel.recognizeFromTranscript("zápis z porady", catalog)
+
+        assertEquals(catalog[0], viewModel.uiState.value.selectedTemplate)
+        assertTrue(viewModel.uiState.value.wasRecognized)
+    }
 }

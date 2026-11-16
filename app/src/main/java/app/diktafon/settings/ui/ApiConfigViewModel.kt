@@ -67,6 +67,41 @@ class ApiConfigViewModel @Inject constructor(
         }
     }
 
+    // Uklada vse z obrazovky najednou (klice, pokud jsou vyplnene, + konfiguraci) jednim
+    // kliknutim - drive hrozilo, ze uzivatel vyplni klic, ale omylem ulozi jen nastaveni
+    // samostatnym tlacitkem jinde na obrazovce, a klic tak zustane nikdy neulozeny.
+    fun saveAll(
+        sttApiKey: String,
+        sttProviderName: String,
+        sttModel: String,
+        llmApiKey: String,
+        llmProviderName: String,
+        llmModel: String,
+        defaultLanguageCode: String,
+    ) {
+        viewModelScope.launch {
+            if (sttApiKey.isNotBlank()) apiKeyRepository.saveApiKey(STT_KEY_SLOT, sttApiKey)
+            if (llmApiKey.isNotBlank()) apiKeyRepository.saveApiKey(LLM_KEY_SLOT, llmApiKey)
+            providerConfigRepository.save(
+                ProviderConfig(
+                    sttProviderName = sttProviderName,
+                    sttModel = sttModel,
+                    llmProviderName = llmProviderName,
+                    llmModel = llmModel,
+                    defaultLanguageCode = defaultLanguageCode,
+                ),
+            )
+            _uiState.update {
+                it.copy(
+                    hasSttApiKey = apiKeyRepository.hasApiKey(STT_KEY_SLOT),
+                    hasLlmApiKey = apiKeyRepository.hasApiKey(LLM_KEY_SLOT),
+                    statusMessage = "Nastavení uloženo.",
+                    errorMessage = null,
+                )
+            }
+        }
+    }
+
     fun saveSttApiKey(apiKey: String) = saveApiKey(STT_KEY_SLOT, apiKey, isStt = true)
 
     fun saveLlmApiKey(apiKey: String) = saveApiKey(LLM_KEY_SLOT, apiKey, isStt = false)

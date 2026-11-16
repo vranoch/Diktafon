@@ -87,8 +87,6 @@ fun ApiConfigScreen(
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(value = sttModelInput, onValueChange = { sttModelInput = it }, label = { Text("Model (např. whisper-1)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
-            SecondaryActionButton(text = "Uložit STT klíč", onClick = { viewModel.saveSttApiKey(sttKeyInput); sttKeyInput = "" })
-            Spacer(Modifier.height(8.dp))
             SecondaryActionButton(text = "Smazat STT klíč", onClick = viewModel::clearSttApiKey)
         }
         Spacer(Modifier.height(16.dp))
@@ -107,8 +105,6 @@ fun ApiConfigScreen(
             Spacer(Modifier.height(8.dp))
             OutlinedTextField(value = llmModelInput, onValueChange = { llmModelInput = it }, label = { Text("Model (např. gpt-4o-mini)") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
-            SecondaryActionButton(text = "Uložit LLM klíč", onClick = { viewModel.saveLlmApiKey(llmKeyInput); llmKeyInput = "" })
-            Spacer(Modifier.height(8.dp))
             SecondaryActionButton(text = "Smazat LLM klíč", onClick = viewModel::clearLlmApiKey)
         }
         Spacer(Modifier.height(16.dp))
@@ -142,9 +138,23 @@ fun ApiConfigScreen(
             }
         }
         Spacer(Modifier.height(12.dp))
+        Caption("Uloží API klíče (pokud jsou vyplněné) i nastavení najednou.")
+        Spacer(Modifier.height(6.dp))
         PrimaryActionButton(
-            text = "Uložit nastavení",
-            onClick = { viewModel.saveConfig(sttProviderInput, sttModelInput, llmProviderInput, llmModelInput, languageInput) },
+            text = "Uložit",
+            onClick = {
+                viewModel.saveAll(
+                    sttApiKey = sttKeyInput,
+                    sttProviderName = sttProviderInput,
+                    sttModel = sttModelInput,
+                    llmApiKey = llmKeyInput,
+                    llmProviderName = llmProviderInput,
+                    llmModel = llmModelInput,
+                    defaultLanguageCode = languageInput,
+                )
+                sttKeyInput = ""
+                llmKeyInput = ""
+            },
         )
 
         state.statusMessage?.let {

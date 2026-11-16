@@ -94,4 +94,43 @@ class ApiConfigViewModelTest {
 
         assertTrue(viewModel.uiState.value.hasSttApiKey)
     }
+
+    @Test
+    fun `saveAll ulozi oba klice i konfiguraci jednim volanim`() {
+        viewModel.saveAll(
+            sttApiKey = "sk-stt-1",
+            sttProviderName = "openai",
+            sttModel = "whisper-1",
+            llmApiKey = "sk-llm-1",
+            llmProviderName = "openai",
+            llmModel = "gpt-4o-mini",
+            defaultLanguageCode = "cs",
+        )
+
+        val state = viewModel.uiState.value
+        assertTrue(state.hasSttApiKey)
+        assertTrue(state.hasLlmApiKey)
+        assertEquals("openai", state.sttProviderName)
+        assertEquals("openai", state.llmProviderName)
+    }
+
+    @Test
+    fun `saveAll s prazdnymi klici nesmaze jiz ulozene klice`() {
+        viewModel.saveSttApiKey("sk-stt-1")
+        viewModel.saveLlmApiKey("sk-llm-1")
+
+        viewModel.saveAll(
+            sttApiKey = "",
+            sttProviderName = "openai",
+            sttModel = "whisper-1",
+            llmApiKey = "",
+            llmProviderName = "openai",
+            llmModel = "gpt-4o-mini",
+            defaultLanguageCode = "cs",
+        )
+
+        val state = viewModel.uiState.value
+        assertTrue(state.hasSttApiKey)
+        assertTrue(state.hasLlmApiKey)
+    }
 }

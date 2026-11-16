@@ -45,7 +45,10 @@ fun TemplateSuggestionScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(transcriptText) {
+    // approvedCatalog je klicem zamerne - pri prvnim vstupu na obrazovku byva katalogovy Flow
+    // jeste nenactely (collectAsState initial = emptyList()); bez tohoto klice by rozpoznavani
+    // probehlo s prazdnym katalogem a uz by se nezopakovalo, kdyz katalog dorazi.
+    LaunchedEffect(transcriptText, approvedCatalog) {
         viewModel.recognizeFromTranscript(transcriptText, approvedCatalog)
     }
 

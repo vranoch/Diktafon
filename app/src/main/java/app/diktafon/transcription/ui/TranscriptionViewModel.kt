@@ -47,6 +47,7 @@ class TranscriptionViewModel @Inject constructor(
                         it.copy(
                             phase = TranscriptionPhase.READY,
                             text = transcript.text,
+                            savedText = transcript.text,
                             languageCode = transcript.languageCode,
                             providerName = transcript.providerName,
                             modelName = transcript.modelName,
@@ -84,6 +85,7 @@ class TranscriptionViewModel @Inject constructor(
                         it.copy(
                             phase = TranscriptionPhase.READY,
                             text = saved.text,
+                            savedText = saved.text,
                             providerName = saved.providerName,
                             modelName = saved.modelName,
                             version = saved.version,
@@ -100,21 +102,30 @@ class TranscriptionViewModel @Inject constructor(
         }
     }
 
-    fun editTranscript(recordingId: Long, newText: String) {
+    // Jen aktualizuje rozpracovany text v UI, nic neuklada - viz saveTextEdits/cancelTextEdits.
+    fun onTextChanged(newText: String) {
+        _uiState.update { it.copy(text = newText) }
+    }
+
+    fun saveTextEdits(recordingId: Long) {
         val state = _uiState.value
-        if (state.phase != TranscriptionPhase.READY) return
+        if (state.phase != TranscriptionPhase.READY || state.text == state.savedText) return
 
         viewModelScope.launch {
             val saved = transcriptRepository.saveNewRevision(
                 recordingId = recordingId,
-                text = newText,
+                text = state.text,
                 languageCode = state.languageCode,
                 providerName = state.providerName ?: "manual",
                 modelName = state.modelName ?: "manual-edit",
                 createdAtMillis = clock.nowMillis(),
             )
-            _uiState.update { it.copy(text = saved.text, version = saved.version) }
+            _uiState.update { it.copy(text = saved.text, savedText = saved.text, version = saved.version) }
         }
+    }
+
+    fun cancelTextEdits() {
+        _uiState.update { it.copy(text = it.savedText) }
     }
 }
 

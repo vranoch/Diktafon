@@ -20,17 +20,19 @@ class TemplateSuggestionViewModel @Inject constructor(
 
     fun recognizeFromTranscript(transcriptText: String, approvedCatalog: List<Template>) {
         val suggestion = recognizer.recognize(transcriptText, approvedCatalog)
-        _uiState.update {
-            it.copy(
+        _uiState.update { current ->
+            current.copy(
                 approvedCatalog = approvedCatalog,
                 suggestedTemplate = suggestion,
-                selectedTemplate = suggestion,
+                // Pokud uzivatel uz vybral rucne, opakovane rozpoznani (napr. po doruceni
+                // katalogu, ktery pri prvnim vstupu jeste nebyl nacteny) jeho volbu neprepise.
+                selectedTemplate = if (current.userChangedSelection) current.selectedTemplate else suggestion,
                 wasRecognized = suggestion != null,
             )
         }
     }
 
     fun selectTemplate(template: Template) {
-        _uiState.update { it.copy(selectedTemplate = template) }
+        _uiState.update { it.copy(selectedTemplate = template, userChangedSelection = true) }
     }
 }
