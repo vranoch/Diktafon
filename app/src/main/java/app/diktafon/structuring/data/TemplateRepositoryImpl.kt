@@ -34,7 +34,7 @@ class TemplateRepositoryImpl @Inject constructor(
                 templateId = resolvedTemplateId,
                 name = name,
                 version = nextVersion,
-                fieldsJson = Json.encodeToString(fieldsSerializer, fields.map { TemplateFieldDto(it.name, it.required) }),
+                fieldsJson = encodeFields(fields),
                 instructions = instructions,
                 exampleText = exampleText,
                 createdAtMillis = createdAtMillis,
@@ -52,7 +52,36 @@ class TemplateRepositoryImpl @Inject constructor(
 
     override fun observeApprovedCatalog(): Flow<List<Template>> =
         dao.observeApprovedCatalog().map { entities -> entities.map { it.toDomain() } }
+
+    override fun observeVersions(templateId: Long): Flow<List<Template>> =
+        dao.observeVersions(templateId).map { entities -> entities.map { it.toDomain() } }
+
+    override suspend fun overwriteVersion(
+        templateId: Long,
+        version: Int,
+        name: String,
+        fields: List<TemplateField>,
+        instructions: String,
+        exampleText: String,
+    ): Template {
+        dao.updateVersion(templateId, version, name, encodeFields(fields), instructions, exampleText)
+        return Template(
+            id = templateId,
+            name = name,
+            version = version,
+            fields = fields,
+            instructions = instructions,
+            exampleText = exampleText,
+        )
+    }
+
+    override suspend fun delete(templateId: Long) = dao.deleteAllVersions(templateId)
+
+    override suspend fun deleteVersion(templateId: Long, version: Int) = dao.deleteVersion(templateId, version)
 }
+
+private fun encodeFields(fields: List<TemplateField>): String =
+    Json.encodeToString(fieldsSerializer, fields.map { TemplateFieldDto(it.name, it.required) })
 
 private fun TemplateEntity.toDomain() = Template(
     id = templateId,

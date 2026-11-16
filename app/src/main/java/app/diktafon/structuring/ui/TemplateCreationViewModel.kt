@@ -49,6 +49,7 @@ class TemplateCreationViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 editingTemplateId = template.id,
+                editingTemplateVersion = template.version,
                 draftName = template.name,
                 exampleText = template.exampleText,
                 draftFields = template.fields,
@@ -113,6 +114,29 @@ class TemplateCreationViewModel @Inject constructor(
         }
     }
 
+    // Prepise obsah prave editovane verze na miste - zadna nova verze nevznika. Pouziva se jen
+    // kdyz je editovana existujici sablona (editingTemplateId/Version jsou nastavene).
+    fun overwriteExistingVersion() {
+        val state = _uiState.value
+        val templateId = state.editingTemplateId ?: return
+        val version = state.editingTemplateVersion ?: return
+        if (state.draftFields.isEmpty() || state.draftName.isBlank()) return
+
+        viewModelScope.launch {
+            val saved = templateRepository.overwriteVersion(
+                templateId = templateId,
+                version = version,
+                name = state.draftName,
+                fields = state.draftFields,
+                instructions = state.draftInstructions,
+                exampleText = state.exampleText,
+            )
+            _uiState.update { it.copy(savedTemplateId = saved.id, savedVersion = saved.version) }
+        }
+    }
+
+    // Prepise (zversuje) sablonu, kterou uzivatel edituje - pokud zadna neni (editingTemplateId
+    // je null), jde o uplne novou sablonu a zadna dvojznacnost tedy nehrozi.
     fun saveAsNewVersion() {
         val state = _uiState.value
         if (state.draftFields.isEmpty() || state.draftName.isBlank()) return
@@ -126,7 +150,35 @@ class TemplateCreationViewModel @Inject constructor(
                 exampleText = state.exampleText,
                 createdAtMillis = clock.nowMillis(),
             )
-            _uiState.update { it.copy(savedTemplateId = saved.id, savedVersion = saved.version) }
+            _uiState.update {
+                it.copy(editingTemplateVersion = saved.version, savedTemplateId = saved.id, savedVersion = saved.version)
+            }
+        }
+    }
+
+    // Odvetvi se do zcela nove sablony misto prepsani editovane - pouzivano, kdyz uzivatel u
+    // existujici sablony zvoli "Ulozit jako novou" misto "Prepsat".
+    fun saveAsNewTemplate() {
+        val state = _uiState.value
+        if (state.draftFields.isEmpty() || state.draftName.isBlank()) return
+
+        viewModelScope.launch {
+            val saved = templateRepository.saveNewVersion(
+                templateId = null,
+                name = state.draftName,
+                fields = state.draftFields,
+                instructions = state.draftInstructions,
+                exampleText = state.exampleText,
+                createdAtMillis = clock.nowMillis(),
+            )
+            _uiState.update {
+                it.copy(
+                    editingTemplateId = saved.id,
+                    editingTemplateVersion = saved.version,
+                    savedTemplateId = saved.id,
+                    savedVersion = saved.version,
+                )
+            }
         }
     }
 }

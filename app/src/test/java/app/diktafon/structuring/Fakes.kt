@@ -69,6 +69,7 @@ class FakeTemplateDraftGenerator(private val result: TemplateDraftResult) : Temp
 class FakeTemplateRepository : TemplateRepository {
     val saved = mutableListOf<Template>()
     private val flow = MutableStateFlow<List<Template>>(emptyList())
+    private val versionFlows = mutableMapOf<Long, MutableStateFlow<List<Template>>>()
 
     override suspend fun saveNewVersion(
         templateId: Long?,
@@ -82,9 +83,45 @@ class FakeTemplateRepository : TemplateRepository {
         val nextVersion = (saved.filter { it.id == resolvedId }.maxOfOrNull { it.version } ?: 0) + 1
         val template = Template(resolvedId, name, nextVersion, fields, instructions, exampleText)
         saved += template
-        flow.value = saved.groupBy { it.id }.values.map { versions -> versions.maxBy { it.version } }
+        refresh()
         return template
     }
 
     override fun observeApprovedCatalog(): Flow<List<Template>> = flow
+
+    override fun observeVersions(templateId: Long): Flow<List<Template>> =
+        versionFlows.getOrPut(templateId) { MutableStateFlow(versionsOf(templateId)) }
+
+    override suspend fun overwriteVersion(
+        templateId: Long,
+        version: Int,
+        name: String,
+        fields: List<TemplateField>,
+        instructions: String,
+        exampleText: String,
+    ): Template {
+        val index = saved.indexOfFirst { it.id == templateId && it.version == version }
+        val template = Template(templateId, name, version, fields, instructions, exampleText)
+        if (index == -1) saved += template else saved[index] = template
+        refresh()
+        return template
+    }
+
+    override suspend fun delete(templateId: Long) {
+        saved.removeAll { it.id == templateId }
+        refresh()
+    }
+
+    override suspend fun deleteVersion(templateId: Long, version: Int) {
+        saved.removeAll { it.id == templateId && it.version == version }
+        refresh()
+    }
+
+    private fun versionsOf(templateId: Long): List<Template> =
+        saved.filter { it.id == templateId }.sortedByDescending { it.version }
+
+    private fun refresh() {
+        flow.value = saved.groupBy { it.id }.values.map { versions -> versions.maxBy { it.version } }
+        versionFlows.forEach { (templateId, stateFlow) -> stateFlow.value = versionsOf(templateId) }
+    }
 }

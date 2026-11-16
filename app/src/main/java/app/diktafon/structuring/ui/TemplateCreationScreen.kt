@@ -1,22 +1,34 @@
 package app.diktafon.structuring.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.structuring.domain.Template
 import app.diktafon.ui.components.AppHeader
 import app.diktafon.ui.components.Caption
+import app.diktafon.ui.components.GlyphIconButton
 import app.diktafon.ui.components.PrimaryActionButton
 import app.diktafon.ui.components.SecondaryActionButton
 import app.diktafon.ui.components.SectionLabel
@@ -35,12 +47,19 @@ fun TemplateCreationScreen(
     viewModel: TemplateCreationViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    var exampleTextField by remember(state.editingTemplateId) { mutableStateOf(TextFieldValue(state.exampleText)) }
+    var showSaveDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(existingTemplate?.id) {
         existingTemplate?.let { viewModel.loadExisting(it) }
     }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+    ) {
         AppHeader(title = "Šablona", onBack = onBack, onHome = onHome)
         Spacer(Modifier.height(12.dp))
 
@@ -51,10 +70,35 @@ fun TemplateCreationScreen(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(8.dp))
+
+        Caption("Vzorový text výsledného dokumentu")
+        Spacer(Modifier.height(4.dp))
+        Row {
+            GlyphIconButton(
+                glyph = "B",
+                contentDescription = "Vložit tučné zvýraznění (Markdown **text**)",
+                onClick = {
+                    exampleTextField = wrapSelectionWithMarker(exampleTextField, "**")
+                    viewModel.onExampleTextChanged(exampleTextField.text)
+                },
+            )
+            Spacer(Modifier.width(8.dp))
+            GlyphIconButton(
+                glyph = "I",
+                contentDescription = "Vložit kurzívu (Markdown *text*)",
+                onClick = {
+                    exampleTextField = wrapSelectionWithMarker(exampleTextField, "*")
+                    viewModel.onExampleTextChanged(exampleTextField.text)
+                },
+            )
+        }
+        Spacer(Modifier.height(4.dp))
         OutlinedTextField(
-            value = state.exampleText,
-            onValueChange = viewModel::onExampleTextChanged,
-            label = { Text("Vzorový text výsledného dokumentu") },
+            value = exampleTextField,
+            onValueChange = {
+                exampleTextField = it
+                viewModel.onExampleTextChanged(it.text)
+            },
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(8.dp))
@@ -91,7 +135,18 @@ fun TemplateCreationScreen(
             }
 
             Spacer(Modifier.height(16.dp))
-            PrimaryActionButton(text = "Uložit jako novou verzi", onClick = viewModel::saveAsNewVersion)
+            PrimaryActionButton(
+                text = "Uložit",
+                onClick = {
+                    if (state.editingTemplateId != null) {
+                        showSaveDialog = true
+                    } else {
+                        // Nova sablona - zadna dvojznacnost mezi "prepsat" a "ulozit jako
+                        // novou", takze bez potvrzovaciho dialogu.
+                        viewModel.saveAsNewVersion()
+                    }
+                },
+            )
         }
 
         state.savedVersion?.let {
@@ -103,4 +158,57 @@ fun TemplateCreationScreen(
             StatusBadge(text = it, glyph = "!", containerColor = DiktafonDangerContainer, contentColor = DiktafonDangerContainerOn)
         }
     }
+
+    if (showSaveDialog && state.editingTemplateId != null) {
+        AlertDialog(
+            onDismissRequest = { showSaveDialog = false },
+            title = { Text("Uložit změny šablony „${state.draftName}“?") },
+            text = {
+                Column {
+                    Text("Vyberte, jak se mají změny uložit:")
+                    Spacer(Modifier.height(12.dp))
+                    PrimaryActionButton(
+                        text = "Přepsat stávající verzi (v${state.editingTemplateVersion})",
+                        onClick = {
+                            viewModel.overwriteExistingVersion()
+                            showSaveDialog = false
+                        },
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    SecondaryActionButton(
+                        text = "Uložit jako novou verzi",
+                        onClick = {
+                            viewModel.saveAsNewVersion()
+                            showSaveDialog = false
+                        },
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    SecondaryActionButton(
+                        text = "Uložit jako novou šablonu",
+                        onClick = {
+                            viewModel.saveAsNewTemplate()
+                            showSaveDialog = false
+                        },
+                    )
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { showSaveDialog = false }) { Text("Zrušit") }
+            },
+        )
+    }
+}
+
+internal fun wrapSelectionWithMarker(value: TextFieldValue, marker: String): TextFieldValue {
+    val selection = value.selection
+    val start = minOf(selection.start, selection.end)
+    val end = maxOf(selection.start, selection.end)
+    val newText = value.text.substring(0, start) + marker + value.text.substring(start, end) + marker + value.text.substring(end)
+    val newSelection = if (start == end) {
+        TextRange(start + marker.length)
+    } else {
+        TextRange(start + marker.length, end + marker.length)
+    }
+    return TextFieldValue(newText, newSelection)
 }

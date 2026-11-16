@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
@@ -115,6 +116,47 @@ class TemplateCreationViewModelTest {
 
         assertEquals(1, templateRepository.saved.size)
         assertNotNull(vm.uiState.value.savedVersion)
+    }
+
+    @Test
+    fun `prepsani stavajici verze nevytvori novou verzi`() {
+        val vm = viewModel(draftResult = TemplateDraftResult.Failure.InvalidOutput)
+        val existing = Template(
+            id = 7,
+            name = "Zápis z porady",
+            version = 2,
+            fields = listOf(TemplateField("datum", true)),
+            instructions = "stare instrukce",
+            exampleText = "stary vzor",
+        )
+        vm.loadExisting(existing)
+
+        vm.overwriteExistingVersion()
+
+        assertEquals(1, templateRepository.saved.size)
+        assertEquals(7L, templateRepository.saved[0].id)
+        assertEquals(2, templateRepository.saved[0].version)
+    }
+
+    @Test
+    fun `ulozeni jako nova sablona zalozi novy templateId i pri editaci existujici`() {
+        val vm = viewModel(draftResult = TemplateDraftResult.Failure.InvalidOutput)
+        val existing = Template(
+            id = 7,
+            name = "Zápis z porady",
+            version = 2,
+            fields = listOf(TemplateField("datum", true)),
+            instructions = "stare instrukce",
+            exampleText = "stary vzor",
+        )
+        vm.loadExisting(existing)
+
+        vm.saveAsNewTemplate()
+
+        assertEquals(1, templateRepository.saved.size)
+        assertNotEquals(7L, templateRepository.saved[0].id)
+        assertEquals(1, templateRepository.saved[0].version)
+        assertEquals(templateRepository.saved[0].id, vm.uiState.value.editingTemplateId)
     }
 
     @Test
