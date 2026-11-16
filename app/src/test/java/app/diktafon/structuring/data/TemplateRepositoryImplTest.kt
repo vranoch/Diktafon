@@ -4,6 +4,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import app.diktafon.recording.data.AppDatabase
 import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -99,5 +100,25 @@ class TemplateRepositoryImplTest {
         assertEquals(1, versions.size)
         assertEquals("Zápis z porady", versions[0].name)
         assertEquals(2, versions[0].fields.size)
+    }
+
+    @Test
+    fun `autoFill priznak pole se spravne ulozi a nacte zpet`() = runTest {
+        repository.saveNewVersion(
+            templateId = null,
+            name = "Zápis",
+            fields = listOf(
+                TemplateField("datum", required = true, autoFill = TemplateFieldAutoFill.RECORDING_DATE_TIME),
+                TemplateField("ucastnici", required = true),
+            ),
+            instructions = "i",
+            exampleText = "e",
+            createdAtMillis = 1_000,
+        )
+
+        val catalog = repository.observeApprovedCatalog().first()
+        val fields = catalog.single().fields
+        assertEquals(TemplateFieldAutoFill.RECORDING_DATE_TIME, fields.first { it.name == "datum" }.autoFill)
+        assertEquals(TemplateFieldAutoFill.NONE, fields.first { it.name == "ucastnici" }.autoFill)
     }
 }

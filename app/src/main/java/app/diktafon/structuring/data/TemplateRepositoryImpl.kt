@@ -2,6 +2,7 @@ package app.diktafon.structuring.data
 
 import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import app.diktafon.structuring.domain.TemplateRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -10,8 +11,10 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
+// autoFill ma vychozi hodnotu, takze starsi ulozena data bez tohoto klice se porad korektne
+// nacitaji (doplni se NONE).
 @Serializable
-private data class TemplateFieldDto(val name: String, val required: Boolean)
+private data class TemplateFieldDto(val name: String, val required: Boolean, val autoFill: TemplateFieldAutoFill = TemplateFieldAutoFill.NONE)
 
 private val fieldsSerializer = ListSerializer(TemplateFieldDto.serializer())
 
@@ -81,13 +84,13 @@ class TemplateRepositoryImpl @Inject constructor(
 }
 
 private fun encodeFields(fields: List<TemplateField>): String =
-    Json.encodeToString(fieldsSerializer, fields.map { TemplateFieldDto(it.name, it.required) })
+    Json.encodeToString(fieldsSerializer, fields.map { TemplateFieldDto(it.name, it.required, it.autoFill) })
 
 private fun TemplateEntity.toDomain() = Template(
     id = templateId,
     name = name,
     version = version,
-    fields = Json.decodeFromString(fieldsSerializer, fieldsJson).map { TemplateField(it.name, it.required) },
+    fields = Json.decodeFromString(fieldsSerializer, fieldsJson).map { TemplateField(it.name, it.required, it.autoFill) },
     instructions = instructions,
     exampleText = exampleText,
 )

@@ -38,6 +38,7 @@ fun StructuringScreen(
     transcriptId: Long,
     transcriptText: String,
     template: Template,
+    recordingCreatedAtMillis: Long,
     onReady: (Long) -> Unit,
     onBack: (() -> Unit)? = null,
     onHome: (() -> Unit)? = null,
@@ -46,7 +47,7 @@ fun StructuringScreen(
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(recordingId, transcriptId, template.id) {
-        viewModel.startStructuring(recordingId, transcriptId, transcriptText, template)
+        viewModel.startStructuring(recordingId, transcriptId, transcriptText, template, recordingCreatedAtMillis)
     }
     LaunchedEffect(state.phase, state.savedDocumentId) {
         val documentId = state.savedDocumentId

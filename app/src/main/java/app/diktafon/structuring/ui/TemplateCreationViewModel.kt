@@ -11,6 +11,8 @@ import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateDraftGenerator
 import app.diktafon.structuring.domain.TemplateDraftRequest
 import app.diktafon.structuring.domain.TemplateDraftResult
+import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import app.diktafon.structuring.domain.TemplateRepository
 import app.diktafon.structuring.domain.ValidationOutcome
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +62,7 @@ class TemplateCreationViewModel @Inject constructor(
 
     fun generateDraft() {
         val state = _uiState.value
+        _uiState.update { it.copy(isGeneratingDraft = true, errorMessage = null) }
         viewModelScope.launch {
             when (
                 val result = draftGenerator.generateDraft(
@@ -70,11 +73,12 @@ class TemplateCreationViewModel @Inject constructor(
                     it.copy(
                         draftFields = result.fields,
                         draftInstructions = result.instructions,
+                        isGeneratingDraft = false,
                         errorMessage = null,
                     )
                 }
                 is TemplateDraftResult.Failure -> _uiState.update {
-                    it.copy(errorMessage = result.toUserMessage())
+                    it.copy(isGeneratingDraft = false, errorMessage = result.toUserMessage())
                 }
             }
         }
@@ -93,6 +97,7 @@ class TemplateCreationViewModel @Inject constructor(
             exampleText = state.exampleText,
         )
 
+        _uiState.update { it.copy(isTestingDraft = true, errorMessage = null) }
         viewModelScope.launch {
             when (val result = documentProcessor.structure(StructuringRequest(transcriptText, draftTemplate))) {
                 is StructuringResult.Success -> when (val outcome = validator.validate(result.rawJson, draftTemplate)) {
@@ -100,18 +105,43 @@ class TemplateCreationViewModel @Inject constructor(
                         it.copy(
                             testResultFields = outcome.fields,
                             testMissingFields = outcome.missingRequiredFields,
+                            isTestingDraft = false,
                             errorMessage = null,
                         )
                     }
                     ValidationOutcome.InvalidJson -> _uiState.update {
-                        it.copy(errorMessage = "Test selhal — výstup nebyl platný JSON.")
+                        it.copy(isTestingDraft = false, errorMessage = "Test selhal — výstup nebyl platný JSON.")
                     }
                 }
                 is StructuringResult.Failure -> _uiState.update {
-                    it.copy(errorMessage = "Test se nepodařilo spustit, zkuste to znovu.")
+                    it.copy(isTestingDraft = false, errorMessage = "Test se nepodařilo spustit, zkuste to znovu.")
                 }
             }
         }
+    }
+
+    fun onFieldNameChanged(index: Int, name: String) {
+        _uiState.update { it.copy(draftFields = it.draftFields.updateAt(index) { field -> field.copy(name = name) }) }
+    }
+
+    fun onFieldRequiredChanged(index: Int, required: Boolean) {
+        _uiState.update { it.copy(draftFields = it.draftFields.updateAt(index) { field -> field.copy(required = required) }) }
+    }
+
+    fun onFieldAutoFillChanged(index: Int, autoFill: TemplateFieldAutoFill) {
+        _uiState.update { it.copy(draftFields = it.draftFields.updateAt(index) { field -> field.copy(autoFill = autoFill) }) }
+    }
+
+    fun removeField(index: Int) {
+        _uiState.update { it.copy(draftFields = it.draftFields.filterIndexed { i, _ -> i != index }) }
+    }
+
+    fun addField() {
+        _uiState.update { it.copy(draftFields = it.draftFields + TemplateField(name = "", required = false)) }
+    }
+
+    fun onInstructionsChanged(text: String) {
+        _uiState.update { it.copy(draftInstructions = text) }
     }
 
     // Prepise obsah prave editovane verze na miste - zadna nova verze nevznika. Pouziva se jen
@@ -193,3 +223,6 @@ private fun TemplateDraftResult.Failure.toUserMessage(): String = when (this) {
 }
 
 private fun String?.asSuffix(): String = if (this.isNullOrBlank()) "" else " Důvod od poskytovatele: $this"
+
+private inline fun List<TemplateField>.updateAt(index: Int, transform: (TemplateField) -> TemplateField): List<TemplateField> =
+    mapIndexed { i, field -> if (i == index) transform(field) else field }

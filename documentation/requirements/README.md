@@ -37,6 +37,7 @@ Viz [`_template.md`](_template.md) pro šablonu nového požadavku.
 | [FR-TPL-004](FR-TPL-004-vytvoreni-a-uprava-sablony-z-prikladu-s-testovanim.md) | Vytvoření a úprava šablony z příkladu s testováním na nahrávce | PŘIJATO | 2026-11-12 | Šablona vzniká z příkladového textu přes LLM; lze ji zkoušet na nahrávce před uložením. |
 | [FR-TPL-005](FR-TPL-005-export-sdileni-sablon-zalohovani.md) | Export/sdílení uložených šablon (zálohování) | PŘIJATO | 2026-11-12 | Šablonu lze zkopírovat/sdílet stejně jako jiný text, kvůli záloze. |
 | [FR-TPL-006](FR-TPL-006-smazani-sablony.md) | Smazání šablony nebo její vybrané verze | PŘIJATO | 2026-11-16 | Smazání jedné vybrané verze i všech verzí najednou, s potvrzením; dříve zpracované dokumenty beze změny. |
+| [FR-TPL-007](FR-TPL-007-automaticky-doplnovana-pole-sablony.md) | Automaticky doplňovaná pole šablony | PŘIJATO | 2026-11-16 | Pole šablony (např. datum/čas) lze nastavit, aby se vyplnilo z metadat nahrávky místo LLM. |
 | [FR-STT-001](FR-STT-001-odeslani-audia-do-stt-a-ulozeni-prepisu.md) | Odeslání audia do STT a uložení přepisu | PŘIJATO | 2026-11-12 | Odeslání audia do STT; jazyk přepisu volitelný, výchozí čeština. |
 | [FR-STT-002](FR-STT-002-jazykove-a-terminologicke-napovedy-pro-stt.md) | Jazykové a terminologické nápovědy pro STT | PŘIJATO | 2026-11-12 | Předání jazyka a terminologických nápověd STT službě, pokud je podporuje. |
 | [FR-STT-003](FR-STT-003-editovatelnost-prepisu.md) | Editovatelnost přepisu | PŘIJATO | 2026-11-12 | Přepis lze upravit před i po strukturování, i perem/stylusem dle zařízení. |

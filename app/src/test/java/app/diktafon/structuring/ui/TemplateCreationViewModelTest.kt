@@ -9,6 +9,7 @@ import app.diktafon.structuring.domain.StructuringResult
 import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateDraftResult
 import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import app.diktafon.structuring.domain.ValidationOutcome
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -167,5 +168,71 @@ class TemplateCreationViewModelTest {
 
         assertNotNull(vm.uiState.value.errorMessage)
         assertEquals(0, vm.uiState.value.draftFields.size)
+    }
+
+    @Test
+    fun `isGeneratingDraft a isTestingDraft skonci po dokonceni na false`() {
+        val vm = viewModel(
+            draftResult = TemplateDraftResult.Success(listOf(TemplateField("datum", true)), "vypln"),
+            validationOutcome = ValidationOutcome.Valid(mapOf("datum" to "2026-11-13"), emptyList()),
+        )
+
+        vm.generateDraft()
+        assertEquals(false, vm.uiState.value.isGeneratingDraft)
+
+        vm.testDraftOnTranscript("prepis")
+        assertEquals(false, vm.uiState.value.isTestingDraft)
+    }
+
+    @Test
+    fun `uprava nazvu a povinnosti pole se projevi ve stavu`() {
+        val vm = viewModel(
+            draftResult = TemplateDraftResult.Success(listOf(TemplateField("datum", false)), "vypln"),
+        )
+        vm.generateDraft()
+
+        vm.onFieldNameChanged(0, "Datum nahrávky")
+        vm.onFieldRequiredChanged(0, true)
+
+        val field = vm.uiState.value.draftFields.single()
+        assertEquals("Datum nahrávky", field.name)
+        assertEquals(true, field.required)
+    }
+
+    @Test
+    fun `zapnuti auto-doplneni pole se projevi ve stavu`() {
+        val vm = viewModel(
+            draftResult = TemplateDraftResult.Success(listOf(TemplateField("datum", true)), "vypln"),
+        )
+        vm.generateDraft()
+
+        vm.onFieldAutoFillChanged(0, TemplateFieldAutoFill.RECORDING_DATE_TIME)
+
+        assertEquals(TemplateFieldAutoFill.RECORDING_DATE_TIME, vm.uiState.value.draftFields.single().autoFill)
+    }
+
+    @Test
+    fun `pridani a odebrani pole zmeni pocet poli`() {
+        val vm = viewModel(
+            draftResult = TemplateDraftResult.Success(listOf(TemplateField("datum", true)), "vypln"),
+        )
+        vm.generateDraft()
+
+        vm.addField()
+        assertEquals(2, vm.uiState.value.draftFields.size)
+
+        vm.removeField(0)
+        val remaining = vm.uiState.value.draftFields
+        assertEquals(1, remaining.size)
+        assertEquals("", remaining[0].name)
+    }
+
+    @Test
+    fun `uprava instrukci se projevi ve stavu`() {
+        val vm = viewModel(draftResult = TemplateDraftResult.Failure.InvalidOutput)
+
+        vm.onInstructionsChanged("Nové instrukce pro LLM")
+
+        assertEquals("Nové instrukce pro LLM", vm.uiState.value.draftInstructions)
     }
 }

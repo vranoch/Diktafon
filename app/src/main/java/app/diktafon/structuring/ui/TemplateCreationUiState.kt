@@ -10,6 +10,8 @@ data class TemplateCreationUiState(
     val draftName: String = "",
     val draftFields: List<TemplateField> = emptyList(),
     val draftInstructions: String = "",
+    val isGeneratingDraft: Boolean = false,
+    val isTestingDraft: Boolean = false,
     val testResultFields: Map<String, String?> = emptyMap(),
     val testMissingFields: List<String> = emptyList(),
     val savedTemplateId: Long? = null,

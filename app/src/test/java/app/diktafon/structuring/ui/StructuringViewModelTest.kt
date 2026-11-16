@@ -7,6 +7,7 @@ import app.diktafon.structuring.FakeStructuredDocumentValidator
 import app.diktafon.structuring.domain.StructuringResult
 import app.diktafon.structuring.domain.Template
 import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import app.diktafon.structuring.domain.ValidationOutcome
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,7 +61,7 @@ class StructuringViewModelTest {
             ),
         )
 
-        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template)
+        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template, recordingCreatedAtMillis = 500_000)
 
         val state = vm.uiState.value
         assertEquals(StructuringPhase.READY, state.phase)
@@ -78,7 +79,7 @@ class StructuringViewModelTest {
             ),
         )
 
-        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template)
+        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template, recordingCreatedAtMillis = 500_000)
 
         val state = vm.uiState.value
         assertEquals(StructuringPhase.READY, state.phase)
@@ -93,7 +94,7 @@ class StructuringViewModelTest {
             validation = ValidationOutcome.InvalidJson,
         )
 
-        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template)
+        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template, recordingCreatedAtMillis = 500_000)
 
         val state = vm.uiState.value
         assertEquals(StructuringPhase.ERROR, state.phase)
@@ -108,7 +109,7 @@ class StructuringViewModelTest {
             validation = ValidationOutcome.InvalidJson,
         )
 
-        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template)
+        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template, recordingCreatedAtMillis = 500_000)
 
         val state = vm.uiState.value
         assertEquals(StructuringPhase.ERROR, state.phase)
@@ -122,8 +123,76 @@ class StructuringViewModelTest {
             validation = ValidationOutcome.InvalidJson,
         )
 
-        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template)
+        vm.startStructuring(recordingId = 1, transcriptId = 1, transcriptText = "text", template = template, recordingCreatedAtMillis = 500_000)
 
         assertEquals(StructuringPhase.ERROR, vm.uiState.value.phase)
+    }
+
+    @Test
+    fun `pole oznacene jako auto-doplnit datum se nahradi casem nahravky bez ohledu na vystup LLM`() {
+        val autoFillTemplate = Template(
+            id = 1,
+            name = "Zápis",
+            version = 1,
+            fields = listOf(
+                TemplateField("datum", required = true, autoFill = TemplateFieldAutoFill.RECORDING_DATE_TIME),
+                TemplateField("ucastnici", required = true),
+            ),
+            instructions = "",
+        )
+        val vm = viewModel(
+            result = StructuringResult.Success("""{"datum":"neco jineho co rekl LLM","ucastnici":"Jan"}"""),
+            validation = ValidationOutcome.Valid(
+                fields = mapOf("datum" to "neco jineho co rekl LLM", "ucastnici" to "Jan"),
+                missingRequiredFields = emptyList(),
+            ),
+        )
+
+        vm.startStructuring(
+            recordingId = 1,
+            transcriptId = 1,
+            transcriptText = "text",
+            template = autoFillTemplate,
+            recordingCreatedAtMillis = 500_000,
+        )
+
+        val state = vm.uiState.value
+        assertEquals(formatRecordingDateTime(500_000), state.fields["datum"])
+        assertEquals("Jan", state.fields["ucastnici"])
+        val saved = repository.saved.single()
+        assertEquals(formatRecordingDateTime(500_000), saved.fields["datum"])
+    }
+
+    @Test
+    fun `chybejici auto-doplnovane pole se nehlasi jako nejasnost`() {
+        val autoFillTemplate = Template(
+            id = 1,
+            name = "Zápis",
+            version = 1,
+            fields = listOf(
+                TemplateField("datum", required = true, autoFill = TemplateFieldAutoFill.RECORDING_DATE_TIME),
+                TemplateField("ucastnici", required = true),
+            ),
+            instructions = "",
+        )
+        val vm = viewModel(
+            result = StructuringResult.Success("""{"ucastnici":"Jan"}"""),
+            validation = ValidationOutcome.Valid(
+                fields = mapOf("datum" to null, "ucastnici" to "Jan"),
+                missingRequiredFields = listOf("datum"),
+            ),
+        )
+
+        vm.startStructuring(
+            recordingId = 1,
+            transcriptId = 1,
+            transcriptText = "text",
+            template = autoFillTemplate,
+            recordingCreatedAtMillis = 500_000,
+        )
+
+        val state = vm.uiState.value
+        assertEquals(emptyList<String>(), state.missingRequiredFields)
+        assertEquals(formatRecordingDateTime(500_000), state.fields["datum"])
     }
 }

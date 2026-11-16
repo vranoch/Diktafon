@@ -169,16 +169,18 @@ fun DiktafonNavGraph() {
             val recordingId = backStackEntry.arguments?.getLong("recordingId") ?: return@composable
             val templateId = backStackEntry.arguments?.getLong("templateId") ?: return@composable
             val lookup: PipelineLookupViewModel = hiltViewModel()
+            val recording by lookup.recording(recordingId).collectAsState(initial = null)
             val transcript by lookup.latestTranscript(recordingId).collectAsState(initial = null)
             val catalog by lookup.approvedCatalog().collectAsState(initial = emptyList())
             val template = catalog.find { it.id == templateId }
 
-            if (transcript != null && template != null) {
+            if (recording != null && transcript != null && template != null) {
                 StructuringScreen(
                     recordingId = recordingId,
                     transcriptId = transcript!!.id,
                     transcriptText = transcript!!.text,
                     template = template,
+                    recordingCreatedAtMillis = recording!!.createdAtMillis,
                     onReady = { documentId ->
                         navController.navigate("review/$documentId") {
                             popUpTo("templateSuggestion/$recordingId") { inclusive = true }
