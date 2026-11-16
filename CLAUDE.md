@@ -6,7 +6,7 @@ Build/test běží jen v kontejneru (viz [ADR-011](documentation/decisions/ADR-0
 
 ```bash
 docker build -t diktafon-dev -f .devcontainer/Dockerfile .devcontainer
-docker run --rm -v "$(pwd)":/workspace -v diktafon-gradle-cache:/root/.gradle diktafon-dev sh -c "cd /workspace && ./gradlew test"
+docker run --rm -v "$(pwd)":/workspace -v diktafon-gradle-cache:/root/.gradle -v diktafon-android-home:/root/.android diktafon-dev sh -c "cd /workspace && ./gradlew test"
 ```
 
 **Poznámka pro Git Bash na Windows:** MSYS automaticky převádí cesty v `-v "$(pwd)":/workspace`,
@@ -19,6 +19,13 @@ Druhý `-v` mount (`diktafon-gradle-cache`) je pojmenovaný Docker volume, kter�
 likvidovaly při každém `--rm` běhu kontejneru a Gradle Wrapper by si navíc zbytečně znovu
 stahoval vlastní distribuci Gradle (přestože je v image předinstalovaná v `/opt/gradle`, ale
 `./gradlew` ji nepoužije).
+
+Třetí `-v` mount (`diktafon-android-home`) je nutný pro `assembleDebug` — bez něj si AGP při
+každém `--rm` běhu kontejneru vygeneruje nový náhodný debug keystore (`~/.android/debug.keystore`),
+takže by byl každý sestavený debug APK podepsaný jiným klíčem a instalace novější verze přes
+starší by na zařízení skončila chybou "balíček je v konfliktu se stávajícím balíčkem" — Android
+odmítá přepsat nainstalovanou aplikaci jinak podepsanou verzí stejného `applicationId`. S tímto
+mountem zůstává debug keystore stejný napříč všemi buildy.
 
 ## Klíčové soubory pro orientaci
 
