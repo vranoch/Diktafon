@@ -2,8 +2,8 @@ package app.diktafon.di
 
 import app.diktafon.structuring.data.DocumentProcessorSelector
 import app.diktafon.structuring.data.JsonSchemaDocumentValidator
-import app.diktafon.structuring.data.MockTemplateDraftGenerator
 import app.diktafon.structuring.data.StructuredDocumentRepositoryImpl
+import app.diktafon.structuring.data.TemplateDraftGeneratorSelector
 import app.diktafon.structuring.data.TemplateRepositoryImpl
 import app.diktafon.structuring.domain.DocumentProcessor
 import app.diktafon.structuring.domain.StructuredDocumentRepository
@@ -29,7 +29,7 @@ abstract class StructuringBindingsModule {
     abstract fun bindStructuredDocumentRepository(impl: StructuredDocumentRepositoryImpl): StructuredDocumentRepository
 
     @Binds
-    abstract fun bindTemplateDraftGenerator(impl: MockTemplateDraftGenerator): TemplateDraftGenerator
+    abstract fun bindTemplateDraftGenerator(impl: TemplateDraftGeneratorSelector): TemplateDraftGenerator
 
     @Binds
     abstract fun bindTemplateRepository(impl: TemplateRepositoryImpl): TemplateRepository

@@ -8,6 +8,7 @@ sealed interface TemplateDraftResult {
     sealed interface Failure : TemplateDraftResult {
         data object InvalidOutput : Failure
         data object RejectedByModel : Failure
+        data class Unauthorized(val details: String? = null) : Failure
         data object Timeout : Failure
         data class ServerError(val cause: Throwable? = null) : Failure
     }

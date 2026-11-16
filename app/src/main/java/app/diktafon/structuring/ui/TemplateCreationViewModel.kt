@@ -74,7 +74,7 @@ class TemplateCreationViewModel @Inject constructor(
                     )
                 }
                 is TemplateDraftResult.Failure -> _uiState.update {
-                    it.copy(errorMessage = "Z tohoto vzoru se nepodařilo odvodit žádné pole.")
+                    it.copy(errorMessage = result.toUserMessage())
                 }
             }
         }
@@ -182,3 +182,14 @@ class TemplateCreationViewModel @Inject constructor(
         }
     }
 }
+
+private fun TemplateDraftResult.Failure.toUserMessage(): String = when (this) {
+    TemplateDraftResult.Failure.InvalidOutput -> "Z tohoto vzoru se nepodařilo odvodit žádné pole."
+    TemplateDraftResult.Failure.RejectedByModel -> "Model odmítl odvození šablony z tohoto vzoru."
+    is TemplateDraftResult.Failure.Unauthorized ->
+        "Neplatné nebo chybějící API přihlášení pro LLM." + details.asSuffix()
+    TemplateDraftResult.Failure.Timeout -> "Vypršel časový limit odvozování šablony."
+    is TemplateDraftResult.Failure.ServerError -> "Chyba LLM služby při odvozování šablony, zkuste to znovu."
+}
+
+private fun String?.asSuffix(): String = if (this.isNullOrBlank()) "" else " Důvod od poskytovatele: $this"

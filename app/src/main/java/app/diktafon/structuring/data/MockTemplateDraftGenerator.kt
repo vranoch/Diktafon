@@ -6,8 +6,9 @@ import app.diktafon.structuring.domain.TemplateDraftResult
 import app.diktafon.structuring.domain.TemplateField
 import javax.inject.Inject
 
-// Zatim neni vybran zadny konkretni LLM provider (viz ADR-004) — toto je jediná dostupná
-// implementace, dokud nevznikne rozhodnutí o konkrétní externí službě.
+// Vychozi simulace (ADR-004) - pouziva se, dokud je v Administraci vybrana "Simulace", aby
+// aplikaci slo zkouset bez nakladu a bez API klice. Realna implementace: OpenAiTemplateDraftGenerator.
+// Jen naivne useka text pred dvojteckou na kazdem radku - nerozumi obsahu.
 class MockTemplateDraftGenerator @Inject constructor() : TemplateDraftGenerator {
 
     override suspend fun generateDraft(request: TemplateDraftRequest): TemplateDraftResult {
