@@ -58,7 +58,7 @@ fun RecordingScreen(
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         hasMicPermission = granted
-        if (granted) viewModel.startNewRecording(state.folderId)
+        if (granted) viewModel.prepareNewRecording(state.folderId)
     }
 
     // Casovac aktualizuje text max. 1x za sekundu, zadna kontinualni animace (ADR-015).
@@ -87,12 +87,29 @@ fun RecordingScreen(
                     text = "Nová nahrávka",
                     onClick = {
                         if (hasMicPermission) {
-                            viewModel.startNewRecording(state.folderId)
+                            viewModel.prepareNewRecording(state.folderId)
                         } else {
                             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                         }
                     },
                 )
+            }
+            RecordingPhase.PREPARING -> {
+                OutlinedTextField(
+                    value = state.name,
+                    onValueChange = viewModel::onNameChanged,
+                    label = { Text("Název") },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.note,
+                    onValueChange = viewModel::onNoteChanged,
+                    label = { Text("Poznámka") },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(16.dp))
+                PrimaryActionButton(text = "Spustit nahrávání", onClick = viewModel::beginRecording)
             }
             RecordingPhase.RECORDING, RecordingPhase.PAUSED -> {
                 OutlinedTextField(
@@ -143,7 +160,7 @@ fun RecordingScreen(
                     text = "Nová nahrávka",
                     onClick = {
                         if (hasMicPermission) {
-                            viewModel.startNewRecording(state.folderId)
+                            viewModel.prepareNewRecording(state.folderId)
                         } else {
                             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                         }

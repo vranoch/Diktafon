@@ -33,7 +33,7 @@ class OpenAiSpeechToTextProvider @Inject constructor(
 
     override suspend fun transcribe(request: TranscriptionRequest): TranscriptionResult {
         val apiKey = apiKeyRepository.getApiKey(ApiKeySlots.STT)
-            ?: return TranscriptionResult.Failure.Unauthorized
+            ?: return TranscriptionResult.Failure.Unauthorized("V Administraci chybí STT API klíč.")
         val model = providerConfigRepository.observe().first().sttModel.ifBlank { DEFAULT_MODEL }
 
         return withContext(Dispatchers.IO) {
@@ -75,10 +75,19 @@ class OpenAiSpeechToTextProvider @Inject constructor(
                 TranscriptionResult.Success(text = text, providerName = "openai", modelName = model)
             }
         }
-        401, 403 -> TranscriptionResult.Failure.Unauthorized
+        401, 403 -> TranscriptionResult.Failure.Unauthorized(extractOpenAiErrorMessage(responseBody))
         413 -> TranscriptionResult.Failure.FileTooLarge
-        429 -> TranscriptionResult.Failure.RateLimited
+        429 -> TranscriptionResult.Failure.RateLimited(extractOpenAiErrorMessage(responseBody))
         in 500..599 -> TranscriptionResult.Failure.ServerError()
         else -> TranscriptionResult.Failure.ServerError()
     }
 }
+
+/**
+ * OpenAI chyby maji tvar {"error": {"message": "...", "type": "...", "code": "..."}}. HTTP 429
+ * OpenAI pouziva jak pro skutecne rate-limitovani, tak pro vycerpany kredit/chybejici platbu
+ * (type "insufficient_quota") - bez teto zpravy by obe situace vypadaly v aplikaci stejne.
+ */
+internal fun extractOpenAiErrorMessage(responseBody: String): String? = runCatching {
+    Json.parseToJsonElement(responseBody).jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.contentOrNull
+}.getOrNull()

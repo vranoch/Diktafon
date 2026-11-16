@@ -48,7 +48,7 @@ class TranscriptionViewModelTest {
     @Test
     fun `nacteni existujiciho prepisu naplni stav bez noveho volani STT`() = runTest {
         repository.saveNewRevision(1, "drivejsi prepis", "cs", "mock", "mock-v1", 500)
-        val vm = viewModel(TranscriptionResult.Failure.Unauthorized)
+        val vm = viewModel(TranscriptionResult.Failure.Unauthorized())
 
         vm.loadExisting(1)
 
@@ -91,7 +91,7 @@ class TranscriptionViewModelTest {
 
     @Test
     fun `chyba autorizace nastavi stav ERROR se srozumitelnou zpravou`() {
-        val vm = viewModel(TranscriptionResult.Failure.Unauthorized)
+        val vm = viewModel(TranscriptionResult.Failure.Unauthorized())
 
         vm.startTranscription(recordingId = 1, audioFile = audioFile)
 

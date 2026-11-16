@@ -119,10 +119,14 @@ class TranscriptionViewModel @Inject constructor(
 }
 
 private fun TranscriptionResult.Failure.toUserMessage(): String = when (this) {
-    TranscriptionResult.Failure.Unauthorized -> "Neplatné nebo odmítnuté API přihlášení."
-    TranscriptionResult.Failure.RateLimited -> "Překročen limit volání STT služby, zkuste to později."
+    is TranscriptionResult.Failure.Unauthorized ->
+        "Neplatné nebo odmítnuté API přihlášení." + details.asSuffix()
+    is TranscriptionResult.Failure.RateLimited ->
+        "Překročen limit volání STT služby (nebo došel kredit u poskytovatele), zkuste to později." + details.asSuffix()
     TranscriptionResult.Failure.FileTooLarge -> "Soubor je pro STT službu příliš velký."
     TranscriptionResult.Failure.Timeout -> "Vypršel časový limit volání STT služby."
     is TranscriptionResult.Failure.ServerError -> "Chyba STT služby, zkuste to znovu."
     TranscriptionResult.Failure.EmptyResult -> "Přepis vyšel prázdný nebo neplatný, zkuste to znovu."
 }
+
+private fun String?.asSuffix(): String = if (this.isNullOrBlank()) "" else " Důvod od poskytovatele: $this"

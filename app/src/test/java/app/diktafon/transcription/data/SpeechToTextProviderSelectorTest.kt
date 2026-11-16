@@ -9,6 +9,7 @@ import app.diktafon.transcription.domain.TranscriptionResult
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
@@ -46,6 +47,6 @@ class SpeechToTextProviderSelectorTest {
     fun `openai provider deleguje na realnou implementaci`() = runTest {
         val result = selector(ProviderNames.OPENAI).transcribe(TranscriptionRequest(audioFile, "cs"))
 
-        assertEquals(TranscriptionResult.Failure.Unauthorized, result)
+        assertTrue(result is TranscriptionResult.Failure.Unauthorized)
     }
 }

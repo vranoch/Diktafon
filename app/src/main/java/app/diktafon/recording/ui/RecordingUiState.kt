@@ -1,6 +1,6 @@
 package app.diktafon.recording.ui
 
-enum class RecordingPhase { IDLE, RECORDING, PAUSED, STOPPED }
+enum class RecordingPhase { IDLE, PREPARING, RECORDING, PAUSED, STOPPED }
 
 data class RecordingUiState(
     val phase: RecordingPhase = RecordingPhase.IDLE,

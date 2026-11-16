@@ -7,4 +7,7 @@ interface AudioPlayer {
     fun pause()
     fun stop()
     fun isPlaying(): Boolean
+    fun currentPositionMs(): Int
+    fun durationMs(): Int
+    fun seekTo(positionMs: Int)
 }

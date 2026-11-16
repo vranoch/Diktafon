@@ -36,4 +36,12 @@ class MediaPlayerAudioPlayer @Inject constructor() : AudioPlayer {
     }
 
     override fun isPlaying(): Boolean = playing
+
+    override fun currentPositionMs(): Int = mediaPlayer?.currentPosition ?: 0
+
+    override fun durationMs(): Int = mediaPlayer?.duration ?: 0
+
+    override fun seekTo(positionMs: Int) {
+        mediaPlayer?.seekTo(positionMs)
+    }
 }

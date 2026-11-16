@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.deletion.ui.DeletionViewModel
 import app.diktafon.recording.ui.PlaybackViewModel
@@ -55,11 +57,20 @@ fun RecordingDetailScreen(
     val transcript by lookup.latestTranscript(recordingId).collectAsState(initial = null)
     val document by lookup.latestDocumentForRecording(recordingId).collectAsState(initial = null)
     val isPlaying by playback.isPlaying.collectAsState()
+    val positionMs by playback.positionMs.collectAsState()
+    val durationMs by playback.durationMs.collectAsState()
     val deletionState by deletionViewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(recordingId) { deletionViewModel.loadDependentArtifacts(recordingId) }
     LaunchedEffect(deletionState.isDeleted) { if (deletionState.isDeleted) onDeleted() }
+    // Aktualizace pozice max. 1x/s behem prehravani, zadna kontinualni animace (ADR-015).
+    LaunchedEffect(isPlaying) {
+        while (isPlaying) {
+            delay(1000)
+            playback.tick()
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
         AppHeader(title = "Nahrávka", onBack = onBack, onHome = onHome)
@@ -76,10 +87,30 @@ fun RecordingDetailScreen(
             Text(it.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Caption("Délka: ${it.durationMs / 1000} s" + if (it.note.isNotBlank()) " · ${it.note}" else "")
             Spacer(Modifier.height(10.dp))
-            SecondaryActionButton(
-                text = if (isPlaying) "Pozastavit" else "Přehrát",
-                onClick = { playback.togglePlayback(File(it.filePath)) },
+
+            val effectiveDuration = if (durationMs > 0) durationMs else it.durationMs.toInt()
+            Slider(
+                value = positionMs.toFloat().coerceIn(0f, effectiveDuration.coerceAtLeast(1).toFloat()),
+                onValueChange = { playback.seekTo(it.toInt()) },
+                valueRange = 0f..effectiveDuration.coerceAtLeast(1).toFloat(),
+                modifier = Modifier.fillMaxWidth(),
             )
+            Caption("${formatPlaybackTime(positionMs)} / ${formatPlaybackTime(effectiveDuration)}")
+            Spacer(Modifier.height(10.dp))
+            Row {
+                SecondaryActionButton(
+                    text = if (isPlaying) "Pozastavit" else "Přehrát",
+                    onClick = { playback.togglePlayback(File(it.filePath)) },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(10.dp))
+                SecondaryActionButton(
+                    text = "Zastavit",
+                    onClick = playback::stop,
+                    enabled = isPlaying || positionMs > 0,
+                    modifier = Modifier.weight(1f),
+                )
+            }
             Spacer(Modifier.height(20.dp))
         }
 
@@ -165,4 +196,11 @@ fun RecordingDetailScreen(
             },
         )
     }
+}
+
+private fun formatPlaybackTime(ms: Int): String {
+    val totalSeconds = ms / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "%d:%02d".format(minutes, seconds)
 }

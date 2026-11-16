@@ -12,8 +12,8 @@ sealed interface TranscriptionResult {
     data class Success(val text: String, val providerName: String, val modelName: String) : TranscriptionResult
 
     sealed interface Failure : TranscriptionResult {
-        data object Unauthorized : Failure
-        data object RateLimited : Failure
+        data class Unauthorized(val details: String? = null) : Failure
+        data class RateLimited(val details: String? = null) : Failure
         data object FileTooLarge : Failure
         data object Timeout : Failure
         data class ServerError(val cause: Throwable? = null) : Failure

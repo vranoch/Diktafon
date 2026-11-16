@@ -2,12 +2,13 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-14
+**Změněno:** 2026-11-16
 **Zdroje:**
 - [PRODUCT_REQUIREMENTS_ARCHITECTURE (zdrojový dokument, 2026-11-12)](../source-materials/source-documents/20261112_PRODUCT_REQUIREMENTS_ARCHITECTURE.md) — kapitola 5, UC-001
 - Upřesnění uživatele v rámci revize, 2026-11-12 (tato konverzace) — volba cílové složky a předgenerovaný název/poznámka při zahájení nahrávání.
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — zkratka "Nová nahrávka" na hlavní obrazovce míří do naposledy použité složky; A1 (oprávnění k mikrofonu) implementováno jako runtime dotaz s chybovým stavem místo pádu, viz [ADR-014](../decisions/ADR-014-navigace-strom-slozek-kontextove-akce.md).
 - [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
+- [Chat-extract — Revize názvu/poznámky před spuštěním nahrávání, 2026-11-16](../source-materials/chat-extracts/2026-11-16-revize-pred-spustenim-nahravani.md) — implementace mikrofon spouštěla ihned, chybějící krok "Příprava nahrávání" z mockupu doplněn.
 
 ## Aktér
 
@@ -20,7 +21,7 @@ Aplikace má oprávnění mikrofonu a dostatek úložiště.
 ## Hlavní tok
 
 1. Uživatel spustí nahrávání („Nová nahrávka“) — buď jako rychlá zkratka do naposledy použité složky, nebo s volbou/změnou cílové složky při procházení složek (viz [FR-AUD-011](../requirements/FR-AUD-011-organizace-nahravek-do-slozek.md), [UC-011](UC-011-organizovat-nahravky-do-slozek.md)).
-2. Aplikace nabídne předgenerovaný název nahrávky; uživatel jej může ihned změnit a volitelně rovnou zapsat poznámku (viz [FR-AUD-005](../requirements/FR-AUD-005-seznam-nahravek-s-metadaty.md)).
+2. Aplikace nabídne předgenerovaný název nahrávky k revizi (mikrofon ještě neběží); uživatel jej může změnit a volitelně rovnou zapsat poznámku, teprve pak nahrávání explicitně zahájí (viz [FR-AUD-005](../requirements/FR-AUD-005-seznam-nahravek-s-metadaty.md)).
 3. Vidí indikaci běhu nahrávání a uběhlý čas.
 4. Volitelně nahrávání pozastaví (Pauza) a později v téže nahrávce pokračuje (append) — kroky 3–4 se mohou opakovat.
 5. Zastaví nahrávání (Stop).

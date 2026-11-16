@@ -52,29 +52,42 @@ class RecordingViewModelTest {
     }
 
     @Test
-    fun `zahajeni nahravani nastavi stav RECORDING a predgenerovany nazev`() {
-        viewModel.startNewRecording()
+    fun `priprava nahravani nastavi stav PREPARING a predgenerovany nazev, nahravac jeste nebezi`() {
+        viewModel.prepareNewRecording()
+
+        val state = viewModel.uiState.value
+        assertEquals(RecordingPhase.PREPARING, state.phase)
+        assertTrue(state.name.isNotBlank())
+        assertTrue(!audioRecorder.started)
+    }
+
+    @Test
+    fun `zahajeni nahravani z PREPARING nastavi stav RECORDING`() {
+        viewModel.prepareNewRecording()
+
+        viewModel.beginRecording()
 
         val state = viewModel.uiState.value
         assertEquals(RecordingPhase.RECORDING, state.phase)
-        assertTrue(state.name.isNotBlank())
         assertTrue(audioRecorder.started)
     }
 
     @Test
     fun `selhani startu nahravani (napr odmitnute opravneni) nastavi chybu a nespadne`() {
         audioRecorder.startException = SecurityException("RECORD_AUDIO not granted")
+        viewModel.prepareNewRecording()
 
-        viewModel.startNewRecording()
+        viewModel.beginRecording()
 
         val state = viewModel.uiState.value
-        assertEquals(RecordingPhase.IDLE, state.phase)
+        assertEquals(RecordingPhase.PREPARING, state.phase)
         assertTrue(state.error != null)
     }
 
     @Test
     fun `pauza a pokracovani se mohou opakovat`() {
-        viewModel.startNewRecording()
+        viewModel.prepareNewRecording()
+        viewModel.beginRecording()
 
         viewModel.pause()
         assertEquals(RecordingPhase.PAUSED, viewModel.uiState.value.phase)
@@ -92,7 +105,8 @@ class RecordingViewModelTest {
 
     @Test
     fun `zmena nazvu a poznamky se promitne do stavu`() {
-        viewModel.startNewRecording()
+        viewModel.prepareNewRecording()
+        viewModel.beginRecording()
 
         viewModel.onNameChanged("Moje nahrávka")
         viewModel.onNoteChanged("Důležitá poznámka")
@@ -104,7 +118,8 @@ class RecordingViewModelTest {
 
     @Test
     fun `stop ulozi nahravku s nazvem poznamkou slozkou a delkou`() {
-        viewModel.startNewRecording(folderId = 42)
+        viewModel.prepareNewRecording(folderId = 42)
+        viewModel.beginRecording()
         viewModel.onNameChanged("Porada")
         viewModel.onNoteChanged("Zápis z porady")
         audioRecorder.nextStopResult = RecordingResult(File("/tmp/x.m4a"), durationMs = 5_000)

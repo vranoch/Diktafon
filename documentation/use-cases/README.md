@@ -18,7 +18,7 @@ Viz [`_template.md`](_template.md) pro šablonu nového use-case/procesu.
 
 | ID | Název | Stav | Změněno | Shrnutí |
 |---|---|---|---|---|
-| [UC-001](UC-001-poridit-a-ulozit-hlasovy-zaznam.md) | Pořídit a uložit hlasový záznam | PŘIJATO | 2026-11-14 | Zkratka do naposledy použité složky nebo volba složky; runtime oprávnění k mikrofonu bez pádu. |
+| [UC-001](UC-001-poridit-a-ulozit-hlasovy-zaznam.md) | Pořídit a uložit hlasový záznam | PŘIJATO | 2026-11-16 | Zkratka do naposledy použité složky nebo volba složky; příprava (revize názvu/poznámky) před startem nahrávání; runtime oprávnění k mikrofonu bez pádu. |
 | [UC-002](UC-002-importovat-externi-nahravku.md) | Importovat externí nahrávku | PŘIJATO | 2026-11-14 | Vznik nahrávky jako v UC-001 (složka/název/poznámka), import místo záznamu mikrofonem. |
 | [UC-003](UC-003-prevest-nahravku-na-cesky-text.md) | Převést nahrávku na český text | PŘIJATO | 2026-11-14 | Existuje verzovaný přepis ve zvoleném jazyce (výchozí čeština), nebo jasná chyba. |
 | [UC-004](UC-004-strukturovat-text-podle-sablony.md) | Strukturovat text podle šablony | PŘIJATO | 2026-11-14 | Zobrazení šablony předem není nutné; vznikne strukturovaný návrh s ID/verzí šablony. |

@@ -30,22 +30,31 @@ class RecordingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RecordingUiState())
     val uiState: StateFlow<RecordingUiState> = _uiState.asStateFlow()
 
-    fun startNewRecording(folderId: Long? = null) {
+    // Pripravi predgenerovany nazev k revizi (nazev/poznamka), ale jeste nespousti mikrofon -
+    // uzivatel ma nejdrive prostor revidovat nazev/popis, az pak explicitne zahaji zaznam
+    // (viz FR-AUD-005).
+    fun prepareNewRecording(folderId: Long? = null) {
         val name = nameGenerator.generatePregeneratedName()
-        viewModelScope.launch { lastUsedFolderRepository.set(folderId) }
-        try {
-            audioRecorder.start(fileFactory.create(name))
-        } catch (e: Exception) {
-            _uiState.update { it.copy(error = "Nahrávání se nepodařilo spustit: ${e.message}") }
-            return
-        }
         _uiState.update {
             RecordingUiState(
-                phase = RecordingPhase.RECORDING,
+                phase = RecordingPhase.PREPARING,
                 name = name,
                 folderId = folderId,
             )
         }
+    }
+
+    fun beginRecording() {
+        val state = _uiState.value
+        if (state.phase != RecordingPhase.PREPARING) return
+        viewModelScope.launch { lastUsedFolderRepository.set(state.folderId) }
+        try {
+            audioRecorder.start(fileFactory.create(state.name))
+        } catch (e: Exception) {
+            _uiState.update { it.copy(error = "Nahrávání se nepodařilo spustit: ${e.message}") }
+            return
+        }
+        _uiState.update { it.copy(phase = RecordingPhase.RECORDING, error = null) }
     }
 
     fun onNameChanged(newName: String) {
