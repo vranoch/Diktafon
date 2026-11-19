@@ -39,6 +39,7 @@ class ReviewViewModel @Inject constructor(
                     state.copy(
                         recordingId = document.recordingId,
                         fields = document.fields,
+                        fieldLabels = template?.fields?.associate { it.key to it.label } ?: emptyMap(),
                         missingRequiredFields = document.missingRequiredFields,
                         isApproved = document.isApproved,
                         formattedPreview = template?.let { documentFormatter.format(document, it) } ?: "",

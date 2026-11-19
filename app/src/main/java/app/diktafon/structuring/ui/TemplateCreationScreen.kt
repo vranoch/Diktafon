@@ -51,7 +51,9 @@ import app.diktafon.ui.theme.DiktafonOutline
 
 @Composable
 fun TemplateCreationScreen(
-    existingTranscriptForTesting: String?,
+    pickedTranscriptText: String? = null,
+    pickedTranscriptLabel: String? = null,
+    onRequestPickTranscript: (() -> Unit)? = null,
     existingTemplate: Template? = null,
     onBack: (() -> Unit)? = null,
     onHome: (() -> Unit)? = null,
@@ -138,13 +140,13 @@ fun TemplateCreationScreen(
             for ((index, field) in state.draftFields.withIndex()) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
                     OutlinedTextField(
-                        value = field.name,
-                        onValueChange = { viewModel.onFieldNameChanged(index, it) },
+                        value = field.label,
+                        onValueChange = { viewModel.onFieldLabelChanged(index, it) },
                         label = { Text("Název pole") },
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(Modifier.width(8.dp))
-                    GlyphIconButton(glyph = "🗑", contentDescription = "Odebrat pole ${field.name}", onClick = { viewModel.removeField(index) })
+                    GlyphIconButton(glyph = "🗑", contentDescription = "Odebrat pole ${field.label}", onClick = { viewModel.removeField(index) })
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -177,13 +179,28 @@ fun TemplateCreationScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            if (existingTranscriptForTesting != null) {
+            if (onRequestPickTranscript != null) {
                 Spacer(Modifier.height(10.dp))
-                SecondaryActionButton(
-                    text = "Otestovat na existujícím přepisu",
-                    onClick = { viewModel.testDraftOnTranscript(existingTranscriptForTesting) },
-                    enabled = !state.isTestingDraft,
-                )
+                pickedTranscriptLabel?.let {
+                    Caption("Vybraný přepis k otestování: $it")
+                    Spacer(Modifier.height(4.dp))
+                }
+                Row {
+                    SecondaryActionButton(
+                        text = if (pickedTranscriptText == null) "Vybrat nahrávku k otestování" else "Vybrat jinou nahrávku",
+                        onClick = onRequestPickTranscript,
+                        modifier = if (pickedTranscriptText != null) Modifier.weight(1f) else Modifier,
+                    )
+                    if (pickedTranscriptText != null) {
+                        Spacer(Modifier.width(8.dp))
+                        SecondaryActionButton(
+                            text = "Otestovat na vybraném přepisu",
+                            onClick = { viewModel.testDraftOnTranscript(pickedTranscriptText) },
+                            enabled = !state.isTestingDraft,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
                 if (state.isTestingDraft) {
                     Spacer(Modifier.height(8.dp))
                     StatusBadge(text = "Testuji draft na přepisu…", glyph = "…", containerColor = DiktafonAccentContainer, contentColor = DiktafonAccentContainerOn)
@@ -204,8 +221,9 @@ fun TemplateCreationScreen(
                 Spacer(Modifier.height(12.dp))
                 SectionLabel("Rozpoznaná pole")
                 Spacer(Modifier.height(6.dp))
-                for ((name, value) in state.testResultFields) {
-                    Caption("$name: ${value ?: "(chybí)"}")
+                for ((key, value) in state.testResultFields) {
+                    val label = state.draftFields.find { it.key == key }?.label ?: key
+                    Caption("$label: ${value ?: "(chybí)"}")
                 }
             }
 

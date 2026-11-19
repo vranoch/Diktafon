@@ -93,12 +93,13 @@ fun ReviewScreen(
 
         SectionLabel("Pole k doplnění")
         Spacer(Modifier.height(8.dp))
-        for ((name, value) in state.fields) {
-            val isMissing = name in state.missingRequiredFields
+        for ((key, value) in state.fields) {
+            val isMissing = key in state.missingRequiredFields
+            val label = state.fieldLabels[key] ?: key
             OutlinedTextField(
                 value = value ?: "",
-                onValueChange = { viewModel.onFieldChanged(name, it) },
-                label = { Text(if (isMissing) "⚠ $name — chybí" else name) },
+                onValueChange = { viewModel.onFieldChanged(key, it) },
+                label = { Text(if (isMissing) "⚠ $label — chybí" else label) },
                 isError = isMissing,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             )

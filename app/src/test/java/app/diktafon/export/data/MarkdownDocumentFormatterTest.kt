@@ -37,6 +37,31 @@ class MarkdownDocumentFormatterTest {
     }
 
     @Test
+    fun `vykresli se popisek pole, ne jeho technicky klic`() {
+        val templateWithDistinctKeyAndLabel = Template(
+            id = 1,
+            name = "Zápis z porady",
+            version = 1,
+            fields = listOf(TemplateField(key = "datum_konani", label = "Datum konání", required = true)),
+            instructions = "",
+        )
+        val document = StructuredDocument(
+            recordingId = 1,
+            transcriptId = 1,
+            templateId = 1,
+            templateVersion = 1,
+            fields = mapOf("datum_konani" to "2026-11-13"),
+            missingRequiredFields = emptyList(),
+            createdAtMillis = 1_000,
+        )
+
+        val markdown = formatter.format(document, templateWithDistinctKeyAndLabel)
+
+        assertTrue(markdown.contains("**Datum konání:** 2026-11-13"))
+        assertTrue(!markdown.contains("datum_konani"))
+    }
+
+    @Test
     fun `chybejici pole se oznaci jako chybejici, ne jako prazdny radek`() {
         val document = StructuredDocument(
             recordingId = 1,

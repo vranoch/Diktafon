@@ -3,6 +3,7 @@ package app.diktafon.structuring.data
 import app.diktafon.structuring.domain.TemplateDraftRequest
 import app.diktafon.structuring.domain.TemplateDraftResult
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -17,8 +18,8 @@ class MockTemplateDraftGeneratorTest {
         )
 
         assertTrue(result is TemplateDraftResult.Success)
-        val fieldNames = (result as TemplateDraftResult.Success).fields.map { it.name }
-        assertTrue(fieldNames.containsAll(listOf("Datum", "Účastníci")))
+        val fieldLabels = (result as TemplateDraftResult.Success).fields.map { it.label }
+        assertTrue(fieldLabels.containsAll(listOf("Datum", "Účastníci")))
     }
 
     @Test
@@ -27,8 +28,8 @@ class MockTemplateDraftGeneratorTest {
             TemplateDraftRequest(exampleText = "Datum: 2026-11-13", fieldNotes = "Místo, Poznámka"),
         )
 
-        val fieldNames = (result as TemplateDraftResult.Success).fields.map { it.name }
-        assertTrue(fieldNames.containsAll(listOf("Datum", "Místo", "Poznámka")))
+        val fieldLabels = (result as TemplateDraftResult.Success).fields.map { it.label }
+        assertTrue(fieldLabels.containsAll(listOf("Datum", "Místo", "Poznámka")))
     }
 
     @Test
@@ -36,5 +37,16 @@ class MockTemplateDraftGeneratorTest {
         val result = generator.generateDraft(TemplateDraftRequest(exampleText = "žádná dvojtečka tady"))
 
         assertTrue(result is TemplateDraftResult.Failure.InvalidOutput)
+    }
+
+    @Test
+    fun `klice poli se odvozuji bez diakritiky a jsou v ramci draftu unikatni`() = runTest {
+        val result = generator.generateDraft(
+            TemplateDraftRequest(exampleText = "Datum narození: 2026-11-13\nDatum (jiné): 2026-11-14"),
+        )
+
+        val fields = (result as TemplateDraftResult.Success).fields
+        assertEquals("datum_narozeni", fields[0].key)
+        assertEquals("datum_jine", fields[1].key)
     }
 }

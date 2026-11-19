@@ -91,6 +91,52 @@ class TemplateCreationViewModelTest {
     }
 
     @Test
+    fun `nahled vykresli popisek pole, ne jeho technicky klic`() {
+        val vm = viewModel(
+            draftResult = TemplateDraftResult.Success(
+                listOf(TemplateField(key = "datum_field", label = "Datum konání", required = true)),
+                "vypln",
+            ),
+            validationOutcome = ValidationOutcome.Valid(
+                fields = mapOf("datum_field" to "2026-11-13"),
+                missingRequiredFields = emptyList(),
+            ),
+        )
+        vm.generateDraft()
+
+        vm.testDraftOnTranscript("nejaky prepis")
+
+        assertEquals("2026-11-13", vm.uiState.value.testResultFields["datum_field"])
+        assertTrue(vm.uiState.value.testFormattedPreview.contains("**Datum konání:**"))
+        assertTrue(!vm.uiState.value.testFormattedPreview.contains("datum_field"))
+    }
+
+    @Test
+    fun `pridani vice prazdnych poli jim da odlisne technicke klice`() {
+        val vm = viewModel(draftResult = TemplateDraftResult.Failure.InvalidOutput)
+
+        vm.addField()
+        vm.addField()
+
+        val keys = vm.uiState.value.draftFields.map { it.key }
+        assertEquals(2, keys.distinct().size)
+    }
+
+    @Test
+    fun `prejmenovani popisku pole nezmeni jeho technicky klic`() {
+        val vm = viewModel(
+            draftResult = TemplateDraftResult.Success(listOf(TemplateField(key = "datum_field", label = "Datum", required = true)), "vypln"),
+        )
+        vm.generateDraft()
+
+        vm.onFieldLabelChanged(0, "Datum konání")
+
+        val field = vm.uiState.value.draftFields.single()
+        assertEquals("datum_field", field.key)
+        assertEquals("Datum konání", field.label)
+    }
+
+    @Test
     fun `nacteni existujici sablony naplni draft a ulozeni zversuje puvodni id`() {
         val vm = viewModel(draftResult = TemplateDraftResult.Failure.InvalidOutput)
         val existing = Template(
@@ -196,11 +242,11 @@ class TemplateCreationViewModelTest {
         )
         vm.generateDraft()
 
-        vm.onFieldNameChanged(0, "Datum nahrávky")
+        vm.onFieldLabelChanged(0, "Datum nahrávky")
         vm.onFieldRequiredChanged(0, true)
 
         val field = vm.uiState.value.draftFields.single()
-        assertEquals("Datum nahrávky", field.name)
+        assertEquals("Datum nahrávky", field.label)
         assertEquals(true, field.required)
     }
 
@@ -229,7 +275,7 @@ class TemplateCreationViewModelTest {
         vm.removeField(0)
         val remaining = vm.uiState.value.draftFields
         assertEquals(1, remaining.size)
-        assertEquals("", remaining[0].name)
+        assertEquals("", remaining[0].label)
     }
 
     @Test

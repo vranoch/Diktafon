@@ -4,6 +4,7 @@ import app.diktafon.structuring.domain.TemplateDraftGenerator
 import app.diktafon.structuring.domain.TemplateDraftRequest
 import app.diktafon.structuring.domain.TemplateDraftResult
 import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.generateFieldKey
 import javax.inject.Inject
 
 // Vychozi simulace (ADR-004) - pouziva se, dokud je v Administraci vybrana "Simulace", aby
@@ -12,22 +13,27 @@ import javax.inject.Inject
 class MockTemplateDraftGenerator @Inject constructor() : TemplateDraftGenerator {
 
     override suspend fun generateDraft(request: TemplateDraftRequest): TemplateDraftResult {
-        val fieldNamesFromExample = request.exampleText.lines()
+        val fieldLabelsFromExample = request.exampleText.lines()
             .filter { it.contains(":") }
             .map { it.substringBefore(":").trim() }
             .filter { it.isNotBlank() }
 
-        val fieldNamesFromNotes = request.fieldNotes.split(",")
+        val fieldLabelsFromNotes = request.fieldNotes.split(",")
             .map { it.trim() }
             .filter { it.isNotBlank() }
 
-        val fieldNames = (fieldNamesFromExample + fieldNamesFromNotes).distinct()
-        if (fieldNames.isEmpty()) {
+        val fieldLabels = (fieldLabelsFromExample + fieldLabelsFromNotes).distinct()
+        if (fieldLabels.isEmpty()) {
             return TemplateDraftResult.Failure.InvalidOutput
         }
 
+        val fields = mutableListOf<TemplateField>()
+        for (label in fieldLabels) {
+            fields += TemplateField(key = generateFieldKey(label, fields.map { it.key }), label = label, required = true)
+        }
+
         return TemplateDraftResult.Success(
-            fields = fieldNames.map { TemplateField(name = it, required = true) },
+            fields = fields,
             instructions = "Vyplň pole podle přepisu, podle vzoru:\n${request.exampleText}",
         )
     }

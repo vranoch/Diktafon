@@ -19,7 +19,7 @@ ADR soubor `ADR-NNN-kratky-nazev.md` podle šablony [`_template.md`](_template.m
 | [ADR-003](ADR-003-oddelene-kroky-stt-a-llm.md) | Oddělené kroky STT a LLM | PŘIJATO | 2026-11-12 | Výchozí workflow audio→přepis→strukturování jako dva kroky. |
 | [ADR-004](ADR-004-vymenitelni-externi-ai-poskytovatele.md) | Vyměnitelní externí AI poskytovatelé | PŘIJATO | 2026-11-19 | Provider-neutrální rozhraní; OpenAI jako reálná implementace (STT, strukturování, draft šablony, rozpoznání šablony), mock výchozí. |
 | [ADR-005](ADR-005-lokalni-perzistence-vsech-mezivysledku.md) | Lokální perzistence všech mezivýsledků | PŘIJATO | 2026-11-12 | Oddělené entity; pro uživatele tvoří artefakty jedné nahrávky jednu jednotku manipulace. |
-| [ADR-006](ADR-006-schema-sablony-je-kontrakt.md) | Schéma šablony je kontrakt | PŘIJATO | 2026-11-12 | Verzované JSON Schema + instrukce + lokální validace. |
+| [ADR-006](ADR-006-schema-sablony-je-kontrakt.md) | Schéma šablony je kontrakt | PŘIJATO | 2026-11-19 | Verzované JSON Schema + instrukce + lokální validace; pole má oddělený technický klíč a zobrazovaný popisek. |
 | [ADR-007](ADR-007-serverless-proxy-az-pri-zmene-okolnosti.md) | Serverless proxy až při změně okolností | PŘIJATO | 2026-11-12 | Žádná serverová vrstva v MVP; odloženo do naplnění triggeru. |
 | [ADR-008](ADR-008-synchronizace-neni-soucasti-mvp-aplikacnich-dat.md) | Synchronizace není součástí MVP aplikačních dat | PŘIJATO | 2026-11-12 | Data žijí lokálně, export/předání je explicitní akce uživatele. |
 | [ADR-009](ADR-009-sablony-vznikaji-z-prikladu-pres-llm-s-iterativnim-testovanim.md) | Šablony vznikají z příkladu přes LLM, s iterativním testováním | PŘIJATO | 2026-11-12 | Šablona se odvodí z příkladového textu přes LLM, draft lze opakovaně testovat. |

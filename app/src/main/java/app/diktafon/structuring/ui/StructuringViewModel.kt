@@ -67,8 +67,8 @@ class StructuringViewModel @Inject constructor(
                 // (casto se napr. datum/cas nahravky v nahravce vubec neriká nahlas) - dosadi se
                 // primo z metadat nahravky, bez ohledu na to, co LLM v teto polozce vratil.
                 val fields = applyAutoFill(outcome.fields, template.fields, recordingCreatedAtMillis)
-                val missingRequiredFields = outcome.missingRequiredFields.filterNot { name ->
-                    template.fields.any { it.name == name && it.autoFill != TemplateFieldAutoFill.NONE }
+                val missingRequiredFields = outcome.missingRequiredFields.filterNot { key ->
+                    template.fields.any { it.key == key && it.autoFill != TemplateFieldAutoFill.NONE }
                 }
                 val savedId = repository.save(
                     StructuredDocument(
@@ -107,7 +107,7 @@ private fun applyAutoFill(
 
     return fields.toMutableMap().apply {
         for (field in autoFillFields) {
-            this[field.name] = when (field.autoFill) {
+            this[field.key] = when (field.autoFill) {
                 TemplateFieldAutoFill.RECORDING_DATE_TIME -> formatRecordingDateTime(recordingCreatedAtMillis)
                 TemplateFieldAutoFill.NONE -> continue
             }

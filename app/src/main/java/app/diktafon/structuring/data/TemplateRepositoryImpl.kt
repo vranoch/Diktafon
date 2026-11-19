@@ -12,9 +12,18 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 // autoFill ma vychozi hodnotu, takze starsi ulozena data bez tohoto klice se porad korektne
-// nacitaji (doplni se NONE).
+// nacitaji (doplni se NONE). "name" je zachovane jen kvuli zpetne kompatibilite s daty
+// ulozenymi pred rozdelenim pole na key/label (viz ADR-004, aktualizace 2026-11-19) - u tech se
+// pri nacteni pouzije jako label i jako key beze zmeny, aby zustaly funkcni uz existujici
+// strukturovane dokumenty odkazujici na puvodni (neslugifikovany) klic.
 @Serializable
-private data class TemplateFieldDto(val name: String, val required: Boolean, val autoFill: TemplateFieldAutoFill = TemplateFieldAutoFill.NONE)
+private data class TemplateFieldDto(
+    val key: String = "",
+    val label: String = "",
+    val name: String = "",
+    val required: Boolean,
+    val autoFill: TemplateFieldAutoFill = TemplateFieldAutoFill.NONE,
+)
 
 private val fieldsSerializer = ListSerializer(TemplateFieldDto.serializer())
 
@@ -84,13 +93,19 @@ class TemplateRepositoryImpl @Inject constructor(
 }
 
 private fun encodeFields(fields: List<TemplateField>): String =
-    Json.encodeToString(fieldsSerializer, fields.map { TemplateFieldDto(it.name, it.required, it.autoFill) })
+    Json.encodeToString(
+        fieldsSerializer,
+        fields.map { TemplateFieldDto(key = it.key, label = it.label, required = it.required, autoFill = it.autoFill) },
+    )
 
 private fun TemplateEntity.toDomain() = Template(
     id = templateId,
     name = name,
     version = version,
-    fields = Json.decodeFromString(fieldsSerializer, fieldsJson).map { TemplateField(it.name, it.required, it.autoFill) },
+    fields = Json.decodeFromString(fieldsSerializer, fieldsJson).map { dto ->
+        val label = dto.label.ifBlank { dto.name }
+        TemplateField(key = dto.key.ifBlank { dto.name }, label = label, required = dto.required, autoFill = dto.autoFill)
+    },
     instructions = instructions,
     exampleText = exampleText,
 )

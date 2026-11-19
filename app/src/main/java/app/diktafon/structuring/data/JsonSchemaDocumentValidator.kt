@@ -23,15 +23,15 @@ class JsonSchemaDocumentValidator @Inject constructor() : StructuredDocumentVali
         val fields = mutableMapOf<String, String?>()
         val missing = mutableListOf<String>()
         for (field in template.fields) {
-            val element = jsonObject[field.name]
+            val element = jsonObject[field.key]
             val text = when {
                 element == null || element is JsonNull -> null
                 element is JsonPrimitive -> element.contentOrNull
                 else -> element.toString()
             }
-            fields[field.name] = text
+            fields[field.key] = text
             if (field.required && text.isNullOrBlank()) {
-                missing += field.name
+                missing += field.key
             }
         }
 

@@ -14,7 +14,7 @@ class MockDocumentProcessor @Inject constructor() : DocumentProcessor {
     override suspend fun structure(request: StructuringRequest): StructuringResult {
         val rawJson = buildJsonObject {
             for (field in request.template.fields) {
-                put(field.name, JsonPrimitive("[SIMULACE] hodnota pro ${field.name}"))
+                put(field.key, JsonPrimitive("[SIMULACE] hodnota pro ${field.label}"))
             }
         }
         return StructuringResult.Success(rawJson.toString())

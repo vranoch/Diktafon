@@ -6,6 +6,7 @@ import app.diktafon.export.data.MarkdownDocumentFormatter
 import app.diktafon.structuring.FakeStructuredDocumentRepository
 import app.diktafon.structuring.FakeTemplateRepository
 import app.diktafon.structuring.domain.StructuredDocument
+import app.diktafon.structuring.domain.TemplateField
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -72,6 +73,24 @@ class ReviewViewModelTest {
         assertEquals(listOf("ucastnici"), state.missingRequiredFields)
         assertFalse(state.isApproved)
         assertEquals("puvodni prepis", state.transcriptText)
+    }
+
+    @Test
+    fun `nacteni dokumentu naplni popisky poli podle aktualni sablony, ne technicky klic`() = runTest {
+        templateRepository.saveNewVersion(
+            templateId = 1,
+            name = "Zápis",
+            fields = listOf(TemplateField(key = "datum", label = "Datum konání", required = true)),
+            instructions = "",
+            exampleText = "",
+            createdAtMillis = 1_000,
+        )
+        val documentId = seedDocument()
+        val vm = ReviewViewModel(repository, templateRepository, deletionRepository, MarkdownDocumentFormatter())
+
+        vm.load(documentId, transcriptText = "prepis")
+
+        assertEquals("Datum konání", vm.uiState.value.fieldLabels["datum"])
     }
 
     @Test

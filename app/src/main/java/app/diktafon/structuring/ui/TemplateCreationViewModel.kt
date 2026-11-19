@@ -17,6 +17,7 @@ import app.diktafon.structuring.domain.TemplateField
 import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import app.diktafon.structuring.domain.TemplateRepository
 import app.diktafon.structuring.domain.ValidationOutcome
+import app.diktafon.structuring.domain.generateFieldKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -135,8 +136,10 @@ class TemplateCreationViewModel @Inject constructor(
         }
     }
 
-    fun onFieldNameChanged(index: Int, name: String) {
-        _uiState.update { it.copy(draftFields = it.draftFields.updateAt(index) { field -> field.copy(name = name) }) }
+    // Meni jen zobrazovany popisek pole, technicky klic (pouzivany jako klic ve strukturovanem
+    // dokumentu) zustava beze zmeny - prejmenovani pole tedy nerozbije uz existujici data.
+    fun onFieldLabelChanged(index: Int, label: String) {
+        _uiState.update { it.copy(draftFields = it.draftFields.updateAt(index) { field -> field.copy(label = label) }) }
     }
 
     fun onFieldRequiredChanged(index: Int, required: Boolean) {
@@ -152,7 +155,10 @@ class TemplateCreationViewModel @Inject constructor(
     }
 
     fun addField() {
-        _uiState.update { it.copy(draftFields = it.draftFields + TemplateField(name = "", required = false)) }
+        _uiState.update {
+            val key = generateFieldKey("", it.draftFields.map { field -> field.key })
+            it.copy(draftFields = it.draftFields + TemplateField(key = key, label = "", required = false))
+        }
     }
 
     fun onInstructionsChanged(text: String) {

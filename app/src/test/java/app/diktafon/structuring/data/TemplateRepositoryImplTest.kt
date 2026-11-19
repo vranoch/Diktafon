@@ -118,7 +118,30 @@ class TemplateRepositoryImplTest {
 
         val catalog = repository.observeApprovedCatalog().first()
         val fields = catalog.single().fields
-        assertEquals(TemplateFieldAutoFill.RECORDING_DATE_TIME, fields.first { it.name == "datum" }.autoFill)
-        assertEquals(TemplateFieldAutoFill.NONE, fields.first { it.name == "ucastnici" }.autoFill)
+        assertEquals(TemplateFieldAutoFill.RECORDING_DATE_TIME, fields.first { it.key == "datum" }.autoFill)
+        assertEquals(TemplateFieldAutoFill.NONE, fields.first { it.key == "ucastnici" }.autoFill)
+    }
+
+    // Starsi ulozena data (pred rozdelenim pole na key/label, viz ADR-004) mela v JSON jen
+    // "name" - musi se dal nacist beze ztraty, a to tak, ze key == puvodni name, aby zustaly
+    // funkcni uz existujici strukturovane dokumenty odkazujici na puvodni klic.
+    @Test
+    fun `starsi ulozena sablona jen se starym polem name se nacte se stejnym key i label`() = runTest {
+        db.templateDao().insert(
+            TemplateEntity(
+                templateId = 99,
+                name = "Legacy šablona",
+                version = 1,
+                fieldsJson = """[{"name":"Datum narození","required":true}]""",
+                instructions = "i",
+                exampleText = "e",
+                createdAtMillis = 1_000,
+            ),
+        )
+
+        val field = repository.observeApprovedCatalog().first().single().fields.single()
+
+        assertEquals("Datum narození", field.key)
+        assertEquals("Datum narození", field.label)
     }
 }

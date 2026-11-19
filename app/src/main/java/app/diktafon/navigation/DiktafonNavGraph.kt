@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import app.diktafon.export.data.AndroidShareIntentFactory
 import app.diktafon.export.ui.ExportScreen
 import app.diktafon.folders.ui.FolderBrowserScreen
+import app.diktafon.recording.domain.formatRecordingDateTime
 import app.diktafon.recording.ui.ImportPhase
 import app.diktafon.recording.ui.ImportScreen
 import app.diktafon.recording.ui.ImportViewModel
@@ -31,6 +32,7 @@ import app.diktafon.structuring.ui.StructuringScreen
 import app.diktafon.structuring.ui.TemplateCreationScreen
 import app.diktafon.structuring.ui.TemplateListScreen
 import app.diktafon.structuring.ui.TemplateSuggestionScreen
+import app.diktafon.structuring.ui.TranscriptPickerScreen
 import java.io.File
 
 private const val NO_FOLDER: Long = -1
@@ -296,11 +298,35 @@ fun DiktafonNavGraph() {
             val catalog by lookup.approvedCatalog().collectAsState(initial = emptyList())
             val existingTemplate = if (templateId == NO_TEMPLATE) null else catalog.find { it.id == templateId }
 
+            val pickedTranscriptText by backStackEntry.savedStateHandle
+                .getStateFlow<String?>("pickedTranscriptText", null)
+                .collectAsState()
+            val pickedTranscriptLabel by backStackEntry.savedStateHandle
+                .getStateFlow<String?>("pickedTranscriptLabel", null)
+                .collectAsState()
+
             TemplateCreationScreen(
-                existingTranscriptForTesting = null,
+                pickedTranscriptText = pickedTranscriptText,
+                pickedTranscriptLabel = pickedTranscriptLabel,
+                onRequestPickTranscript = { navController.navigate("templateCreation/$templateId/pickTranscript") },
                 existingTemplate = existingTemplate,
                 onBack = { navController.popBackStack() },
                 onHome = goHome,
+            )
+        }
+
+        composable("templateCreation/{templateId}/pickTranscript") {
+            TranscriptPickerScreen(
+                onBack = { navController.popBackStack() },
+                onHome = goHome,
+                onPicked = { picked ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set("pickedTranscriptText", picked.transcript.text)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "pickedTranscriptLabel",
+                        "${picked.recording.name} · ${formatRecordingDateTime(picked.recording.createdAtMillis)}",
+                    )
+                    navController.popBackStack()
+                },
             )
         }
     }

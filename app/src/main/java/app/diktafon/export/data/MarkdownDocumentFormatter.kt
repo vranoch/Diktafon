@@ -11,11 +11,11 @@ class MarkdownDocumentFormatter @Inject constructor() : DocumentFormatter {
         appendLine("# ${template.name}")
         appendLine()
         for (field in template.fields) {
-            val value = document.fields[field.name]
+            val value = document.fields[field.key]
             if (value.isNullOrBlank()) {
-                appendLine("**${field.name}:** _(chybí)_")
+                appendLine("**${field.label}:** _(chybí)_")
             } else {
-                appendLine("**${field.name}:** $value")
+                appendLine("**${field.label}:** $value")
             }
         }
     }

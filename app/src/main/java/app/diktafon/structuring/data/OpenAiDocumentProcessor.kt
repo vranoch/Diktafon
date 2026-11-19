@@ -75,7 +75,7 @@ class OpenAiDocumentProcessor @Inject constructor(
 
     private fun buildSystemPrompt(request: StructuringRequest): String = buildString {
         val fieldList = request.template.fields.joinToString(", ") {
-            "\"${it.name}\"" + if (it.required) " (povinné)" else ""
+            "\"${it.key}\" (popisek: \"${it.label}\")" + if (it.required) " (povinné)" else ""
         }
         append("Jsi asistent, ktery z prepisu hlasove nahravky vytvari strukturovany dokument. ")
         append("Vrat VYHRADNE JSON objekt s presne temito klici: $fieldList. ")

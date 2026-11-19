@@ -14,7 +14,7 @@ class PlainTextTemplateFormatter @Inject constructor() : TemplateFormatter {
         appendLine()
         appendLine("## Pole")
         for (field in template.fields) {
-            appendLine("- ${field.name}${if (field.required) " (povinné)" else ""}")
+            appendLine("- ${field.label}${if (field.required) " (povinné)" else ""}")
         }
         appendLine()
         appendLine("## Vzorový text")

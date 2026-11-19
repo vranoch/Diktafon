@@ -7,6 +7,7 @@ import app.diktafon.structuring.domain.TemplateDraftGenerator
 import app.diktafon.structuring.domain.TemplateDraftRequest
 import app.diktafon.structuring.domain.TemplateDraftResult
 import app.diktafon.structuring.domain.TemplateField
+import app.diktafon.structuring.domain.generateFieldKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -95,12 +96,13 @@ class OpenAiTemplateDraftGenerator @Inject constructor(
                 ?: return TemplateDraftResult.Failure.InvalidOutput
 
             val draft = Json.parseToJsonElement(content).jsonObject
-            val fields = (draft["fields"] as? JsonArray)?.mapNotNull { element ->
+            val fields = mutableListOf<TemplateField>()
+            for (element in (draft["fields"] as? JsonArray).orEmpty()) {
                 val obj = element.jsonObject
-                val name = obj["name"]?.jsonPrimitive?.contentOrNull ?: return@mapNotNull null
+                val label = obj["name"]?.jsonPrimitive?.contentOrNull ?: continue
                 val required = runCatching { obj["required"]?.jsonPrimitive?.boolean }.getOrNull() ?: true
-                TemplateField(name = name, required = required)
-            }.orEmpty()
+                fields += TemplateField(key = generateFieldKey(label, fields.map { it.key }), label = label, required = required)
+            }
             val instructions = draft["instructions"]?.jsonPrimitive?.contentOrNull.orEmpty()
 
             if (fields.isEmpty()) {

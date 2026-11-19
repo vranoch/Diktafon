@@ -32,9 +32,9 @@ class OpenAiTemplateDraftGeneratorTest {
         assertTrue(result is TemplateDraftResult.Success)
         val success = result as TemplateDraftResult.Success
         assertEquals(2, success.fields.size)
-        assertEquals("Subjektivní nález", success.fields[0].name)
+        assertEquals("Subjektivní nález", success.fields[0].label)
         assertTrue(success.fields[0].required)
-        assertEquals("Terapie", success.fields[1].name)
+        assertEquals("Terapie", success.fields[1].label)
         assertEquals(false, success.fields[1].required)
         assertEquals("Vyplň podle vzoru", success.instructions)
     }
