@@ -31,6 +31,7 @@ import app.diktafon.ui.components.AppHeader
 import app.diktafon.ui.components.PrimaryActionButton
 import app.diktafon.ui.components.SecondaryActionButton
 import app.diktafon.ui.components.SectionLabel
+import app.diktafon.ui.components.renderMarkdownLite
 import app.diktafon.ui.theme.DiktafonOutline
 import app.diktafon.ui.theme.DiktafonSurfaceMuted
 
@@ -56,7 +57,7 @@ fun ExportScreen(
         Spacer(Modifier.height(12.dp))
 
         Surface(border = BorderStroke(1.5.dp, DiktafonOutline), color = DiktafonSurfaceMuted, shape = RoundedCornerShape(12.dp)) {
-            Text(state.formattedText, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyLarge)
+            Text(renderMarkdownLite(state.formattedText), modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyLarge)
         }
         Spacer(Modifier.height(20.dp))
 

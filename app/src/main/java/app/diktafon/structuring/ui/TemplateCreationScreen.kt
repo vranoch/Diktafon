@@ -1,5 +1,7 @@
 package app.diktafon.structuring.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,11 +10,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,14 +37,17 @@ import app.diktafon.structuring.domain.TemplateFieldAutoFill
 import app.diktafon.ui.components.AppHeader
 import app.diktafon.ui.components.Caption
 import app.diktafon.ui.components.GlyphIconButton
+import app.diktafon.ui.components.MarkdownLiteVisualTransformation
 import app.diktafon.ui.components.PrimaryActionButton
 import app.diktafon.ui.components.SecondaryActionButton
 import app.diktafon.ui.components.SectionLabel
 import app.diktafon.ui.components.StatusBadge
+import app.diktafon.ui.components.renderMarkdownLite
 import app.diktafon.ui.theme.DiktafonAccentContainer
 import app.diktafon.ui.theme.DiktafonAccentContainerOn
 import app.diktafon.ui.theme.DiktafonDangerContainer
 import app.diktafon.ui.theme.DiktafonDangerContainerOn
+import app.diktafon.ui.theme.DiktafonOutline
 
 @Composable
 fun TemplateCreationScreen(
@@ -103,6 +110,7 @@ fun TemplateCreationScreen(
                 exampleTextField = it
                 viewModel.onExampleTextChanged(it.text)
             },
+            visualTransformation = remember { MarkdownLiteVisualTransformation() },
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(8.dp))
@@ -184,7 +192,17 @@ fun TemplateCreationScreen(
 
             if (state.testResultFields.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
-                SectionLabel("Výsledek testu")
+                SectionLabel("Náhled výsledného dokumentu")
+                Spacer(Modifier.height(6.dp))
+                Surface(border = BorderStroke(1.5.dp, DiktafonOutline), shape = RoundedCornerShape(12.dp)) {
+                    Text(
+                        renderMarkdownLite(state.testFormattedPreview),
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+                SectionLabel("Rozpoznaná pole")
                 Spacer(Modifier.height(6.dp))
                 for ((name, value) in state.testResultFields) {
                     Caption("$name: ${value ?: "(chybí)"}")

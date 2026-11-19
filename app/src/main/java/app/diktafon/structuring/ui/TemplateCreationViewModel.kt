@@ -2,8 +2,10 @@ package app.diktafon.structuring.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.diktafon.export.domain.DocumentFormatter
 import app.diktafon.recording.domain.Clock
 import app.diktafon.structuring.domain.DocumentProcessor
+import app.diktafon.structuring.domain.StructuredDocument
 import app.diktafon.structuring.domain.StructuredDocumentValidator
 import app.diktafon.structuring.domain.StructuringRequest
 import app.diktafon.structuring.domain.StructuringResult
@@ -29,6 +31,7 @@ class TemplateCreationViewModel @Inject constructor(
     private val documentProcessor: DocumentProcessor,
     private val validator: StructuredDocumentValidator,
     private val templateRepository: TemplateRepository,
+    private val documentFormatter: DocumentFormatter,
     private val clock: Clock,
 ) : ViewModel() {
 
@@ -101,13 +104,25 @@ class TemplateCreationViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = documentProcessor.structure(StructuringRequest(transcriptText, draftTemplate))) {
                 is StructuringResult.Success -> when (val outcome = validator.validate(result.rawJson, draftTemplate)) {
-                    is ValidationOutcome.Valid -> _uiState.update {
-                        it.copy(
-                            testResultFields = outcome.fields,
-                            testMissingFields = outcome.missingRequiredFields,
-                            isTestingDraft = false,
-                            errorMessage = null,
+                    is ValidationOutcome.Valid -> {
+                        val previewDocument = StructuredDocument(
+                            recordingId = 0,
+                            transcriptId = 0,
+                            templateId = 0,
+                            templateVersion = 0,
+                            fields = outcome.fields,
+                            missingRequiredFields = outcome.missingRequiredFields,
+                            createdAtMillis = clock.nowMillis(),
                         )
+                        _uiState.update {
+                            it.copy(
+                                testResultFields = outcome.fields,
+                                testMissingFields = outcome.missingRequiredFields,
+                                testFormattedPreview = documentFormatter.format(previewDocument, draftTemplate),
+                                isTestingDraft = false,
+                                errorMessage = null,
+                            )
+                        }
                     }
                     ValidationOutcome.InvalidJson -> _uiState.update {
                         it.copy(isTestingDraft = false, errorMessage = "Test selhal — výstup nebyl platný JSON.")

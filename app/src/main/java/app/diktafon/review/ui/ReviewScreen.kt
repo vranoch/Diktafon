@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.ui.components.AppHeader
@@ -33,6 +34,7 @@ import app.diktafon.ui.components.PrimaryActionButton
 import app.diktafon.ui.components.SecondaryActionButton
 import app.diktafon.ui.components.SectionLabel
 import app.diktafon.ui.components.StatusBadge
+import app.diktafon.ui.components.renderMarkdownLite
 import app.diktafon.ui.theme.DiktafonAccentContainer
 import app.diktafon.ui.theme.DiktafonAccentContainerOn
 import app.diktafon.ui.theme.DiktafonInkMuted
@@ -76,7 +78,11 @@ fun ReviewScreen(
         Spacer(Modifier.height(8.dp))
         Surface(border = BorderStroke(2.dp, DiktafonOutline), shape = RoundedCornerShape(12.dp)) {
             Text(
-                state.formattedPreview.ifBlank { "Náhled se zobrazí po vyplnění polí níže." },
+                if (state.formattedPreview.isBlank()) {
+                    AnnotatedString("Náhled se zobrazí po vyplnění polí níže.")
+                } else {
+                    renderMarkdownLite(state.formattedPreview)
+                },
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.bodyLarge,
             )

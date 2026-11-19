@@ -1,5 +1,6 @@
 package app.diktafon.structuring.ui
 
+import app.diktafon.export.data.MarkdownDocumentFormatter
 import app.diktafon.recording.FakeClock
 import app.diktafon.structuring.FakeDocumentProcessor
 import app.diktafon.structuring.FakeStructuredDocumentValidator
@@ -20,6 +21,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -49,6 +51,7 @@ class TemplateCreationViewModelTest {
         documentProcessor = FakeDocumentProcessor(structuringResult),
         validator = FakeStructuredDocumentValidator(validationOutcome),
         templateRepository = templateRepository,
+        documentFormatter = MarkdownDocumentFormatter(),
         clock = FakeClock(1_000_000),
     )
 
@@ -83,6 +86,8 @@ class TemplateCreationViewModelTest {
         vm.testDraftOnTranscript("nejaky prepis")
 
         assertEquals("2026-11-13", vm.uiState.value.testResultFields["datum"])
+        assertTrue(vm.uiState.value.testFormattedPreview.contains("2026-11-13"))
+        assertTrue(vm.uiState.value.testFormattedPreview.contains("**datum:**"))
     }
 
     @Test

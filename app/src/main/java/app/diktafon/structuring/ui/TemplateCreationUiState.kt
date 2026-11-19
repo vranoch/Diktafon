@@ -14,6 +14,7 @@ data class TemplateCreationUiState(
     val isTestingDraft: Boolean = false,
     val testResultFields: Map<String, String?> = emptyMap(),
     val testMissingFields: List<String> = emptyList(),
+    val testFormattedPreview: String = "",
     val savedTemplateId: Long? = null,
     val savedVersion: Int? = null,
     val errorMessage: String? = null,
