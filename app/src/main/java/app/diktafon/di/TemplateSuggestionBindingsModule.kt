@@ -1,6 +1,6 @@
 package app.diktafon.di
 
-import app.diktafon.structuring.data.SubstringTemplateNameRecognizer
+import app.diktafon.structuring.data.TemplateNameRecognizerSelector
 import app.diktafon.structuring.domain.TemplateNameRecognizer
 import dagger.Binds
 import dagger.Module
@@ -12,5 +12,5 @@ import dagger.hilt.components.SingletonComponent
 abstract class TemplateSuggestionBindingsModule {
 
     @Binds
-    abstract fun bindTemplateNameRecognizer(impl: SubstringTemplateNameRecognizer): TemplateNameRecognizer
+    abstract fun bindTemplateNameRecognizer(impl: TemplateNameRecognizerSelector): TemplateNameRecognizer
 }

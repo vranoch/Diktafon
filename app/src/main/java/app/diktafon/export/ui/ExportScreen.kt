@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.export.data.ShareIntentFactory
+import app.diktafon.recording.domain.formatRecordingDateTime
 import app.diktafon.structuring.domain.StructuredDocument
 import app.diktafon.structuring.domain.Template
 import app.diktafon.ui.components.AppHeader
@@ -39,6 +40,7 @@ import app.diktafon.ui.theme.DiktafonSurfaceMuted
 fun ExportScreen(
     document: StructuredDocument,
     template: Template,
+    recordingCreatedAtMillis: Long,
     shareIntentFactory: ShareIntentFactory,
     onBack: (() -> Unit)? = null,
     onHome: (() -> Unit)? = null,
@@ -46,6 +48,7 @@ fun ExportScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val emailSubject = "${template.name} – ${formatRecordingDateTime(recordingCreatedAtMillis)}"
 
     LaunchedEffect(document.id) {
         viewModel.prepareExport(document, template)
@@ -79,6 +82,7 @@ fun ExportScreen(
                 val intent = shareIntentFactory.createShareTextIntent(
                     content = state.formattedText,
                     recipientEmails = state.selectedRecipientEmails.toList(),
+                    subject = emailSubject,
                 )
                 context.startActivity(intent)
             },
@@ -88,7 +92,11 @@ fun ExportScreen(
         SectionLabel("Další možnosti")
         Spacer(Modifier.height(8.dp))
         SecondaryActionButton(text = "Sdílet / exportovat do jiné aplikace", onClick = {
-            val intent = shareIntentFactory.createShareTextIntent(content = state.formattedText, recipientEmails = emptyList())
+            val intent = shareIntentFactory.createShareTextIntent(
+                content = state.formattedText,
+                recipientEmails = emptyList(),
+                subject = emailSubject,
+            )
             context.startActivity(intent)
         })
         Spacer(Modifier.height(10.dp))

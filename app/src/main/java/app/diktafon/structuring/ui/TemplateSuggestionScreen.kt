@@ -57,10 +57,10 @@ fun TemplateSuggestionScreen(
         Spacer(Modifier.height(8.dp))
 
         Caption(
-            if (state.wasRecognized) {
-                "Rozpoznáno z přepisu: ${state.selectedTemplate?.name} — můžete změnit"
-            } else {
-                "Šablona nebyla rozpoznána — zvolte ji ručně."
+            when {
+                state.isRecognizing -> "Rozpoznávám šablonu z přepisu…"
+                state.wasRecognized -> "Rozpoznáno z přepisu: ${state.selectedTemplate?.name} — můžete změnit"
+                else -> "Šablona nebyla rozpoznána — zvolte ji ručně."
             },
         )
         Spacer(Modifier.height(12.dp))

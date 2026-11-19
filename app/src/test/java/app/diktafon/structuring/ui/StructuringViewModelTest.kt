@@ -1,6 +1,7 @@
 package app.diktafon.structuring.ui
 
 import app.diktafon.recording.FakeClock
+import app.diktafon.recording.domain.formatRecordingDateTime
 import app.diktafon.structuring.FakeDocumentProcessor
 import app.diktafon.structuring.FakeStructuredDocumentRepository
 import app.diktafon.structuring.FakeStructuredDocumentValidator

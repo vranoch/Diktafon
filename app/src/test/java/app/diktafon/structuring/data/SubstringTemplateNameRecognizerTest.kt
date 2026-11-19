@@ -1,6 +1,7 @@
 package app.diktafon.structuring.data
 
 import app.diktafon.structuring.domain.Template
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -14,7 +15,7 @@ class SubstringTemplateNameRecognizerTest {
     )
 
     @Test
-    fun `nadiktovany nazev sablony ze schvaleneho katalogu se rozpozna`() {
+    fun `nadiktovany nazev sablony ze schvaleneho katalogu se rozpozna`() = runTest {
         val result = recognizer.recognize(
             "Dobrý den, toto je zápis z porady oddělení vývoje ze dne...",
             catalog,
@@ -24,14 +25,14 @@ class SubstringTemplateNameRecognizerTest {
     }
 
     @Test
-    fun `rozpoznani nerozlisuje velikost pismen`() {
+    fun `rozpoznani nerozlisuje velikost pismen`() = runTest {
         val result = recognizer.recognize("ZÁPIS Z PORADY dnešního dne", catalog)
 
         assertEquals(catalog[0], result)
     }
 
     @Test
-    fun `volne formulovana instrukce mimo katalog se nerozpozna`() {
+    fun `volne formulovana instrukce mimo katalog se nerozpozna`() = runTest {
         val result = recognizer.recognize(
             "Vytvoř mi prosím úplně novou šablonu pro cokoliv napadne",
             catalog,
@@ -41,7 +42,7 @@ class SubstringTemplateNameRecognizerTest {
     }
 
     @Test
-    fun `prazdny katalog nikdy nic nevrati`() {
+    fun `prazdny katalog nikdy nic nevrati`() = runTest {
         val result = recognizer.recognize("zápis z porady", emptyList())
 
         assertNull(result)

@@ -3,6 +3,7 @@ package app.diktafon.structuring.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.diktafon.recording.domain.Clock
+import app.diktafon.recording.domain.formatRecordingDateTime
 import app.diktafon.structuring.domain.DocumentProcessor
 import app.diktafon.structuring.domain.StructuredDocument
 import app.diktafon.structuring.domain.StructuredDocumentRepository
@@ -19,9 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -99,8 +97,6 @@ class StructuringViewModel @Inject constructor(
     }
 }
 
-private val RECORDING_DATE_TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("d. M. yyyy, H:mm")
-
 private fun applyAutoFill(
     fields: Map<String, String?>,
     templateFields: List<TemplateField>,
@@ -118,9 +114,6 @@ private fun applyAutoFill(
         }
     }
 }
-
-internal fun formatRecordingDateTime(epochMillis: Long): String =
-    Instant.ofEpochMilli(epochMillis).atZone(ZoneId.systemDefault()).format(RECORDING_DATE_TIME_FORMATTER)
 
 private fun StructuringResult.Failure.toUserMessage(): String = when (this) {
     StructuringResult.Failure.InvalidJson -> "Výstup zpracování nebyl platný JSON."

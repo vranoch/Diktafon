@@ -230,6 +230,7 @@ fun DiktafonNavGraph() {
             val catalog by lookup.approvedCatalog().collectAsState(initial = emptyList())
 
             document?.let { doc ->
+                val recording by lookup.recording(doc.recordingId).collectAsState(initial = null)
                 val template = catalog.find { it.id == doc.templateId } ?: Template(
                     id = doc.templateId,
                     name = "Šablona",
@@ -237,13 +238,16 @@ fun DiktafonNavGraph() {
                     fields = doc.fields.keys.map { TemplateField(it, required = false) },
                     instructions = "",
                 )
-                ExportScreen(
-                    document = doc,
-                    template = template,
-                    shareIntentFactory = AndroidShareIntentFactory(),
-                    onBack = { navController.popBackStack() },
-                    onHome = goHome,
-                )
+                recording?.let { rec ->
+                    ExportScreen(
+                        document = doc,
+                        template = template,
+                        recordingCreatedAtMillis = rec.createdAtMillis,
+                        shareIntentFactory = AndroidShareIntentFactory(),
+                        onBack = { navController.popBackStack() },
+                        onHome = goHome,
+                    )
+                }
             }
         }
 

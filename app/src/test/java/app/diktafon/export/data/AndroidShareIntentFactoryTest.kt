@@ -34,4 +34,22 @@ class AndroidShareIntentFactoryTest {
 
         assertTrue(emails != null && emails.toList() == listOf("a@example.com", "b@example.com"))
     }
+
+    @Test
+    fun `predmet se vlozi do EXTRA_SUBJECT`() {
+        val chooserIntent = factory.createShareTextIntent("obsah", subject = "Zápis z porady – 19. 11. 2026, 8:05")
+
+        val inner = chooserIntent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+
+        assertEquals("Zápis z porady – 19. 11. 2026, 8:05", inner.getStringExtra(Intent.EXTRA_SUBJECT))
+    }
+
+    @Test
+    fun `prazdny predmet se do EXTRA_SUBJECT nevklada`() {
+        val chooserIntent = factory.createShareTextIntent("obsah")
+
+        val inner = chooserIntent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)!!
+
+        assertTrue(!inner.hasExtra(Intent.EXTRA_SUBJECT))
+    }
 }

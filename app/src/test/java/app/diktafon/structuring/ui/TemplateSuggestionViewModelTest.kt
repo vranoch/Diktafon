@@ -2,19 +2,39 @@ package app.diktafon.structuring.ui
 
 import app.diktafon.structuring.data.SubstringTemplateNameRecognizer
 import app.diktafon.structuring.domain.Template
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class TemplateSuggestionViewModelTest {
 
+    private val dispatcher = UnconfinedTestDispatcher()
     private val catalog = listOf(
         Template(1, "Zápis z porady", 1, emptyList(), ""),
         Template(2, "Lékařská zpráva", 1, emptyList(), ""),
     )
-    private val viewModel = TemplateSuggestionViewModel(SubstringTemplateNameRecognizer())
+    private lateinit var viewModel: TemplateSuggestionViewModel
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(dispatcher)
+        viewModel = TemplateSuggestionViewModel(SubstringTemplateNameRecognizer())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
     fun `rozpoznana sablona se nastavi jako navrzena i vybrana`() {
@@ -24,6 +44,7 @@ class TemplateSuggestionViewModelTest {
         assertEquals(catalog[0], state.suggestedTemplate)
         assertEquals(catalog[0], state.selectedTemplate)
         assertTrue(state.wasRecognized)
+        assertFalse(state.isRecognizing)
     }
 
     @Test
