@@ -119,7 +119,10 @@ fun DiktafonNavGraph() {
                 onTranscribe = { navController.navigate("transcription/$it") },
                 onStructure = { navController.navigate("templateSuggestion/$it") },
                 onReview = { documentId -> navController.navigate("review/$documentId") },
-                onDeleted = goHome,
+                // Jediny vstupni bod do teto obrazovky je ze slozky (onOpenRecording vyse), takze
+                // obycejny pop vraci presne do slozky, kde nahravka byla - a na rozdil od
+                // navigate+popUpTo zachova i historii nad ni (muze jit zpet i vys ve stromu).
+                onDeleted = { navController.popBackStack() },
             )
         }
 

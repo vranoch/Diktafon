@@ -2,10 +2,11 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-13
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-22
 **Zdroje:**
 - Zpětná vazba uživatele po prvním vyzkoušení aplikace, 2026-11-13 (tato konverzace) — plochý seznam tlačítek na hlavní obrazovce nerozlišoval běžné/rozšířené/administrační použití a pád při "Nová nahrávka" (chybějící runtime oprávnění k mikrofonu).
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — popis navigace jako souborového prohlížeče s kontextovými operacemi na "koncové" nahrávce.
+- [Chat-extract — Navigace po smazání nahrávky zpět do složky, ověření procházení stromu složek, 2026-11-22](../source-materials/chat-extracts/2026-11-22-navigace-po-smazani-nahravky-zpet-do-slozky.md)
 
 ## Kontext
 
@@ -21,6 +22,14 @@ Navigace je organizována podle [ADR-010](ADR-010-tri-urovne-pouziti-bezne-rozsi
 4. **Administrace** (gear ikona, znatelně oddělená) — připojení (API klíče, provider/model, výchozí jazyk), správa šablon (katalog s možností úpravy existující verze), e-mailoví příjemci.
 
 Zároveň oprava: start nahrávání vyžádá runtime oprávnění `RECORD_AUDIO`, pokud ještě není uděleno, a selhání startu nahrávání (oprávnění, úložiště) se zachytává a zobrazuje jako chyba místo pádu aplikace.
+
+**Aktualizace 2026-11-22:** doplněn explicitní princip — dokončení libovolné operace nad
+nahrávkou (smazání, import, uložení nové nahrávky, ...) vede zpátky do složky, odkud byla
+nahrávka/operace otevřena, nikdy automaticky na Home. Oprava se týkala mazání celé nahrávky
+(`onDeleted` bylo chybně napevno zapojené na skok na Home); ostatní operace se už vracely
+správně. Protože Detail nahrávky má jediný vstupní bod (ze složky), stačí k návratu prostý
+`popBackStack()` — na rozdíl od navigace s `popUpTo` tím zůstává zachovaná i historie nad
+danou složkou, takže uživatel může zpětným tlačítkem pokračovat dál nahoru stromem složek.
 
 ## Důsledky
 
