@@ -39,12 +39,20 @@ fun ImportScreen(
     viewModel: ImportViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    val audioOnlyFilter by viewModel.importAudioOnlyFilter().collectAsState(initial = false)
     // Zabranuje opakovanemu otevreni systemoveho pickeru rychlym dvojitym klepnutim na
     // tlacitko, nez se picker stihne otevrit (samotny vyber v pickeru uz je explicitni -
     // viz OpenMultipleDocuments nize).
     var isLaunchingPicker by remember { mutableStateOf(false) }
 
-    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+    // GetMultipleContents (ACTION_GET_CONTENT), ne OpenMultipleDocuments (ACTION_OPEN_DOCUMENT) -
+    // OPEN_DOCUMENT jde primo do jednoho konkretniho SAF poskytovatele vybraneho vyrobcem
+    // zarizeni, jehoz vlastni obrazovka muze na nekterych zarizenich postradat jakoukoliv
+    // viditelnou cestu zpet/zrusit. GET_CONTENT nejdriv projde systemovym vyberem aplikace
+    // (chooser), ktery vzdy ma OS vykreslene tlacitko zpet/zavrit. Appka cte soubor hned a
+    // nepotrebuje trvale opravneni k URI, takze rozdil v zivotnosti opravneni mezi obema
+    // intenty neni relevantni (viz ContentResolverAudioSourceFactory).
+    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         isLaunchingPicker = false
         if (uris.isNotEmpty()) viewModel.onFilesSelected(uris) else viewModel.onPickerCancelled()
     }
@@ -74,7 +82,7 @@ fun ImportScreen(
                     enabled = !isLaunchingPicker,
                     onClick = {
                         isLaunchingPicker = true
-                        pickFiles.launch(arrayOf("audio/*"))
+                        pickFiles.launch(if (audioOnlyFilter) "audio/*" else "*/*")
                     },
                 )
                 Spacer(Modifier.height(8.dp))

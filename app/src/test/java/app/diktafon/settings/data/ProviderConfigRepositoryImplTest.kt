@@ -38,4 +38,11 @@ class ProviderConfigRepositoryImplTest {
         assertEquals("acme2", updated.sttProviderName)
         assertEquals("cs", updated.defaultLanguageCode)
     }
+
+    @Test
+    fun `priznak filtru souboru pri importu se ulozi a nacte zpet`() = runTest {
+        repository.save(ProviderConfig(importAudioOnlyFilter = true))
+
+        assertEquals(true, repository.observe().first().importAudioOnlyFilter)
+    }
 }

@@ -72,6 +72,7 @@ class ApiConfigViewModelTest {
             llmProviderName = "acme",
             llmModel = "llm-1",
             defaultLanguageCode = "en",
+            importAudioOnlyFilter = false,
         )
 
         val state = viewModel.uiState.value
@@ -90,6 +91,7 @@ class ApiConfigViewModelTest {
             llmProviderName = "",
             llmModel = "",
             defaultLanguageCode = "cs",
+            importAudioOnlyFilter = false,
         )
 
         assertTrue(viewModel.uiState.value.hasSttApiKey)
@@ -105,6 +107,7 @@ class ApiConfigViewModelTest {
             llmProviderName = "openai",
             llmModel = "gpt-4o-mini",
             defaultLanguageCode = "cs",
+            importAudioOnlyFilter = false,
         )
 
         val state = viewModel.uiState.value
@@ -127,10 +130,27 @@ class ApiConfigViewModelTest {
             llmProviderName = "openai",
             llmModel = "gpt-4o-mini",
             defaultLanguageCode = "cs",
+            importAudioOnlyFilter = false,
         )
 
         val state = viewModel.uiState.value
         assertTrue(state.hasSttApiKey)
         assertTrue(state.hasLlmApiKey)
+    }
+
+    @Test
+    fun `saveAll ulozi i priznak filtru souboru pri importu`() {
+        viewModel.saveAll(
+            sttApiKey = "",
+            sttProviderName = "",
+            sttModel = "",
+            llmApiKey = "",
+            llmProviderName = "",
+            llmModel = "",
+            defaultLanguageCode = "cs",
+            importAudioOnlyFilter = true,
+        )
+
+        assertTrue(viewModel.uiState.value.importAudioOnlyFilter)
     }
 }

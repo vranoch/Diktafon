@@ -13,10 +13,13 @@ import app.diktafon.recording.domain.Recording
 import app.diktafon.recording.domain.RecordingFileFactory
 import app.diktafon.recording.domain.RecordingRepository
 import app.diktafon.folders.domain.LastUsedFolderRepository
+import app.diktafon.settings.domain.ProviderConfigRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,10 +34,15 @@ class ImportViewModel @Inject constructor(
     private val clock: Clock,
     private val fileFactory: RecordingFileFactory,
     private val lastUsedFolderRepository: LastUsedFolderRepository,
+    private val providerConfigRepository: ProviderConfigRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ImportUiState())
     val uiState: StateFlow<ImportUiState> = _uiState.asStateFlow()
+
+    // Rika obrazovce, jaky MIME filtr pouzit pri otevreni systemoveho pickeru (viz
+    // Administrace -> Pripojeni) - vychozi je vypnuto (nabidnou se vsechny soubory).
+    fun importAudioOnlyFilter(): Flow<Boolean> = providerConfigRepository.observe().map { it.importAudioOnlyFilter }
 
     fun startNewImport(folderId: Long? = null) {
         val name = nameGenerator.generatePregeneratedName()

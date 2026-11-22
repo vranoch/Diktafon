@@ -39,6 +39,7 @@ class ApiConfigViewModel @Inject constructor(
                         llmProviderName = config.llmProviderName,
                         llmModel = config.llmModel,
                         defaultLanguageCode = config.defaultLanguageCode,
+                        importAudioOnlyFilter = config.importAudioOnlyFilter,
                         hasSttApiKey = apiKeyRepository.hasApiKey(STT_KEY_SLOT),
                         hasLlmApiKey = apiKeyRepository.hasApiKey(LLM_KEY_SLOT),
                     )
@@ -53,6 +54,7 @@ class ApiConfigViewModel @Inject constructor(
         llmProviderName: String,
         llmModel: String,
         defaultLanguageCode: String,
+        importAudioOnlyFilter: Boolean,
     ) {
         viewModelScope.launch {
             providerConfigRepository.save(
@@ -62,6 +64,7 @@ class ApiConfigViewModel @Inject constructor(
                     llmProviderName = llmProviderName,
                     llmModel = llmModel,
                     defaultLanguageCode = defaultLanguageCode,
+                    importAudioOnlyFilter = importAudioOnlyFilter,
                 ),
             )
         }
@@ -78,6 +81,7 @@ class ApiConfigViewModel @Inject constructor(
         llmProviderName: String,
         llmModel: String,
         defaultLanguageCode: String,
+        importAudioOnlyFilter: Boolean,
     ) {
         viewModelScope.launch {
             if (sttApiKey.isNotBlank()) apiKeyRepository.saveApiKey(STT_KEY_SLOT, sttApiKey)
@@ -89,6 +93,7 @@ class ApiConfigViewModel @Inject constructor(
                     llmProviderName = llmProviderName,
                     llmModel = llmModel,
                     defaultLanguageCode = defaultLanguageCode,
+                    importAudioOnlyFilter = importAudioOnlyFilter,
                 ),
             )
             _uiState.update {

@@ -11,10 +11,14 @@ import app.diktafon.recording.FakeRecordingRepository
 import app.diktafon.recording.domain.ImportOutcome
 import app.diktafon.recording.domain.NameGenerator
 import app.diktafon.recording.domain.RecordingFileFactory
+import app.diktafon.settings.FakeProviderConfigRepository
+import app.diktafon.settings.domain.ProviderConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -32,12 +36,14 @@ class ImportViewModelTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var repository: FakeRecordingRepository
+    private lateinit var providerConfigRepository: FakeProviderConfigRepository
     private val fakeUri: Uri = Uri.parse("content://fake-provider/audio/1")
 
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
         repository = FakeRecordingRepository()
+        providerConfigRepository = FakeProviderConfigRepository()
     }
 
     @After
@@ -61,6 +67,7 @@ class ImportViewModelTest {
                 override fun create(name: String) = destination
             },
             lastUsedFolderRepository = FakeLastUsedFolderRepository(),
+            providerConfigRepository = providerConfigRepository,
         )
     }
 
@@ -156,5 +163,16 @@ class ImportViewModelTest {
         vm.onFilesSelected(listOf(fakeUri))
 
         assertEquals(1, repository.saved.size)
+    }
+
+    @Test
+    fun `importAudioOnlyFilter odrazi ulozenou konfiguraci`() = runTest {
+        val vm = viewModel(importOutcome = ImportOutcome.Success(File("/tmp/x.m4a")))
+
+        assertEquals(false, vm.importAudioOnlyFilter().first())
+
+        providerConfigRepository.save(ProviderConfig(importAudioOnlyFilter = true))
+
+        assertEquals(true, vm.importAudioOnlyFilter().first())
     }
 }

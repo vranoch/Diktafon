@@ -20,6 +20,7 @@ tar -cf - --exclude='.git' --exclude='app/build' --exclude='_workspace' . | \
   docker run --rm -i \
     -v diktafon-gradle-cache:/root/.gradle \
     -v diktafon-android-home:/root/.android \
+    -v diktafon-robolectric-cache:/root/.m2 \
     diktafon-dev sh -c '
       mkdir -p /workspace && tar -xf - -C /workspace
       cd /workspace && ./gradlew test assembleDebug > /tmp/build.log 2>&1
@@ -44,7 +45,7 @@ bind-mountu, takže na čtení APK/testovacích výsledků se nic nemění.
 kontejner viděl soubory živě během jejich úpravy (ne jen jednorázový snímek):
 
 ```bash
-docker run --rm -v "$(pwd)":/workspace -v diktafon-gradle-cache:/root/.gradle -v diktafon-android-home:/root/.android diktafon-dev sh -c "cd /workspace && ./gradlew test"
+docker run --rm -v "$(pwd)":/workspace -v diktafon-gradle-cache:/root/.gradle -v diktafon-android-home:/root/.android -v diktafon-robolectric-cache:/root/.m2 diktafon-dev sh -c "cd /workspace && ./gradlew test"
 ```
 
 **Poznámka pro Git Bash na Windows:** MSYS automaticky převádí cesty v `-v "$(pwd)":/workspace`,
@@ -64,6 +65,17 @@ takže by byl každý sestavený debug APK podepsaný jiným klíčem a instalac
 starší by na zařízení skončila chybou "balíček je v konfliktu se stávajícím balíčkem" — Android
 odmítá přepsat nainstalovanou aplikaci jinak podepsanou verzí stejného `applicationId`. S tímto
 mountem zůstává debug keystore stejný napříč všemi buildy.
+
+Čtvrtý `-v` mount (`diktafon-robolectric-cache`) je nutný pro testy běžící přes Robolectric —
+Robolectric si při prvním běhu testu pro danou verzi SDK stahuje velký `android-all-instrumented`
+JAR přímo z Maven Central (mimo Gradlu vlastní dependency cache, tedy mimo `diktafon-gradle-cache`)
+a kešuje ho do `~/.m2/repository`. Bez tohoto mountu se v `--rm` kontejneru tahá odznova při
+každém běhu testů — kromě zbytečného zpomalení to při opakovaných bězích v krátkém čase (např.
+více buildů za sebou v jedné konverzaci) narazí na rate-limit Maven Central (`HTTP 429 Server
+returned HTTP response code: 429`), který pak testy spoléhající na Robolectric (prakticky
+všechny instrumentované/Room testy) nahlásí jako FAILED s `MavenArtifactFetcher`/`IOException`
+ve stacktrace — nejde o chybu v kódu, i když to tak na první pohled vypadá. S tímto mountem se
+JAR stáhne jen jednou a zůstává k dispozici napříč všemi dalšími běhy.
 
 **Nikdy nespouštěj dva `docker run` build/test příkazy současně** — oba sdílejí stejný
 `diktafon-gradle-cache` volume a druhý běh skončí na `Timeout waiting to lock journal cache`.

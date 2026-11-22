@@ -6,6 +6,7 @@ data class ApiConfigUiState(
     val llmProviderName: String = "",
     val llmModel: String = "",
     val defaultLanguageCode: String = "cs",
+    val importAudioOnlyFilter: Boolean = false,
     val hasSttApiKey: Boolean = false,
     val hasLlmApiKey: Boolean = false,
     val statusMessage: String? = null,

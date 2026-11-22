@@ -19,6 +19,7 @@ class ProviderConfigRepositoryImpl @Inject constructor(
                 llmModel = config.llmModel,
                 defaultTemplateId = config.defaultTemplateId,
                 defaultLanguageCode = config.defaultLanguageCode,
+                importAudioOnlyFilter = config.importAudioOnlyFilter,
             ),
         )
     }
@@ -34,4 +35,5 @@ private fun ProviderConfigEntity.toDomain() = ProviderConfig(
     llmModel = llmModel,
     defaultTemplateId = defaultTemplateId,
     defaultLanguageCode = defaultLanguageCode,
+    importAudioOnlyFilter = importAudioOnlyFilter,
 )

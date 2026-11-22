@@ -56,6 +56,7 @@ fun ApiConfigScreen(
     var llmProviderInput by remember(state.llmProviderName) { mutableStateOf(state.llmProviderName) }
     var llmModelInput by remember(state.llmModel) { mutableStateOf(state.llmModel) }
     var languageInput by remember(state.defaultLanguageCode) { mutableStateOf(state.defaultLanguageCode) }
+    var importAudioOnlyInput by remember(state.importAudioOnlyFilter) { mutableStateOf(state.importAudioOnlyFilter) }
 
     LaunchedEffect(Unit) { viewModel.load() }
 
@@ -137,6 +138,28 @@ fun ApiConfigScreen(
                 }
             }
         }
+        Spacer(Modifier.height(16.dp))
+
+        SectionLabel("Filtr souborů při importu")
+        Spacer(Modifier.height(8.dp))
+        Caption("Netýká se formátu samotného souboru - ten se vždy ověří až po výběru.")
+        Spacer(Modifier.height(6.dp))
+        Row {
+            ProviderChip(
+                label = "Všechny soubory",
+                selected = !importAudioOnlyInput,
+                onClick = { importAudioOnlyInput = false },
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(8.dp))
+            ProviderChip(
+                label = "Jen audio",
+                selected = importAudioOnlyInput,
+                onClick = { importAudioOnlyInput = true },
+                modifier = Modifier.weight(1f),
+            )
+        }
+
         Spacer(Modifier.height(12.dp))
         Caption("Uloží API klíče (pokud jsou vyplněné) i nastavení najednou.")
         Spacer(Modifier.height(6.dp))
@@ -151,6 +174,7 @@ fun ApiConfigScreen(
                     llmProviderName = llmProviderInput,
                     llmModel = llmModelInput,
                     defaultLanguageCode = languageInput,
+                    importAudioOnlyFilter = importAudioOnlyInput,
                 )
                 sttKeyInput = ""
                 llmKeyInput = ""

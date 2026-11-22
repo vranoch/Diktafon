@@ -12,6 +12,7 @@ data class ProviderConfigEntity(
     val llmModel: String,
     val defaultTemplateId: Long?,
     val defaultLanguageCode: String,
+    val importAudioOnlyFilter: Boolean = false,
 ) {
     companion object {
         const val SINGLETON_ID = 0
