@@ -6,6 +6,7 @@ import app.diktafon.recording.FakeRecordingRepository
 import app.diktafon.recording.domain.Recording
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -14,6 +15,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -130,5 +132,32 @@ class FolderBrowserViewModelTest {
 
         assertNull(viewModelInTargetFolder.pendingMove.value)
         assertEquals(target, recordingRepository.saved.first { it.id == recordingId }.folderId)
+    }
+
+    @Test
+    fun `breadcrumb pro korenovou slozku je prazdny`() = runTest {
+        assertTrue(viewModel.breadcrumbPath(null).first().isEmpty())
+    }
+
+    @Test
+    fun `breadcrumb vrati cestu od korene po aktualni slozku`() = runTest {
+        val a = folderRepository.create("A", null)
+        val b = folderRepository.create("B", a)
+        val c = folderRepository.create("C", b)
+
+        val path = viewModel.breadcrumbPath(c).first()
+
+        assertEquals(listOf("A", "B", "C"), path.map { it.name })
+    }
+
+    @Test
+    fun `breadcrumb se promitne po prejmenovani predka`() = runTest {
+        val a = folderRepository.create("A", null)
+        val b = folderRepository.create("B", a)
+
+        folderRepository.rename(a, "A přejmenováno")
+
+        val path = viewModel.breadcrumbPath(b).first()
+        assertEquals(listOf("A přejmenováno", "B"), path.map { it.name })
     }
 }

@@ -27,4 +27,7 @@ interface FolderDao {
 
     @Query("SELECT COUNT(*) FROM folders WHERE parentFolderId = :id")
     suspend fun countChildren(id: Long): Int
+
+    @Query("SELECT * FROM folders WHERE id = :id")
+    fun observeById(id: Long): Flow<FolderEntity?>
 }

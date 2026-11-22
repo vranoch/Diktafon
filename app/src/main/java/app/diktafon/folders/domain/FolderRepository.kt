@@ -17,4 +17,6 @@ interface FolderRepository {
     suspend fun delete(folderId: Long): FolderDeletionResult
 
     fun observeChildren(parentFolderId: Long?): Flow<List<Folder>>
+
+    fun observeById(folderId: Long): Flow<Folder?>
 }

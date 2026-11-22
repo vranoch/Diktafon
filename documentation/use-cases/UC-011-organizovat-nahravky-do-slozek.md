@@ -2,11 +2,12 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-13
-**Změněno:** 2026-11-14
+**Změněno:** 2026-11-22
 **Zdroje:**
 - Doplněno na popud uživatele v rámci revize, 2026-11-13 (tato konverzace) — chyběl use-case pokrývající [FR-AUD-011](../requirements/FR-AUD-011-organizace-nahravek-do-slozek.md).
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — procházení jako strom (souborový prohlížeč), smazání neprázdné složky zakázáno, přesun složky doplněn; viz [ADR-013](../decisions/ADR-013-hierarchicka-struktura-slozek.md)/[ADR-014](../decisions/ADR-014-navigace-strom-slozek-kontextove-akce.md).
 - [ADR-015](../decisions/ADR-015-principy-ui-ux-pro-e-ink-a-proces-navrhu-obrazovek.md) — proces návrhu obrazovek, krok 5: sekce Obrazovky a tok se doplňuje po schválení mockupu.
+- [Chat-extract — Navigace po smazání nahrávky zpět do složky, ověření procházení stromu složek, 2026-11-22](../source-materials/chat-extracts/2026-11-22-navigace-po-smazani-nahravky-zpet-do-slozky.md) — doplněn breadcrumb po ověření, že obyčejné tlačítko zpět samo o sobě spolehlivou navigaci nahoru stromem nezaručuje.
 
 ## Aktér
 
@@ -19,7 +20,7 @@ Existuje alespoň jedna nahrávka (viz [UC-001](UC-001-poridit-a-ulozit-hlasovy-
 ## Hlavní tok
 
 1. Uživatel otevře procházení složek z hlavní obrazovky (ikona složky).
-2. Vidí podsložky a nahrávky aktuální úrovně (kořen = nic nezvoleno); může sestoupit do kterékoliv podsložky do libovolné hloubky.
+2. Vidí podsložky a nahrávky aktuální úrovně (kořen = nic nezvoleno); může sestoupit do kterékoliv podsložky do libovolné hloubky. Nad obsahem je breadcrumb (cesta od kořene po aktuální složku) — kterákoliv úroveň kromě té aktuální je klikací a skočí tam přímo, nezávisle na tom, jakou cestou uživatel do aktuální složky došel.
 3. Na dané úrovni může vytvořit novou složku, přejmenovat nebo přesunout existující složku jinam ve stromu, nebo založit novou nahrávku/import přímo do procházené složky.
 4. Vybranou nahrávku přesune do zvolené složky nebo ji ze složky vyjme zpět mimo složky.
 5. Dojde-li až k samotné nahrávce, pokračuje kontextovými akcemi nad ní (přehrát, přepsat, konvertovat, odeslat, smazat) — viz [ADR-014](../decisions/ADR-014-navigace-strom-slozek-kontextove-akce.md).

@@ -33,4 +33,7 @@ class FolderRepositoryImpl @Inject constructor(
 
     override fun observeChildren(parentFolderId: Long?): Flow<List<Folder>> =
         folderDao.observeChildren(parentFolderId).map { entities -> entities.map { Folder(it.id, it.name, it.parentFolderId) } }
+
+    override fun observeById(folderId: Long): Flow<Folder?> =
+        folderDao.observeById(folderId).map { it?.let { entity -> Folder(entity.id, entity.name, entity.parentFolderId) } }
 }

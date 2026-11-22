@@ -28,5 +28,5 @@ Viz [`_template.md`](_template.md) pro šablonu nového use-case/procesu.
 | [UC-008](UC-008-obnovit-prerusene-zpracovani.md) | Obnovit přerušené zpracování | PŘIJATO | 2026-11-14 | Uživatel nepřijde o dosud uložená data. |
 | [UC-009](UC-009-vymazat-vlastni-data.md) | Vymazat vlastní data | PŘIJATO | 2026-11-14 | Lokální smazání je provedeno a diagnostikováno. |
 | [UC-010](UC-010-zpracovat-audio-s-nadiktovanou-sablonou.md) | Zpracovat audio s nadiktovanou šablonou | PŘIJATO | 2026-11-14 | Šablona se vybírá ze schváleného katalogu, ne volně z audia. |
-| [UC-011](UC-011-organizovat-nahravky-do-slozek.md) | Organizovat nahrávky do složek | PŘIJATO | 2026-11-14 | Procházení stromu složek jako prohlížeč; přesun/mazání jen prázdné složky; vede ke kontextovým akcím na nahrávce. |
+| [UC-011](UC-011-organizovat-nahravky-do-slozek.md) | Organizovat nahrávky do složek | PŘIJATO | 2026-11-22 | Procházení stromu složek jako prohlížeč s breadcrumbem; přesun/mazání jen prázdné složky; vede ke kontextovým akcím na nahrávce. |
 | [UC-012](UC-012-vytvorit-a-otestovat-sablonu.md) | Vytvořit, upravit a otestovat šablonu | PŘIJATO | 2026-11-14 | Šablona vzniká ze vzorového textu přes LLM, draft lze opakovaně testovat před uložením (administrační použití). |

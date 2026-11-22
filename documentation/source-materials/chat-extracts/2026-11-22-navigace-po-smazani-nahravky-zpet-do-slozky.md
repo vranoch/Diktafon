@@ -37,6 +37,20 @@ navigace s `popUpTo` — vrátí uživatele přesně do složky, odkud přišel,
 princip (po dokončení operace nad nahrávkou skončit ve složce, ne na Home) už platil pro
 ostatní operace — opraveno bylo jen mazání.
 
+## Dodatek — breadcrumb
+
+Po ověření, že obyčejné tlačítko zpět nezaručuje spolehlivý návrat na libovolnou úroveň stromu
+(viz Zjištění výše), uživatel požádal o doplnění breadcrumbu. Přidáno:
+
+- `FolderRepository.observeById(folderId)` (nová metoda, DAO dotaz na jeden řádek) jako základ
+  pro zjištění rodiče dané složky.
+- `FolderBrowserViewModel.breadcrumbPath(folderId)` — reaktivně (přes `flatMapLatest`) sestaví
+  cestu od kořene po aktuální složku rekurzivním sledováním `parentFolderId` nahoru; promítne se
+  i pozdější přejmenování/přesun některého z předků.
+- `FolderBrowserScreen` zobrazuje breadcrumb nad obsahem složky; klepnutí na libovolnou úroveň
+  kromě aktuální (poslední) naviguje přímo tam přes `navigate(...) { popUpTo("home") }` — funguje
+  spolehlivě bez ohledu na to, jakou cestou uživatel do aktuální složky došel.
+
 ## Zdroje
 
 - Tato konverzace, 2026-11-22.

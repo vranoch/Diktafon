@@ -1,5 +1,6 @@
 package app.diktafon.folders.ui
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -7,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.ui.components.AppHeader
@@ -37,10 +41,12 @@ fun FolderBrowserScreen(
     onOpenRecording: (Long) -> Unit,
     onNewRecording: (Long?) -> Unit,
     onImport: (Long?) -> Unit,
+    onNavigateToFolder: (Long?) -> Unit,
     viewModel: FolderBrowserViewModel = hiltViewModel(),
 ) {
     val folders by viewModel.childFolders(folderId).collectAsState(initial = emptyList())
     val recordings by viewModel.recordingsInFolder(folderId).collectAsState(initial = emptyList())
+    val breadcrumb by viewModel.breadcrumbPath(folderId).collectAsState(initial = emptyList())
     val state by viewModel.uiState.collectAsState()
     val pendingMove by viewModel.pendingMove.collectAsState()
     var newFolderName by remember { mutableStateOf("") }
@@ -48,6 +54,26 @@ fun FolderBrowserScreen(
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
         AppHeader(title = "Složky", onBack = onBack, onHome = onHome)
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (folderId == null) {
+                Text("Složky", fontWeight = FontWeight.Bold)
+            } else {
+                TextButton(onClick = { onNavigateToFolder(null) }) { Text("Složky") }
+            }
+            for ((index, folder) in breadcrumb.withIndex()) {
+                Text(" › ")
+                if (index == breadcrumb.lastIndex) {
+                    Text(folder.name, fontWeight = FontWeight.Bold)
+                } else {
+                    TextButton(onClick = { onNavigateToFolder(folder.id) }) { Text(folder.name) }
+                }
+            }
+        }
         Spacer(Modifier.height(8.dp))
 
         if (pendingMove != null) {

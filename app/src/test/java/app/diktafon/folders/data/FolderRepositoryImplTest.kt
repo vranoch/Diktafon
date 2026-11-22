@@ -74,4 +74,15 @@ class FolderRepositoryImplTest {
 
         assertEquals(FolderDeletionResult.NotEmpty, repository.delete(id))
     }
+
+    @Test
+    fun `observeById vrati slozku podle id, po smazani null`() = runTest {
+        val id = repository.create("Práce", parentFolderId = null)
+
+        assertEquals("Práce", repository.observeById(id).first()?.name)
+
+        repository.delete(id)
+
+        assertEquals(null, repository.observeById(id).first())
+    }
 }

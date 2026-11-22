@@ -31,6 +31,13 @@ správně. Protože Detail nahrávky má jediný vstupní bod (ze složky), sta�
 `popBackStack()` — na rozdíl od navigace s `popUpTo` tím zůstává zachovaná i historie nad
 danou složkou, takže uživatel může zpětným tlačítkem pokračovat dál nahoru stromem složek.
 
+Zároveň doplněn breadcrumb (cesta od kořene po aktuální složku) v záhlaví obrazovky Procházení
+složek — jednotlivé úrovně kromě té aktuální jsou klikací a skáčou přímo na danou úroveň (přes
+`navigate(...) { popUpTo("home") }`, stejný vzor jako jinde v navigačním grafu), takže návrat o
+víc úrovní najednou nezávisí na tom, jak přesně (jakou cestou zpětné navigace) uživatel do
+aktuální složky došel — řeší to i zmíněné omezení obyčejného tlačítka zpět, které je založené na
+historii navigace, ne na skutečné hierarchii složek.
+
 ## Důsledky
 
 - Několik obrazovek z první iterace zaniklo nebo bylo nahrazeno (plochý seznam nahrávek, samostatná jednoúrovňová správa složek) ve prospěch jedné rekurzivní obrazovky procházení.

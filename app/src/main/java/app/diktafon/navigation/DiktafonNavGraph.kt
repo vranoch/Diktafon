@@ -70,6 +70,14 @@ fun DiktafonNavGraph() {
                 onOpenRecording = { id -> navController.navigate("recordingDetail/$id") },
                 onNewRecording = { id -> navController.navigate("recording/${id.toFolderArg()}") },
                 onImport = { id -> navController.navigate("import/${id.toFolderArg()}") },
+                onNavigateToFolder = { id ->
+                    // Skok primo na vybranou urovni stromu (breadcrumb) - pouziva stejny
+                    // popUpTo("home") vzor jako jinde v tomto souboru, takze funguje spolehlive
+                    // bez ohledu na to, jakou cestou uzivatel do aktualni slozky prisel.
+                    navController.navigate("folders/${id.toFolderArg()}") {
+                        popUpTo("home") { inclusive = false }
+                    }
+                },
             )
         }
 

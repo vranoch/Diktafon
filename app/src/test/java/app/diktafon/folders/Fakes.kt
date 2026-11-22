@@ -6,6 +6,7 @@ import app.diktafon.folders.domain.FolderRepository
 import app.diktafon.folders.domain.LastUsedFolderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
 class FakeLastUsedFolderRepository : LastUsedFolderRepository {
     private val flow = MutableStateFlow<Long?>(null)
@@ -54,4 +55,6 @@ class FakeFolderRepository : FolderRepository {
     }
 
     override fun observeChildren(parentFolderId: Long?): Flow<List<Folder>> = flow
+
+    override fun observeById(folderId: Long): Flow<Folder?> = flow.map { list -> list.find { it.id == folderId } }
 }

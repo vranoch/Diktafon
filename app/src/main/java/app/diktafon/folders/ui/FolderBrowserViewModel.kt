@@ -10,14 +10,19 @@ import app.diktafon.folders.domain.PendingMove
 import app.diktafon.recording.domain.Recording
 import app.diktafon.recording.domain.RecordingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class FolderBrowserViewModel @Inject constructor(
     private val folderRepository: FolderRepository,
@@ -33,6 +38,16 @@ class FolderBrowserViewModel @Inject constructor(
     val pendingMove: StateFlow<PendingMove?> = moveSession.pending
 
     fun childFolders(parentFolderId: Long?): Flow<List<Folder>> = folderRepository.observeChildren(parentFolderId)
+
+    // Cesta od korene po aktualni slozku (bez koncove slozky samotne by breadcrumb nebyl
+    // k nicemu) - reaktivni, takze se promitne i pozdejsi prejmenovani/presun nektere
+    // z predku, zatimco je zobrazena (viz pozadavek na navigaci stromem slozek).
+    fun breadcrumbPath(folderId: Long?): Flow<List<Folder>> {
+        if (folderId == null) return flowOf(emptyList())
+        return folderRepository.observeById(folderId).flatMapLatest { folder ->
+            if (folder == null) flowOf(emptyList()) else breadcrumbPath(folder.parentFolderId).map { it + folder }
+        }
+    }
 
     fun recordingsInFolder(folderId: Long?): Flow<List<Recording>> = recordingRepository.observeByFolder(folderId)
 

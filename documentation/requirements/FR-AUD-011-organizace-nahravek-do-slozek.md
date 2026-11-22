@@ -2,12 +2,13 @@
 
 **Stav:** PŘIJATO
 **Vytvořeno:** 2026-11-12
-**Změněno:** 2026-11-13
+**Změněno:** 2026-11-22
 **Zdroje:**
 - Upřesnění uživatele v rámci revize, 2026-11-12 (tato konverzace).
 - Upřesnění uživatele v rámci revize, 2026-11-12 (tato konverzace) — cílovou složku lze zvolit/změnit už při zahájení nahrávání, viz [UC-001](../use-cases/UC-001-poridit-a-ulozit-hlasovy-zaznam.md).
 - Doplněno na popud uživatele v rámci revize, 2026-11-13 (tato konverzace) — doplněn use-case [UC-011](../use-cases/UC-011-organizovat-nahravky-do-slozek.md).
 - Upřesnění uživatele v rámci revize, 2026-11-13 (tato konverzace) — otevřená otázka hloubky hierarchie a mazání neprázdné složky vyřešena, viz [ADR-013](../decisions/ADR-013-hierarchicka-struktura-slozek.md).
+- [Chat-extract — Navigace po smazání nahrávky zpět do složky, ověření procházení stromu složek, 2026-11-22](../source-materials/chat-extracts/2026-11-22-navigace-po-smazani-nahravky-zpet-do-slozky.md) — doplněn breadcrumb pro spolehlivý návrat na libovolnou úroveň stromu.
 **Priorita:** MUST / MVP
 
 ## Popis
@@ -25,6 +26,7 @@ Pozn.: nejde o totéž co [FR-AUD-009](FR-AUD-009-spojovani-epizod-do-jednoho-za
 - [ ] Smazání složky je odmítnuto, dokud obsahuje podsložku nebo nahrávku.
 - [ ] Uživatel může nahrávku přesunout do zvolené složky nebo ji ze složky vyjmout.
 - [ ] Nahrávky lze procházet po jednotlivých složkách (včetně podsložek).
+- [ ] Při procházení je vidět cesta od kořene po aktuální složku (breadcrumb) a lze se přes ni vrátit přímo na libovolnou vyšší úroveň.
 - [ ] Při zahájení nového nahrávání/importu lze zvolit/změnit cílovou složku; není-li zvolena, použije se naposledy použitá složka.
 
 ## Související
