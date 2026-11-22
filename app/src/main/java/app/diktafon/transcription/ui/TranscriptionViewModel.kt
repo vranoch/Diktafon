@@ -72,23 +72,17 @@ class TranscriptionViewModel @Inject constructor(
             )
             when (val result = sttProvider.transcribe(TranscriptionRequest(audioFile, languageCode))) {
                 is TranscriptionResult.Success -> {
-                    val saved = transcriptRepository.saveNewRevision(
-                        recordingId = recordingId,
-                        text = result.text,
-                        languageCode = languageCode,
-                        providerName = result.providerName,
-                        modelName = result.modelName,
-                        createdAtMillis = clock.nowMillis(),
-                    )
                     processingJobRepository.markDone(jobId, clock.nowMillis())
+                    // Vysledek se jeste neuklada jako nova revize - ceka na prijmuti/odmitnuti
+                    // uzivatelem (acceptTranscription/rejectTranscription). savedText zustava
+                    // beze zmeny (puvodni ulozeny prepis, nebo "" pokud zadny jeste nebyl).
                     _uiState.update {
                         it.copy(
                             phase = TranscriptionPhase.READY,
-                            text = saved.text,
-                            savedText = saved.text,
-                            providerName = saved.providerName,
-                            modelName = saved.modelName,
-                            version = saved.version,
+                            text = result.text,
+                            providerName = result.providerName,
+                            modelName = result.modelName,
+                            isPendingAccept = true,
                         )
                     }
                 }
@@ -105,6 +99,45 @@ class TranscriptionViewModel @Inject constructor(
     // Jen aktualizuje rozpracovany text v UI, nic neuklada - viz saveTextEdits/cancelTextEdits.
     fun onTextChanged(newText: String) {
         _uiState.update { it.copy(text = newText) }
+    }
+
+    // Ulozi cerstvy (dosud neulozeny) prepis jako novou revizi a vrati uzivatele na
+    // predchozi obrazovku (viz isFinished v TranscriptionUiState).
+    fun acceptTranscription(recordingId: Long) {
+        val state = _uiState.value
+        if (!state.isPendingAccept) return
+
+        viewModelScope.launch {
+            val saved = transcriptRepository.saveNewRevision(
+                recordingId = recordingId,
+                text = state.text,
+                languageCode = state.languageCode,
+                providerName = state.providerName ?: "neznámý",
+                modelName = state.modelName ?: "neznámý",
+                createdAtMillis = clock.nowMillis(),
+            )
+            _uiState.update {
+                it.copy(
+                    text = saved.text,
+                    savedText = saved.text,
+                    version = saved.version,
+                    isPendingAccept = false,
+                    isFinished = true,
+                )
+            }
+        }
+    }
+
+    // Zahodi cerstvy (dosud neulozeny) prepis beze zmeny ulozenych dat a vrati uzivatele na
+    // predchozi obrazovku - text se vrati na puvodni ulozenou hodnotu (nebo prazdnou, pokud
+    // zadna predchozi revize neexistovala).
+    fun rejectTranscription() {
+        val state = _uiState.value
+        if (!state.isPendingAccept) return
+
+        _uiState.update {
+            it.copy(text = it.savedText, isPendingAccept = false, isFinished = true)
+        }
     }
 
     fun saveTextEdits(recordingId: Long) {

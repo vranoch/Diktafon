@@ -58,37 +58,60 @@ class ImportViewModel @Inject constructor(
         _uiState.update { it.copy(error = null) }
     }
 
-    fun onFileSelected(uri: Uri) {
+    // Prijima uz EXPLICITNE potvrzeny vyber ze systemoveho pickeru (OpenMultipleDocuments) -
+    // zadne opakovane/castecne volani behem samotneho vyberu v pickeru uz nehrozi (viz
+    // ImportScreen). Pri vyberu vice souboru dostane kazda nahravka odlisny nazev (zadany
+    // nazev + poradove cislo), aby se neprepisovaly navzajem na disku (RecordingFileFactory
+    // odvozuje cestu souboru z nazvu).
+    fun onFilesSelected(uris: List<Uri>) {
         val state = _uiState.value
-        if (state.phase != ImportPhase.AWAITING_FILE) return
+        if (state.phase != ImportPhase.AWAITING_FILE || uris.isEmpty()) return
 
-        val source = audioSourceFactory.fromUri(uri)
-        val destination = fileFactory.create(state.name)
+        _uiState.update { it.copy(phase = ImportPhase.IMPORTING, error = null) }
 
-        when (val outcome = importer.import(source, destination)) {
-            is ImportOutcome.Success -> {
-                _uiState.update { it.copy(phase = ImportPhase.IMPORTED, error = null) }
-                viewModelScope.launch {
-                    val durationMs = durationReader.readDurationMs(outcome.file)
-                    val id = repository.saveRecording(
-                        Recording(
-                            name = state.name,
-                            note = state.note,
-                            folderId = state.folderId,
-                            filePath = outcome.file.absolutePath,
-                            durationMs = durationMs,
-                            createdAtMillis = clock.nowMillis(),
-                        ),
-                    )
-                    _uiState.update { it.copy(savedRecordingId = id) }
+        viewModelScope.launch {
+            var lastSavedId: Long? = null
+            var importedCount = 0
+            var firstError: String? = null
+
+            uris.forEachIndexed { index, uri ->
+                val fileName = if (uris.size > 1) "${state.name} (${index + 1})" else state.name
+                val source = audioSourceFactory.fromUri(uri)
+                val destination = fileFactory.create(fileName)
+
+                when (val outcome = importer.import(source, destination)) {
+                    is ImportOutcome.Success -> {
+                        val durationMs = durationReader.readDurationMs(outcome.file)
+                        lastSavedId = repository.saveRecording(
+                            Recording(
+                                name = fileName,
+                                note = state.note,
+                                folderId = state.folderId,
+                                filePath = outcome.file.absolutePath,
+                                durationMs = durationMs,
+                                createdAtMillis = clock.nowMillis(),
+                            ),
+                        )
+                        importedCount++
+                    }
+                    ImportOutcome.UnsupportedFormat -> firstError = firstError ?: "Nepodporovaný formát souboru"
+                    ImportOutcome.TooLarge -> firstError = firstError ?: "Soubor je příliš velký"
+                    is ImportOutcome.ReadError -> firstError = firstError ?: "Soubor se nepodařilo přečíst"
                 }
             }
-            ImportOutcome.UnsupportedFormat ->
-                _uiState.update { it.copy(error = "Nepodporovaný formát souboru") }
-            ImportOutcome.TooLarge ->
-                _uiState.update { it.copy(error = "Soubor je příliš velký") }
-            is ImportOutcome.ReadError ->
-                _uiState.update { it.copy(error = "Soubor se nepodařilo přečíst") }
+
+            _uiState.update {
+                if (importedCount > 0) {
+                    it.copy(
+                        phase = ImportPhase.IMPORTED,
+                        savedRecordingId = lastSavedId,
+                        importedCount = importedCount,
+                        error = firstError,
+                    )
+                } else {
+                    it.copy(phase = ImportPhase.AWAITING_FILE, error = firstError)
+                }
+            }
         }
     }
 }

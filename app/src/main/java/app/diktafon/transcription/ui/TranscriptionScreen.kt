@@ -47,6 +47,9 @@ fun TranscriptionScreen(
     LaunchedEffect(recordingId) {
         viewModel.loadExisting(recordingId)
     }
+    LaunchedEffect(state.isFinished) {
+        if (state.isFinished) onBack?.invoke()
+    }
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
         AppHeader(title = "Přepis", onBack = onBack, onHome = onHome)
@@ -103,12 +106,18 @@ fun TranscriptionScreen(
                 OutlinedTextField(
                     value = state.text,
                     onValueChange = viewModel::onTextChanged,
-                    label = { Text("Přepis (verze ${state.version})") },
+                    label = { Text(if (state.isPendingAccept) "Nový přepis (zatím neuložen)" else "Přepis (verze ${state.version})") },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.bodyLarge,
                 )
-                if (state.text != state.savedText) {
-                    Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(8.dp))
+                if (state.isPendingAccept) {
+                    Row {
+                        SecondaryActionButton(text = "Odmítnout", onClick = viewModel::rejectTranscription, modifier = Modifier.weight(1f))
+                        Spacer(Modifier.width(10.dp))
+                        PrimaryActionButton(text = "Přijmout přepis", onClick = { viewModel.acceptTranscription(recordingId) }, modifier = Modifier.weight(1f))
+                    }
+                } else if (state.text != state.savedText) {
                     Row {
                         SecondaryActionButton(text = "Zrušit úpravy", onClick = viewModel::cancelTextEdits, modifier = Modifier.weight(1f))
                         Spacer(Modifier.width(10.dp))

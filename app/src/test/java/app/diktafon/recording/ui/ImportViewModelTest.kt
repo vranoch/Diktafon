@@ -83,10 +83,11 @@ class ImportViewModelTest {
         vm.onNameChanged("Import ze starého diktafonu")
         vm.onNoteChanged("Externí nahrávka")
 
-        vm.onFileSelected(fakeUri)
+        vm.onFilesSelected(listOf(fakeUri))
 
         val state = vm.uiState.value
         assertEquals(ImportPhase.IMPORTED, state.phase)
+        assertEquals(1, state.importedCount)
         assertNotNull(state.savedRecordingId)
         val saved = repository.saved.single()
         assertEquals("Import ze starého diktafonu", saved.name)
@@ -95,11 +96,26 @@ class ImportViewModelTest {
     }
 
     @Test
+    fun `vyber vice souboru naraz importuje vsechny s odlisenymi nazvy`() {
+        val vm = viewModel(importOutcome = ImportOutcome.Success(File("/tmp/x.m4a")), durationMs = 1_000)
+        vm.startNewImport()
+        vm.onNameChanged("Dávka")
+
+        vm.onFilesSelected(listOf(fakeUri, fakeUri, fakeUri))
+
+        val state = vm.uiState.value
+        assertEquals(ImportPhase.IMPORTED, state.phase)
+        assertEquals(3, state.importedCount)
+        assertEquals(3, repository.saved.size)
+        assertEquals(listOf("Dávka (1)", "Dávka (2)", "Dávka (3)"), repository.saved.map { it.name })
+    }
+
+    @Test
     fun `nepodporovany format zustane u vyberu souboru s chybou`() {
         val vm = viewModel(importOutcome = ImportOutcome.UnsupportedFormat)
         vm.startNewImport()
 
-        vm.onFileSelected(fakeUri)
+        vm.onFilesSelected(listOf(fakeUri))
 
         val state = vm.uiState.value
         assertEquals(ImportPhase.AWAITING_FILE, state.phase)
@@ -112,7 +128,7 @@ class ImportViewModelTest {
         val vm = viewModel(importOutcome = ImportOutcome.TooLarge)
         vm.startNewImport()
 
-        vm.onFileSelected(fakeUri)
+        vm.onFilesSelected(listOf(fakeUri))
 
         assertEquals(ImportPhase.AWAITING_FILE, vm.uiState.value.phase)
         assertNotNull(vm.uiState.value.error)
@@ -122,12 +138,23 @@ class ImportViewModelTest {
     fun `zruseni vyberu souboru vycisti chybu a nemeni fazi`() {
         val vm = viewModel(importOutcome = ImportOutcome.UnsupportedFormat)
         vm.startNewImport()
-        vm.onFileSelected(fakeUri)
+        vm.onFilesSelected(listOf(fakeUri))
         assertNotNull(vm.uiState.value.error)
 
         vm.onPickerCancelled()
 
         assertNull(vm.uiState.value.error)
         assertEquals(ImportPhase.AWAITING_FILE, vm.uiState.value.phase)
+    }
+
+    @Test
+    fun `opakovane volani po jiz dokoncenem importu se ignoruje (zadne duplicitni nahravky)`() {
+        val vm = viewModel(importOutcome = ImportOutcome.Success(File("/tmp/x.m4a")))
+        vm.startNewImport()
+
+        vm.onFilesSelected(listOf(fakeUri))
+        vm.onFilesSelected(listOf(fakeUri))
+
+        assertEquals(1, repository.saved.size)
     }
 }

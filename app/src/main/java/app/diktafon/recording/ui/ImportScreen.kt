@@ -16,12 +16,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.diktafon.ui.components.AppHeader
+import app.diktafon.ui.components.Caption
 import app.diktafon.ui.components.PrimaryActionButton
 import app.diktafon.ui.components.StatusBadge
+import app.diktafon.ui.theme.DiktafonAccentContainer
+import app.diktafon.ui.theme.DiktafonAccentContainerOn
 import app.diktafon.ui.theme.DiktafonDangerContainer
 import app.diktafon.ui.theme.DiktafonDangerContainerOn
 import app.diktafon.ui.theme.DiktafonOutline
@@ -33,9 +39,14 @@ fun ImportScreen(
     viewModel: ImportViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    // Zabranuje opakovanemu otevreni systemoveho pickeru rychlym dvojitym klepnutim na
+    // tlacitko, nez se picker stihne otevrit (samotny vyber v pickeru uz je explicitni -
+    // viz OpenMultipleDocuments nize).
+    var isLaunchingPicker by remember { mutableStateOf(false) }
 
-    val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) viewModel.onFileSelected(uri) else viewModel.onPickerCancelled()
+    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        isLaunchingPicker = false
+        if (uris.isNotEmpty()) viewModel.onFilesSelected(uris) else viewModel.onPickerCancelled()
     }
 
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
@@ -58,16 +69,35 @@ fun ImportScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(16.dp))
-                PrimaryActionButton(text = "Importovat", onClick = { pickFile.launch(arrayOf("audio/*")) })
+                PrimaryActionButton(
+                    text = "Vybrat soubor k importu",
+                    enabled = !isLaunchingPicker,
+                    onClick = {
+                        isLaunchingPicker = true
+                        pickFiles.launch(arrayOf("audio/*"))
+                    },
+                )
+                Spacer(Modifier.height(8.dp))
+                Caption("V dialogu lze vybrat i více souborů najednou - výběr potvrďte tlačítkem v dialogu.")
                 state.error?.let {
                     Spacer(Modifier.height(12.dp))
                     StatusBadge(text = it, glyph = "!", containerColor = DiktafonDangerContainer, contentColor = DiktafonDangerContainerOn)
                 }
             }
+            ImportPhase.IMPORTING -> StatusBadge(
+                text = "Probíhá import…",
+                glyph = "…",
+                containerColor = DiktafonAccentContainer,
+                contentColor = DiktafonAccentContainerOn,
+            )
             ImportPhase.IMPORTED -> {
                 Surface(border = BorderStroke(2.dp, DiktafonOutline), shape = RoundedCornerShape(12.dp)) {
                     Text(
-                        "Nahrávka \"${state.name}\" byla importována.",
+                        if (state.importedCount > 1) {
+                            "Importováno ${state.importedCount} nahrávek."
+                        } else {
+                            "Nahrávka \"${state.name}\" byla importována."
+                        },
                         modifier = Modifier.padding(16.dp),
                         style = MaterialTheme.typography.bodyLarge,
                     )

@@ -21,7 +21,7 @@ Viz [`_template.md`](_template.md) pro šablonu nového požadavku.
 | ID | Název | Stav | Změněno | Shrnutí |
 |---|---|---|---|---|
 | [FR-AUD-001](FR-AUD-001-novy-zaznam-vestavenym-mikrofonem.md) | Nový záznam vestavěným mikrofonem | PŘIJATO | 2026-11-12 | Uživatel může vytvořit nový zvukový záznam vestavěným mikrofonem zařízení. |
-| [FR-AUD-002](FR-AUD-002-import-existujici-nahravky.md) | Import existující nahrávky | PŘIJATO | 2026-11-12 | Import existující nahrávky z úložiště/externího diktafonu přes systémový file picker. |
+| [FR-AUD-002](FR-AUD-002-import-existujici-nahravky.md) | Import existující nahrávky | PŘIJATO | 2026-11-22 | Import existující nahrávky z úložiště/externího diktafonu přes systémový file picker; lze vybrat i více souborů s explicitním potvrzením. |
 | [FR-AUD-003](FR-AUD-003-ui-stavu-nahravani-a-ochrana-pred-zahozenim.md) | UI stavu nahrávání a ochrana před zahozením | PŘIJATO | 2026-11-12 | UI umožňuje Start/Pauza/Pokračovat/Stop (nahrávka po částech) a chrání před náhodným zahozením. |
 | [FR-AUD-004](FR-AUD-004-lokalni-ulozeni-audia-pred-odeslanim-do-stt.md) | Lokální uložení audia před odesláním do STT | PŘIJATO | 2026-11-12 | Originální audio se uloží lokálně před odesláním do STT; chyba API jej nesmí smazat. |
 | [FR-AUD-005](FR-AUD-005-seznam-nahravek-s-metadaty.md) | Seznam nahrávek s metadaty, názvem a poznámkou | PŘIJATO | 2026-11-16 | Název/poznámka editovatelné kdykoliv; před startem nahrávání nejdřív revize předgenerovaného názvu. |
@@ -38,7 +38,7 @@ Viz [`_template.md`](_template.md) pro šablonu nového požadavku.
 | [FR-TPL-005](FR-TPL-005-export-sdileni-sablon-zalohovani.md) | Export/sdílení uložených šablon (zálohování) | PŘIJATO | 2026-11-12 | Šablonu lze zkopírovat/sdílet stejně jako jiný text, kvůli záloze. |
 | [FR-TPL-006](FR-TPL-006-smazani-sablony.md) | Smazání šablony nebo její vybrané verze | PŘIJATO | 2026-11-16 | Smazání jedné vybrané verze i všech verzí najednou, s potvrzením; dříve zpracované dokumenty beze změny. |
 | [FR-TPL-007](FR-TPL-007-automaticky-doplnovana-pole-sablony.md) | Automaticky doplňovaná pole šablony | PŘIJATO | 2026-11-16 | Pole šablony (např. datum/čas) lze nastavit, aby se vyplnilo z metadat nahrávky místo LLM. |
-| [FR-STT-001](FR-STT-001-odeslani-audia-do-stt-a-ulozeni-prepisu.md) | Odeslání audia do STT a uložení přepisu | PŘIJATO | 2026-11-12 | Odeslání audia do STT; jazyk přepisu volitelný, výchozí čeština. |
+| [FR-STT-001](FR-STT-001-odeslani-audia-do-stt-a-ulozeni-prepisu.md) | Odeslání audia do STT a uložení přepisu | PŘIJATO | 2026-11-22 | Odeslání audia do STT; výsledek je návrh k přijetí/odmítnutí; jazyk přepisu volitelný, výchozí čeština. |
 | [FR-STT-002](FR-STT-002-jazykove-a-terminologicke-napovedy-pro-stt.md) | Jazykové a terminologické nápovědy pro STT | PŘIJATO | 2026-11-12 | Předání jazyka a terminologických nápověd STT službě, pokud je podporuje. |
 | [FR-STT-003](FR-STT-003-editovatelnost-prepisu.md) | Editovatelnost přepisu | PŘIJATO | 2026-11-12 | Přepis lze upravit před i po strukturování, i perem/stylusem dle zařízení. |
 | [FR-LLM-001](FR-LLM-001-predani-prepisu-a-sablony-llm.md) | Předání přepisu a šablony LLM | PŘIJATO | 2026-11-12 | Předání přepisu a vybrané šablony externímu LLM pro vytvoření dokumentu. |

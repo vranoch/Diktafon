@@ -58,7 +58,7 @@ class TranscriptionViewModelTest {
     }
 
     @Test
-    fun `uspesny prepis ulozi prvni verzi a nastavi stav READY`() {
+    fun `uspesny prepis nastavi stav READY jako neulozeny navrh cekajici na prijmuti`() {
         val vm = viewModel(
             TranscriptionResult.Success(text = "Ahoj světe", providerName = "mock", modelName = "mock-v1"),
         )
@@ -68,8 +68,57 @@ class TranscriptionViewModelTest {
         val state = vm.uiState.value
         assertEquals(TranscriptionPhase.READY, state.phase)
         assertEquals("Ahoj světe", state.text)
+        assertEquals(true, state.isPendingAccept)
+        assertEquals(0, repository.saved.size)
+    }
+
+    @Test
+    fun `prijmuti prepisu ulozi prvni verzi a oznaci dokonceno`() {
+        val vm = viewModel(
+            TranscriptionResult.Success(text = "Ahoj světe", providerName = "mock", modelName = "mock-v1"),
+        )
+        vm.startTranscription(recordingId = 1, audioFile = audioFile)
+
+        vm.acceptTranscription(recordingId = 1)
+
+        val state = vm.uiState.value
+        assertEquals("Ahoj světe", state.text)
+        assertEquals("Ahoj světe", state.savedText)
         assertEquals(1, state.version)
+        assertEquals(false, state.isPendingAccept)
+        assertEquals(true, state.isFinished)
         assertEquals(1, repository.saved.size)
+    }
+
+    @Test
+    fun `odmitnuti cerstveho prepisu nic neulozi a vrati puvodni text`() = runTest {
+        repository.saveNewRevision(1, "drivejsi prepis", "cs", "mock", "mock-v1", 500)
+        val vm = viewModel(
+            TranscriptionResult.Success(text = "Novy prepis", providerName = "mock", modelName = "mock-v1"),
+        )
+        vm.loadExisting(1)
+
+        vm.startTranscription(recordingId = 1, audioFile = audioFile)
+        vm.rejectTranscription()
+
+        val state = vm.uiState.value
+        assertEquals("drivejsi prepis", state.text)
+        assertEquals(false, state.isPendingAccept)
+        assertEquals(true, state.isFinished)
+        assertEquals(1, repository.saved.size)
+    }
+
+    @Test
+    fun `odmitnuti prepisu bez predchozi revize vrati prazdny text`() {
+        val vm = viewModel(
+            TranscriptionResult.Success(text = "Novy prepis", providerName = "mock", modelName = "mock-v1"),
+        )
+        vm.startTranscription(recordingId = 1, audioFile = audioFile)
+
+        vm.rejectTranscription()
+
+        assertEquals("", vm.uiState.value.text)
+        assertEquals(0, repository.saved.size)
     }
 
     @Test
@@ -82,15 +131,16 @@ class TranscriptionViewModelTest {
         vm.onTextChanged("Rozepsana zmena")
 
         assertEquals("Rozepsana zmena", vm.uiState.value.text)
-        assertEquals(1, repository.saved.size)
+        assertEquals(0, repository.saved.size)
     }
 
     @Test
-    fun `ulozeni upravy vytvori novou revizi a zachova predchozi`() {
+    fun `ulozeni upravy jiz prijateho prepisu vytvori novou revizi a zachova predchozi`() {
         val vm = viewModel(
             TranscriptionResult.Success(text = "Puvodni text", providerName = "mock", modelName = "mock-v1"),
         )
         vm.startTranscription(recordingId = 7, audioFile = audioFile)
+        vm.acceptTranscription(recordingId = 7)
 
         vm.onTextChanged("Opraveny text")
         vm.saveTextEdits(recordingId = 7)
@@ -105,11 +155,12 @@ class TranscriptionViewModelTest {
     }
 
     @Test
-    fun `zruseni upravy vrati puvodni ulozeny text`() {
+    fun `zruseni upravy jiz prijateho prepisu vrati puvodni ulozeny text`() {
         val vm = viewModel(
             TranscriptionResult.Success(text = "Puvodni text", providerName = "mock", modelName = "mock-v1"),
         )
         vm.startTranscription(recordingId = 7, audioFile = audioFile)
+        vm.acceptTranscription(recordingId = 7)
 
         vm.onTextChanged("Rozepsana zmena")
         vm.cancelTextEdits()

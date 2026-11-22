@@ -142,7 +142,7 @@ fun TemplateCreationScreen(
                     OutlinedTextField(
                         value = field.label,
                         onValueChange = { viewModel.onFieldLabelChanged(index, it) },
-                        label = { Text("Název pole") },
+                        label = { Text("Nadpis pole") },
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(Modifier.width(8.dp))
